@@ -535,21 +535,26 @@ function rechtLinks(){return Object.entries(RECHT).map(([k,x])=>`<button type="b
 
 /* ---------- Speichern pro Gerät (Testversion) ---------- */
 SEEDING=false;
+let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);if(q.has("schueler"))localStorage.setItem("mate-modus","schueler");if(q.has("alle"))localStorage.removeItem("mate-modus");NUR_SCHUELER=localStorage.getItem("mate-modus")==="schueler"}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 const DEMO_V=1,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
 function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open("mate-demo",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
 async function idbGet(){const d=await idb();return new Promise(res=>{try{const q=d.transaction("kv").objectStore("kv").get(DEMO_KEY);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)}catch(e){res(null)}})}
 async function idbPut(v){const d=await idb();return new Promise((res,rej)=>{try{const t=d.transaction("kv","readwrite");t.objectStore("kv").put(v,DEMO_KEY);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error)}catch(e){rej(e)}})}
 async function idbDel(){const d=await idb();return new Promise(res=>{try{const t=d.transaction("kv","readwrite");t.objectStore("kv").delete(DEMO_KEY);t.oncomplete=()=>res(true);t.onerror=()=>res(false)}catch(e){res(false)}})}
+function tagesbeginn(t){const d=new Date(t);d.setHours(0,0,0,0);return d.getTime()}
+function zeitenVerschieben(o,tage){if(Array.isArray(o)){o.forEach((v,i)=>{if(typeof v==="number"&&v>1.5e12&&v<4e12){const d=new Date(v);d.setDate(d.getDate()+tage);o[i]=d.getTime()}else if(v&&typeof v==="object")zeitenVerschieben(v,tage)})}else if(o&&typeof o==="object"){Object.keys(o).forEach(k=>{const v=o[k];if(typeof v==="number"&&v>1.5e12&&v<4e12){const d=new Date(v);d.setDate(d.getDate()+tage);o[k]=d.getTime()}else if(v&&typeof v==="object")zeitenVerschieben(v,tage)})}}
 function demoAnwenden(s){if(!s||s.v!==DEMO_V||!s.db||!Array.isArray(s.db.users))return false;
+ const stand=tagesbeginn(s.stand||s.zeit||Date.now()),tage=Math.round((tagesbeginn(Date.now())-stand)/864e5);if(tage>0&&tage<4000)zeitenVerschieben(s.db,tage);
  if(!s.db.users.some(u=>u.id===T1.id)||!s.db.users.some(u=>u.id===ME_S.id))return false;
  s.db.users.forEach(u=>{const e=db.users.find(x=>x.id===u.id);if(e){Object.keys(e).forEach(k=>{if(!(k in u))delete e[k]});Object.assign(e,u)}else db.users.push(u)});
  ["klassen","kurse","aufgaben","pending"].forEach(k=>{if(Array.isArray(s.db[k]))db[k]=s.db[k]});if(s.db.niveaus)db.niveaus=s.db.niveaus;
  if(Array.isArray(s.faecher))FAECHER.splice(0,FAECHER.length,...s.faecher);return true}
-function demoSpeichern(){if(!speicherOk)return;clearTimeout(_saveT);_saveT=setTimeout(async()=>{try{await idbPut({v:DEMO_V,db,faecher:FAECHER,zeit:Date.now()})}catch(e){speicherOk=false;toast("Auf diesem Gerät ist kein Speicherplatz mehr frei. Mit „Zurücksetzen“ startest du neu.");speicherHinweis()}},500)}
+function demoSpeichern(){if(!speicherOk)return;clearTimeout(_saveT);_saveT=setTimeout(async()=>{try{await idbPut({v:DEMO_V,db,faecher:FAECHER,zeit:Date.now(),stand:tagesbeginn(Date.now())})}catch(e){speicherOk=false;toast("Auf diesem Gerät ist kein Speicherplatz mehr frei. Mit „Zurücksetzen“ startest du neu.");speicherHinweis()}},500)}
+function demoFbText(t,wo){return `${t}\n\n---\nAnsicht: ${wo}\nGerät: ${navigator.userAgent}\nBildschirm: ${innerWidth}×${innerHeight}`}
 function speicherHinweis(){const el=document.getElementById("demo-speicher");if(el)el.textContent=speicherOk?" · Änderungen bleiben auf diesem Gerät":" · nichts wird gespeichert"}
 ["click","change","submit","keyup"].forEach(ev=>document.addEventListener(ev,()=>demoSpeichern(),true));
-addEventListener("pagehide",()=>{if(speicherOk){clearTimeout(_saveT);idbPut({v:DEMO_V,db,faecher:FAECHER,zeit:Date.now()}).catch(()=>{})}});
+addEventListener("pagehide",()=>{if(speicherOk){clearTimeout(_saveT);idbPut({v:DEMO_V,db,faecher:FAECHER,zeit:Date.now(),stand:tagesbeginn(Date.now())}).catch(()=>{})}});
 
 /* ---------- Zustand ---------- */
 const st={role:"schueler",view:"start",p:{},tab:"aufgaben",filter:{status:"offen",kurs:""},afilter:{status:"korr",kurs:""},ffilter:{status:"offen",kurs:""},lfilter:"dran",reply:[],sorts:{fa:{key:"none",dir:1},lu:{key:"name",dir:1},tn:{key:"name",dir:1},sk:{key:"frist",dir:-1},auf:{key:"name",dir:1},ak:{key:"name",dir:1},as:{key:"klasse",dir:1},al:{key:"name",dir:1}},lsort:"neu"};
@@ -574,8 +579,8 @@ const ICON={
 const ico=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
 function me(){return st.role==="schueler"?ME_S:T1}
 function navItems(){
- if(st.role==="schueler"){const ds=dashS();return[["start","Startseite","home",ds.over.length],["aufgaben","Aufgaben","tasks"],["feedback","Feedback","chat",ds.neu],["kurse","Kurse","book"],["profil","Profil","user"]]}
- if(st.role==="lehrkraft"){const dl=dashL();return[["start","Startseite","home",dl.korr.length],["aufgaben","Aufgaben","tasks"],["feedback","Feedback","chat",dl.antw.length+dl.verb.length],["kurse","Kurse","book"],["profil","Profil","user"]]}
+ if(st.role==="schueler"){const ds=dashS();return[["start","Startseite","home"],["aufgaben","Aufgaben","tasks",ds.over.length],["feedback","Feedback","chat",ds.neu],["kurse","Kurse","book"],["profil","Profil","user"]]}
+ if(st.role==="lehrkraft"){const dl=dashL();return[["start","Startseite","home"],["aufgaben","Aufgaben","tasks",dl.korr.length],["feedback","Feedback","chat",dl.antw.length+dl.verb.length],["kurse","Kurse","book"],["profil","Profil","user"]]}
  return[["start","Übersicht","home",db.pending.length],["kurse","Kurse","book"],["klassen","Schulklassen","grid"],["schueler","Schüler·innen","people"],["lehrer","Lehrkräfte","user"],["faecher","Fächerliste","list"],["wechsel","Schuljahreswechsel","cycle"]]}
 function go(view,p={}){if(view!=="recht"&&/^#(impressum|datenschutz|nutzung)$/.test(location.hash))try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}st.view=view;st.p=p;st.reply=[];if(view!=="kurs")st.tab="aufgaben";render();window.scrollTo(0,0)}
 
@@ -589,7 +594,7 @@ function renderChrome(){
  const KURZ={"Übersicht":"Start","Meine Aufgaben":"Aufgaben","Meine Kurse":"Kurse","Schulklassen":"Klassen","Schüler·innen":"Schüler","Lehrkräfte":"Lehrer","Fächerliste":"Fächer","Schuljahreswechsel":"Wechsel"};
  $("#bottom").innerHTML=items.map(([v,l,i,n])=>`<button data-go="${v}" aria-current="${cur===v}" aria-label="${l}${n?`, ${n} neu`:""}"><span class="bi">${ico(i)}${n?`<span class="bdg">${n}</span>`:""}</span><span>${KURZ[l]||l}</span></button>`).join("");
  $("#mobilebar").innerHTML=`<svg class="logo logo-s" viewBox="0 0 851 200" role="img" aria-label="MATE"><g transform="translate(0.00 0.00) scale(0.26738) translate(-169 -250)"><path fill="#F7900A" d="M170.0,320.0Q170.0,250.0 240.0,250.0L385.0,250.0Q385.0,250.0 385.0,250.0L385.0,903.0Q385.0,998.0 290.0,998.0L265.0,998.0Q170.0,998.0 170.0,903.0Z"/><path fill="#5E2396" d="M870.0,250.0Q870.0,250.0 870.0,250.0L1015.0,250.0Q1085.0,250.0 1085.0,320.0L1085.0,903.0Q1085.0,998.0 990.0,998.0L965.0,998.0Q870.0,998.0 870.0,903.0Z"/><path fill="#A8C614" d="M797.7,293.8Q831.0,250.0 886.0,250.0L1040.0,250.0Q1085.0,250.0 1057.8,285.9L729.0,720.0Q729.0,720.0 729.0,720.0L565.0,600.0Q565.0,600.0 565.0,600.0Z"/><path fill="#1E9BDE" d="M192.5,282.4Q169.0,250.0 209.0,250.0L384.0,250.0Q429.0,250.0 455.4,286.4L748.0,690.3Q755.0,700.0 747.7,709.6L682.5,795.4Q622.0,875.0 563.3,794.0Z"/></g><path fill="currentColor" d="M468.01716577540105 64.62V198.0H435.52716577540104V118.01L405.69716577540106 198.0H379.4771657754011L349.45716577540105 117.82V198.0H316.96716577540104V64.62H355.3471657754011L392.77716577540104 156.96L429.82716577540106 64.62ZM578.4171657754011 174.44H528.6371657754011L520.657165775401 198.0H486.6471657754011L534.907165775401 64.62H572.527165775401L620.787165775401 198.0H586.397165775401ZM570.0571657754011 149.36 553.527165775401 100.53 537.1871657754011 149.36ZM735.3671657754011 64.62V90.65H700.027165775401V198.0H667.537165775401V90.65H632.197165775401V64.62ZM788.197165775401 90.65V117.63H831.707165775401V142.71H788.197165775401V171.97H837.407165775401V198.0H755.707165775401V64.62H837.407165775401V90.65Z"/></svg><span style="display:flex;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)">${esc(u.vn)} ${avatar(u)}</span>`;
- document.querySelectorAll(".demo [data-role]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.role===st.role));
+ document.querySelectorAll(".demo [data-role]").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.role===st.role);if(b.dataset.role==="admin")b.hidden=NUR_SCHUELER});
 }
 
 /* ---------- Schüler·in ---------- */
@@ -906,7 +911,7 @@ function closeModal(){$("#layer").innerHTML=""}
 document.addEventListener("click",e=>{const t=e.target.closest("button,[data-close],label,tr.clickrow");if(!t)return;
  if(t.matches("[data-close]")&&e.target===t){closeModal();return}
  const d=t.dataset;
- if(d.role){st.role=d.role;go("start");return}
+ if(d.role){if(NUR_SCHUELER&&d.role==="admin")return;st.role=d.role;go("start");return}
  if(d.recht){closeModal();go("recht",{seite:d.recht});try{history.replaceState(null,"","#"+d.recht)}catch(e){}return}
  if(d.go){if(d.go==="neu"){startAufgabe(d.kurs);return}if(d.go==="kursneu"){Object.assign(kf,{art:"Unterrichtsfach",klassen:["2A"],fach:"",sj:SJ,zusatz:"",bew:"punkte",punkte:10,frist:"08:00",teil:"klasse",auswahl:[],niveaus:false})}go(d.go);return}
  if(d.openTask!==undefined&&d.openTask){if(st.role==="schueler"){const s=getSub(A(d.openTask),ME_S.id);s.sNeu=false}go("aufgabe",{id:d.openTask,from:d.from||st.view});if(d.fbu)$(`[data-act="feedback"][data-u="${d.fbu}"]`)?.click();return}
@@ -953,7 +958,11 @@ document.addEventListener("click",e=>{const t=e.target.closest("button,[data-clo
  if(act==="intro-ok"){try{localStorage.setItem("mate-intro","1")}catch(e){}closeModal();return}
  if(act==="reset-demo"){modal(`<h2>Demo zurücksetzen?</h2><p>Alles, was du auf diesem Gerät angelegt, abgegeben oder bewertet hast, wird gelöscht. Danach startet MATE wieder mit den Beispieldaten.</p><div class="actions"><button class="btn danger" data-act="reset-demo-ok">Zurücksetzen</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
  if(act==="reset-demo-ok"){speicherOk=false;clearTimeout(_saveT);idbDel().catch(()=>{}).finally(()=>location.reload());return}
- if(act==="feedback-demo"){const wo=`${{schueler:"Schüler·in",lehrkraft:"Lehrkraft",admin:"Admin"}[st.role]} · ${st.view}${st.p&&st.p.id?" ("+st.p.id+")":""}`;modal(`<h2>Feedback zur Testversion</h2><form class="f" id="demofb"><div class="field"><label for="dfb">Was ist dir aufgefallen?</label><textarea id="dfb" rows="5" placeholder="z. B. Ich habe nicht gefunden, wo …"></textarea><span class="hint">Dein Mailprogramm öffnet sich mit dem Text. Mitgeschickt wird nur, wo du gerade bist: ${esc(wo)}.</span></div><div class="actions"><button class="btn primary" type="submit">Per E-Mail senden</button><button class="btn ghost" type="button" data-close-btn>Abbrechen</button></div></form>`);$("#demofb").dataset.wo=wo;return}
+ if(act==="fb-kopieren"){const t=$("#dfb").value.trim();if(!t){toast("Schreib zuerst, was dir aufgefallen ist.");$("#dfb").focus();return}const body=demoFbText(t,$("#demofb").dataset.wo);
+  const fertig=()=>{closeModal();toast(`Kopiert. Füge den Text in eine EduPage-Nachricht an ${SCHULE.kontakt} ein.`)};
+  const alt=()=>{const ta=document.createElement("textarea");ta.value=body;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;opacity:0;top:0";document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,body.length);let ok=false;try{ok=document.execCommand("copy")}catch(e){}ta.remove();if(ok)fertig();else{$("#dfb").value=body;$("#dfb").select();toast("Kopieren klappt hier nicht. Der Text ist markiert, kopiere ihn selbst.")}};
+  try{navigator.clipboard.writeText(body).then(fertig,alt)}catch(e){alt()}return}
+ if(act==="feedback-demo"){const wo=`${{schueler:"Schüler·in",lehrkraft:"Lehrkraft",admin:"Admin"}[st.role]} · ${st.view}${st.p&&st.p.id?" ("+st.p.id+")":""}`;modal(`<h2>Feedback zur Testversion</h2><form class="f" id="demofb"><div class="field"><label for="dfb">Was ist dir aufgefallen?</label><textarea id="dfb" rows="5" placeholder="z. B. Ich habe nicht gefunden, wo …"></textarea><span class="hint">„Per E-Mail senden“ öffnet dein Mailprogramm mit dem Text. Ohne Mailprogramm kopierst du den Text und schickst ihn über EduPage an ${esc(SCHULE.kontakt)}. Mitgeschickt wird nur, wo du gerade bist: ${esc(wo)}.</span></div><div class="actions"><button class="btn primary" type="submit">Per E-Mail senden</button><button class="btn" type="button" data-act="fb-kopieren">Text kopieren</button><button class="btn ghost" type="button" data-close-btn>Abbrechen</button></div></form>`);$("#demofb").dataset.wo=wo;return}
  if(act==="fach-neu"){modal(fachForm(null));return}
  if(act==="fach-edit"){modal(fachForm(FAECHER.find(f=>f.id===d.f)));return}
  if(act==="fach-aus"){const f=FAECHER.find(x=>x.id===d.f);f.aus=!f.aus;toast(f.aus?`„${f.n}“ ist ausgeblendet. Bestehende Kurse bleiben.`:`„${f.n}“ steht wieder zur Wahl.`);render();return}
@@ -1070,7 +1079,7 @@ document.addEventListener("submit",e=>{e.preventDefault();const f=e.target;
   const alt=f.dataset.f?FAECHER.find(x=>x.id===f.dataset.f):null;if(FAECHER.some(x=>x!==alt&&x.n.toLowerCase()===n.toLowerCase()&&x.k===k)){toast("Dieses Fach gibt es in dieser Kursart schon.");return}
   if(alt){if(alt.n!==n){db.kurse.forEach(c=>{if(c.fach===alt.n)c.fach=n});Object.keys(db.niveaus).forEach(key=>{const [u,fa,sj]=key.split("|");if(fa===alt.n){db.niveaus[`${u}|${n}|${sj}`]=db.niveaus[key];delete db.niveaus[key]}})}Object.assign(alt,{ab:ab||alt.ab,n,k,st:stv,niv:$("#fa-niv").checked});if(!alt.niv)db.kurse.forEach(c=>{if(c.fach===n)c.niveaus=false});toast(`„${n}“ gespeichert.`)}else{FAECHER.push({id:"f"+FAECHER.length+uid(""),ab:ab||n.slice(0,3).toUpperCase(),n,k,st:stv,aus:false,niv:$("#fa-niv").checked});toast(`„${n}“ hinzugefügt.`)}
   closeModal();render();return}
- if(f.id==="demofb"){const t=$("#dfb").value.trim();if(!t){toast("Schreib zuerst, was dir aufgefallen ist.");$("#dfb").focus();return}const body=`${t}\n\n---\nAnsicht: ${f.dataset.wo}\nGerät: ${navigator.userAgent}\nBildschirm: ${innerWidth}×${innerHeight}`;location.href=`mailto:${FEEDBACK_MAIL}?subject=${encodeURIComponent("MATE Testversion: Feedback")}&body=${encodeURIComponent(body)}`;closeModal();toast("Danke! Bitte schick die E-Mail noch ab.");return}
+ if(f.id==="demofb"){const t=$("#dfb").value.trim();if(!t){toast("Schreib zuerst, was dir aufgefallen ist.");$("#dfb").focus();return}const body=demoFbText(t,f.dataset.wo);location.href=`mailto:${FEEDBACK_MAIL}?subject=${encodeURIComponent("MATE Testversion: Feedback")}&body=${encodeURIComponent(body)}`;closeModal();toast("Danke! Bitte schick die E-Mail noch ab.");return}
  if(f.id==="editform"){const u=U(f.dataset.u);const vn=$("#ev").value.trim(),nn=$("#en").value.trim(),mail=$("#em").value.trim().toLowerCase(),kl=$("#ek").value;
   if(!vn||!nn){toast("Vor- und Nachname dürfen nicht leer sein.");(vn?$("#en"):$("#ev")).focus();return}
   if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(mail)){toast("Das ist keine gültige E-Mail-Adresse.");$("#em").focus();return}
