@@ -23,7 +23,7 @@
   --orange:#E8890C; --orange-ink:#9A5300; --green:#7FA10C; --green-ink:#4D6400;
   --blue:#1A8FC6; --blue-ink:#0B5F87; --violet:#5E2396; --red:#C2410C;
   --bg:#FAF8F5; --surface:#FFFFFF; --sunk:#F2EEE8; --line:#E4DED5;
-  --fg:#2B3133; --muted:#66706F; --on-accent:#FFFFFF;
+  --fg:#2B3133; --muted:#66706F; --on-accent:#2B1A00; --on-danger:#FFFFFF; --btn-line:#ADA396;
   --tint-orange:#FCEBD3; --tint-green:#EAF2D2; --tint-blue:#DDEFF8; --tint-violet:#ECE3F3; --tint-red:#FBE3D9;
   --display:"Poppins", "Segoe UI", system-ui, sans-serif;
   --body:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -31,11 +31,11 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --orange:#F39A2A; --orange-ink:#FFC170; --green:#9CC226; --green-ink:#C9E36B; --blue:#3CAEE3; --blue-ink:#8AD3F5; --violet:#B38BD6; --red:#F08158;
-  --bg:#171A1B; --surface:#212627; --sunk:#1B1F20; --line:#343B3C; --fg:#ECEDEA; --muted:#A3ACAA; --on-accent:#1A1300;
+  --bg:#171A1B; --surface:#212627; --sunk:#1B1F20; --line:#343B3C; --fg:#ECEDEA; --muted:#A3ACAA; --on-accent:#1A1300; --on-danger:#1A0A05; --btn-line:#5A6567;
   --tint-orange:#3A2A12; --tint-green:#2A3312; --tint-blue:#132D3A; --tint-violet:#2C2138; --tint-red:#3B2116; color-scheme:dark}}
 :root[data-theme="dark"]{
   --orange:#F39A2A; --orange-ink:#FFC170; --green:#9CC226; --green-ink:#C9E36B; --blue:#3CAEE3; --blue-ink:#8AD3F5; --violet:#B38BD6; --red:#F08158;
-  --bg:#171A1B; --surface:#212627; --sunk:#1B1F20; --line:#343B3C; --fg:#ECEDEA; --muted:#A3ACAA; --on-accent:#1A1300;
+  --bg:#171A1B; --surface:#212627; --sunk:#1B1F20; --line:#343B3C; --fg:#ECEDEA; --muted:#A3ACAA; --on-accent:#1A1300; --on-danger:#1A0A05; --btn-line:#5A6567;
   --tint-orange:#3A2A12; --tint-green:#2A3312; --tint-blue:#132D3A; --tint-violet:#2C2138; --tint-red:#3B2116; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
@@ -122,19 +122,20 @@ main{min-width:0;padding-block:28px 96px;padding-left:max(16px,env(safe-area-ins
 .due.late b{color:var(--red)}
 
 .btn svg{width:18px;height:18px;flex:none}
-.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--btn-line);background:var(--surface);color:var(--fg);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700;white-space:nowrap;text-decoration:none}
+.btn:active:not(:disabled){transform:translateY(1px)}
 .btn:hover{background:var(--sunk)}
 .btn.primary{background:var(--orange);border-color:var(--orange);color:var(--on-accent)}
 .btn.primary:hover{filter:brightness(.95)}
 .btn.small{padding:4px 10px;font-size:.85rem}
 .btn.danger{border-color:var(--red);color:var(--red);background:var(--surface)}
 .btn.danger:hover{background:var(--tint-red)}
-.btn.danger.solid{background:var(--red);color:var(--on-accent)}.btn.danger.solid:hover{filter:brightness(.95);background:var(--red)}
+.btn.danger.solid{background:var(--red);color:var(--on-danger)}.btn.danger.solid:hover{filter:brightness(.95);background:var(--red)}
 .toolbar{display:flex;flex-wrap:wrap;gap:14px 36px;align-items:flex-start}
 .tgroup{display:flex;flex-direction:column;gap:6px;min-width:0}
 .tlabel{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
 
-.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost{background:transparent}.btn.ghost:hover{background:var(--sunk)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .actions{display:flex;flex-wrap:wrap;gap:8px}
 
