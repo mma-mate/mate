@@ -638,7 +638,10 @@ function rechtLinks(){return Object.entries(RECHT).map(([k,x])=>`<button type="b
 
 /* ---------- Speichern pro Gerät (Testversion) ---------- */
 SEEDING=false;
-let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);if(q.has("schueler"))localStorage.setItem("mate-modus","schueler");if(q.has("alle"))localStorage.removeItem("mate-modus");NUR_SCHUELER=localStorage.getItem("mate-modus")==="schueler"}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
+let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const app=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;localStorage.removeItem("mate-modus");
+ if(q.has("schueler")){sessionStorage.setItem("mate-modus","schueler");localStorage.setItem("mate-modus-app","schueler")}
+ if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
+ NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 const DEMO_V=1,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
 function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open("mate-demo",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
