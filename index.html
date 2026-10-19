@@ -1,0 +1,1010 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>MATE – Testversion</title>
+<link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#414D52">
+<meta name="apple-mobile-web-app-title" content="MATE">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+/* Layout: App-Rahmen mit Seitenleiste (Desktop) bzw. unterer Leiste (Handy); Inhalte als ruhige Listen, Farbe nur für Status und Aktion */
+:root{
+  --orange:#E8890C; --orange-ink:#9A5300; --green:#7FA10C; --green-ink:#4D6400;
+  --blue:#1A8FC6; --blue-ink:#0B5F87; --violet:#5E2396; --red:#C2410C;
+  --bg:#FAF8F5; --surface:#FFFFFF; --sunk:#F2EEE8; --line:#E4DED5;
+  --fg:#2B3133; --muted:#66706F; --on-accent:#FFFFFF;
+  --tint-orange:#FCEBD3; --tint-green:#EAF2D2; --tint-blue:#DDEFF8; --tint-violet:#ECE3F3; --tint-red:#FBE3D9;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --orange:#F39A2A; --orange-ink:#FFC170; --green:#9CC226; --green-ink:#C9E36B; --blue:#3CAEE3; --blue-ink:#8AD3F5; --violet:#B38BD6; --red:#F08158;
+  --bg:#171A1B; --surface:#212627; --sunk:#1B1F20; --line:#343B3C; --fg:#ECEDEA; --muted:#A3ACAA; --on-accent:#1A1300;
+  --tint-orange:#3A2A12; --tint-green:#2A3312; --tint-blue:#132D3A; --tint-violet:#2C2138; --tint-red:#3B2116; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --orange:#F39A2A; --orange-ink:#FFC170; --green:#9CC226; --green-ink:#C9E36B; --blue:#3CAEE3; --blue-ink:#8AD3F5; --violet:#B38BD6; --red:#F08158;
+  --bg:#171A1B; --surface:#212627; --sunk:#1B1F20; --line:#343B3C; --fg:#ECEDEA; --muted:#A3ACAA; --on-accent:#1A1300;
+  --tint-orange:#3A2A12; --tint-green:#2A3312; --tint-blue:#132D3A; --tint-violet:#2C2138; --tint-red:#3B2116; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:1.75rem;font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.2rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+p{margin:0}
+a{color:var(--blue-ink)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px}
+
+.demo-act{display:flex;gap:6px}.demo-act button{background:transparent;border:1px solid color-mix(in srgb,var(--bg) 45%,transparent);color:var(--bg);border-radius:999px;padding:3px 12px;font-size:.82rem;cursor:pointer;min-height:30px}.demo-act button:hover{background:color-mix(in srgb,var(--bg) 14%,transparent)}
+.demo{background:var(--fg);color:var(--bg);font-size:.85rem;padding-top:max(6px,env(safe-area-inset-top,0px));padding-bottom:6px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.demo .seg{display:flex;gap:2px;background:color-mix(in srgb,var(--bg) 14%,transparent);border-radius:999px;padding:2px}
+.demo .seg button{border:0;background:transparent;color:inherit;padding:4px 12px;border-radius:999px;cursor:pointer;font-weight:700}
+.demo .seg button[aria-pressed="true"]{background:var(--orange);color:var(--on-accent)}
+
+.shell{display:grid;grid-template-columns:232px 1fr;min-height:calc(100% - 40px)}
+.side{border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:20px;background:var(--surface)}
+.brand{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:0 6px}
+.logo{height:34px;width:auto;display:block;color:var(--fg)}.logo-s{height:24px}
+.brand b{font-family:var(--display);font-weight:800;font-size:1.5rem;letter-spacing:.06em}
+.brand small{display:block;color:var(--muted);font-size:.75rem;line-height:1.2}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;gap:10px;border:0;background:transparent;text-align:left;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--fg)}
+.nav button:hover{background:var(--sunk)}
+.nav button[aria-current="true"]{background:var(--tint-orange);color:var(--orange-ink);font-weight:700}
+.nav svg{width:19px;height:19px;flex:none}
+.nav .count{margin-left:auto;background:var(--orange);color:var(--on-accent);font-size:.75rem;border-radius:999px;padding:0 7px;font-weight:700}
+.me{margin-top:auto;display:flex;gap:10px;align-items:center;padding:8px 6px;border-top:1px solid var(--line);padding-top:14px;border:0;background:none;cursor:pointer;text-align:left}
+.me small{display:block;color:var(--muted)}
+
+main{min-width:0;padding-block:28px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+.head{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between}
+.head p{color:var(--muted);margin-top:4px}
+.namelink{border:0;background:none;padding:0;font:inherit;color:inherit;cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}.namelink:hover{color:var(--blue-ink);text-decoration-color:currentColor}
+.crumb{border:0;background:none;color:var(--blue-ink);cursor:pointer;padding:0;margin-bottom:6px;font-size:.9rem}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.panel>header{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.panel .body{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+
+.list{list-style:none;margin:0;padding:0}
+.row{display:flex;gap:12px;align-items:center;padding:12px 18px;border-top:1px solid var(--line)}
+.list .row:first-child{border-top:0}
+.row.click{cursor:pointer;width:100%;border-left:0;border-right:0;border-bottom:0;background:transparent;text-align:left}
+.list li:first-child>.row.click{border-top:0}
+.row.click:hover,tr.clickrow:hover{background:var(--sunk)}
+.row .main{min-width:0;flex:1}
+.row .main b{display:block;overflow-wrap:anywhere}
+.row .sub{color:var(--muted);font-size:.86rem}
+.empty{padding:22px 18px;color:var(--muted)}
+
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.p-late{background:var(--tint-red);color:var(--red)}
+.p-open{background:var(--sunk);color:var(--muted)}
+.p-done{background:var(--tint-blue);color:var(--blue-ink)}
+.p-graded{background:var(--tint-green);color:var(--green-ink)}
+.p-abs{background:var(--tint-violet);color:var(--violet)}
+.p-warn{background:var(--tint-orange);color:var(--orange-ink)}
+.tag{font-size:.75rem;border:1px solid var(--line);border-radius:6px;padding:1px 7px;color:var(--muted);white-space:nowrap}
+
+.due{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;font-size:.86rem}
+.due b{display:block;font-size:.95rem}
+.due.late b{color:var(--red)}
+
+.btn svg{width:18px;height:18px;flex:none}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700;white-space:nowrap}
+.btn:hover{background:var(--sunk)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:var(--on-accent)}
+.btn.primary:hover{filter:brightness(.95)}
+.btn.small{padding:4px 10px;font-size:.85rem}
+.btn.danger{border-color:var(--red);color:var(--red);background:var(--surface)}
+.btn.danger:hover{background:var(--tint-red)}
+.btn.danger.solid{background:var(--red);color:var(--on-accent)}.btn.danger.solid:hover{filter:brightness(.95);background:var(--red)}
+.toolbar{display:flex;flex-wrap:wrap;gap:14px 36px;align-items:flex-start}
+.tgroup{display:flex;flex-direction:column;gap:6px;min-width:0}
+.tlabel{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+
+.btn.ghost{border-color:transparent;background:transparent}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{border:0;background:none;padding:10px 14px;cursor:pointer;color:var(--muted);font-weight:700;border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--orange)}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:.88rem}
+.chip[aria-pressed="true"]{background:var(--tint-blue);border-color:var(--blue);color:var(--blue-ink);font-weight:700}
+
+form.f{display:flex;flex-direction:column;gap:18px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field>label,.field>.lbl{font-weight:700;font-size:.9rem}
+.field .hint{color:var(--muted);font-size:.84rem}
+.field input[type=text],.field input[type=email],.field input[type=number],.field input[type=date],.field input[type=time],.field select,.field textarea{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 11px;width:100%}
+.field textarea{min-height:90px;resize:vertical}
+.frow{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+.radio{display:flex;flex-direction:column;gap:6px}
+.radio label{display:flex;gap:8px;align-items:flex-start;font-weight:400;cursor:pointer}
+.radio input{margin-top:4px}
+.note{border-radius:8px;padding:10px 12px;font-size:.88rem;display:block;overflow-wrap:anywhere}
+.note.flex{display:flex;gap:8px}
+.note.info{background:var(--tint-blue);color:var(--blue-ink)}
+.note.warn{background:var(--tint-orange);color:var(--orange-ink)}
+.check{display:flex;gap:8px;align-items:center;cursor:pointer}
+.picklist{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:2px 12px}
+.picklist label{display:flex;gap:8px;align-items:center;padding:4px 0}
+
+.av{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:700;font-size:.8rem;color:#fff;overflow:hidden;background:var(--violet)}
+.av img{width:100%;height:100%;object-fit:cover}
+.av.lg{width:84px;height:84px;font-size:1.6rem}
+
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:9px 12px;border-top:1px solid var(--line);text-align:left;vertical-align:middle}
+.sortbtn{border:0;background:none;padding:0;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit;cursor:pointer;white-space:nowrap}.sortbtn:hover{color:var(--fg)}th[aria-sort="ascending"],th[aria-sort="descending"]{color:var(--fg)}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;border-top:0;white-space:nowrap}
+td.num,th.num{text-align:right}
+td .score[aria-invalid="true"]{border-color:var(--red)}
+td .score{width:68px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);text-align:right}
+td select{padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+.who{display:flex;gap:10px;align-items:center;min-width:180px}
+
+.dist{display:flex;height:8px;border-radius:4px;overflow:hidden;width:110px;background:var(--sunk)}
+.dist i{display:block}
+.big{font-family:var(--display);font-weight:800;font-size:2rem;line-height:1}
+.stat{display:flex;flex-direction:column;gap:6px;padding:16px 18px}
+.stat small{color:var(--muted)}
+
+.code{font-family:ui-monospace,"SFMono-Regular",Menlo,monospace;font-size:1.6rem;letter-spacing:.12em;font-weight:700}
+.qr{background:#fff;padding:10px;border-radius:8px;display:inline-block;line-height:0}
+.qr svg{width:180px;height:180px}
+
+.raster{display:grid;grid-template-columns:auto repeat(5,minmax(44px,1fr));gap:6px;align-items:center;max-width:440px}
+.raster .cell{border:1px dashed var(--line);border-radius:8px;height:44px;cursor:pointer;background:transparent;font-weight:700;color:var(--muted)}
+.raster .cell[aria-pressed="true"]{background:var(--tint-orange);border:1px solid var(--orange);color:var(--orange-ink)}
+
+.thread{display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;border-radius:12px;padding:9px 12px;display:flex;flex-direction:column;gap:6px}
+.msg.l{background:var(--tint-blue);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.s{background:var(--sunk);align-self:flex-end;border-bottom-right-radius:4px}
+.msg.sys{background:none;align-self:center;color:var(--muted);font-size:.82rem;padding:2px}
+.msg small{color:var(--muted);font-size:.78rem}
+.msg p{white-space:pre-wrap;overflow-wrap:anywhere}
+.msg img{max-width:220px;width:100%;border-radius:8px;border:1px solid var(--line);background:#fff;display:block}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
+label:has(+ .vh:focus-visible),.drop:has(+ .vh:focus-visible){outline:3px solid var(--blue);outline-offset:2px}
+.drop{border:2px dashed var(--line);border-radius:var(--r);padding:20px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.files{display:flex;flex-direction:column;gap:6px}
+.file{display:flex;gap:10px;align-items:center;font-size:.9rem;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.file .main{min-width:0;flex:1;overflow-wrap:anywhere}
+
+.modal-bg{position:fixed;inset:0;background:rgb(0 0 0 / .45);display:grid;place-items:center;z-index:50;padding:16px}
+.modal{background:var(--surface);border-radius:14px;max-width:560px;width:100%;max-height:calc(100% - 32px);overflow:auto;padding:22px;display:flex;flex-direction:column;gap:16px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:60;max-width:min(520px,calc(100% - 32px));box-shadow:0 6px 24px rgb(0 0 0 / .2)}
+
+.bottom{display:none}
+@media (max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .side{display:none}
+  .mobilebar{display:flex!important}
+  .bottom{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);z-index:30}
+  .bottom button{flex:1 1 0;min-width:0;border:0;background:none;padding:8px 1px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.68rem;color:var(--muted);cursor:pointer}
+  .bottom button>span:last-child{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bottom button[aria-current="true"]{color:var(--orange-ink);font-weight:700}
+  .bottom svg{width:22px;height:22px}
+  main{padding-block:18px 96px}
+  h1{font-size:1.45rem}
+  .row{padding:12px 14px;flex-wrap:wrap;row-gap:6px}
+  .row .main{flex:1 1 200px}
+  .row>.pill,.row>.tag{white-space:normal}
+  .row>.due{display:flex;gap:6px;align-items:baseline;margin-left:auto;text-align:left}
+  .row>.due b{display:inline}
+  .row>.av+.main~*:not(.due){margin-left:46px}
+  .row>.av+.main~.pill+.due,.row>.av+.main~.tag+.due{margin-left:auto}
+  .row .actions{margin-left:auto}
+  .btn{white-space:normal;text-align:center;justify-content:center}
+  .pill,.tag{white-space:normal}
+  .d-only{display:none!important}
+  .m-only{display:inline-flex!important}
+  .bottom .bi{position:relative;display:inline-flex}
+  .bottom .bdg{position:absolute;top:-4px;right:-10px;background:var(--orange);color:var(--on-accent);font-size:.62rem;font-weight:700;border-radius:999px;padding:0 5px;line-height:15px;min-width:15px;text-align:center}
+  .tabs button{padding:10px 8px;font-size:.9rem}
+  .toolbar{gap:12px}
+  .tgroup .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%}
+  .tgroup{width:100%}
+  .tgroup .btn{padding:8px 6px;font-size:.88rem;flex-direction:column;gap:2px}
+  .tgroup .btn svg{width:20px;height:20px}
+  input,select,textarea{font-size:16px!important}
+  .modal{padding:18px}
+  .head .actions{width:100%}
+  select.chip{max-width:100%;min-width:0;flex:1 1 100%}
+  .raster{grid-template-columns:auto repeat(5,minmax(0,1fr));gap:4px}
+  .raster .cell{height:40px;font-size:.85rem}
+}
+.m-only{display:none}
+html,body{overflow-x:clip}
+.mobilebar{display:none;align-items:center;justify-content:space-between;gap:10px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--surface);border-bottom:1px solid var(--line)}
+@media (prefers-reduced-motion:no-preference){.toast{animation:up .2s ease-out}@keyframes up{from{opacity:0;transform:translate(-50%,8px)}}}
+</style>
+<script>if("serviceWorker" in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
+</head>
+<body>
+
+
+<div class="demo" role="region" aria-label="Demo-Steuerung">
+  <span><b>Testversion</b> · alle Namen und Daten sind erfunden<span id="demo-speicher"></span></span>
+  <div class="demo-act"><button type="button" data-act="feedback-demo">Feedback</button><button type="button" data-act="reset-demo">Zurücksetzen</button></div>
+  <div class="seg" role="group" aria-label="Ansicht wählen">
+    <button data-role="schueler" id="r-s">Schüler·in</button>
+    <button data-role="lehrkraft" id="r-l">Lehrkraft</button>
+    <button data-role="admin" id="r-a">Admin</button>
+  </div>
+</div>
+<div class="mobilebar" id="mobilebar"></div>
+<div class="shell">
+  <aside class="side" id="side"></aside>
+  <main id="main"></main>
+</div>
+<nav class="bottom" id="bottom" aria-label="Navigation"></nav>
+<div id="layer"></div>
+
+<script>
+/* ---------- Hilfen ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const NOW=new Date();
+function at(days,time="08:00"){const d=new Date(NOW);d.setDate(d.getDate()+days);const[h,m]=time.split(":");d.setHours(+h,+m,0,0);return d.getTime()}
+const WD=["So","Mo","Di","Mi","Do","Fr","Sa"];
+function fmtDate(t){const d=new Date(t);return `${WD[d.getDay()]}, ${d.getDate()}.${d.getMonth()+1}.`}
+function fmtTime(t){const d=new Date(t);return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`}
+function rel(t){const day=86400000;const a=new Date(NOW);a.setHours(0,0,0,0);const b=new Date(t);b.setHours(0,0,0,0);const n=Math.round((b-a)/day);
+  if(n===0)return"heute";if(n===1)return"morgen";if(n===-1)return"gestern";return n>0?`in ${n} Tagen`:`vor ${-n} Tagen`}
+function schoolYear(d=NOW){const y=d.getFullYear();return d.getMonth()>=7?`${y}/${String(y+1).slice(2)}`:`${y-1}/${String(y).slice(2)}`}
+const SJ=schoolYear(); const SJ_PREV=(()=>{const y=+SJ.slice(0,4)-1;return `${y}/${String(y+1).slice(2)}`})();
+const SJ_NEXT=(()=>{const y=+SJ.slice(0,4)+1;return `${y}/${String(y+1).slice(2)}`})();
+let SEEDING=true,_seed=20261019;function rnd(){if(!SEEDING)return Math.random();_seed=(_seed*1103515245+12345)%2147483648;return _seed/2147483648}
+function uid(p){return p+rnd().toString(36).slice(2,8)}
+function code(){const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<6;i++)s+=a[Math.floor(rnd()*a.length)];return s}
+const AVC=["#5B2C83","#1A8FC6","#7FA10C","#E8890C","#4F5A5C","#B4467A","#2E7D6B"];
+function avatar(u,cls=""){const ini=(u.vn[0]+u.nn[0]).toUpperCase();const c=AVC[(u.id.charCodeAt(u.id.length-1))%AVC.length];
+  return `<span class="av ${cls}" style="background:${c}" aria-hidden="true">${u.foto?`<img src="${u.foto}" alt="">`:esc(ini)}</span>`}
+function slug(s){return s.replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/Ä/g,"Ae").replace(/Ö/g,"Oe").replace(/Ü/g,"Ue").replace(/ß/g,"ss").replace(/[^A-Za-z0-9._-]+/g,"_")}
+
+/* ---------- Stammdaten ---------- */
+const S=(a,k,st)=>a.map(([ab,n])=>({ab,n,k,st}));
+const FAECHER=[
+ ...S([["BU","Biologie u. Umweltbildung"],["BUS","Bewegung u. Sport"],["D","Deutsch"],["DGB","Digitale Grundbildung"],["E","Englisch"],["GS","Geschichte u. Politische Bildung"],["GW","Geografie u. wirtschaftliche Bildung"],["KG","Kunst und Gestaltung"],["M","Mathematik"],["RK","Katholische Religion"]],"Unterrichtsfach",[5,6,7,8]),
+ ...S([["CH","Chemie"]],"Unterrichtsfach",[8]),...S([["EH","Ernährung u. Haushalt"]],"Unterrichtsfach",[7]),
+ ...S([["MU","Musik"],["PH","Physik"],["TD","Technik und Design"],["KO","Kommunikation, Kooperation, Konfliktbearbeitung"]],"Unterrichtsfach",[5,6,7]),
+ ...S([["BO","Berufsorientierung"]],"Unterrichtsfach",[7,8]),
+ ...S([["AI","Angewandte Informatik"],["BLW","Beruf und Lebenswelt"],["DaZ","Deutsch als Zweitsprache"],["GZ","Geometrisches Zeichnen"],["IKF","Interessens- und Kompetenzförderung"],["ISB","Individuelle und soziale Berufsbildung"],["KE","Kreative Erziehung"],["LF","Leseförderung"],["NA","Naturwissenschaftliches Arbeiten"],["ÖK","Ökologie"],["PBWÖ","Politische Bildung, Wirtschaft und Ökologie"]],"Unterrichtsfach",["FMS"]),
+ ...S([["FK-D","Förderkurs Deutsch"],["FK-E","Förderkurs Englisch"],["FK-M","Förderkurs Mathematik"]],"Förderkurs",[5,6,7,8]),
+ ...S([["MO-GS","Gesundheit & Soziales: Englisch"],["MO-GS","Gesundheit & Soziales: Biologie"],["MO-GS","Gesundheit & Soziales: Kreatives Gestalten"],["MO-GS","Gesundheit & Soziales: KoKoKo"],["MO-GS","Gesundheit & Soziales: Life Skills"],
+   ["MO-W","Wirtschaft: Junior Company"],["MO-W","Wirtschaft: Business English"],["MO-W","Wirtschaft: Wirtschaftsmathematik"],["MO-W","Wirtschaft: Business Skills"],["MO-W","Wirtschaft: Ökologie"],
+   ["MO-T","Technik: Mathematik"],["MO-T","Technik: Techn. Werken"],["MO-T","Technik: Techn. Zeichnen"],["MO-T","Technik: NaWi"],["MO-T","Technik: Technology Skills"],
+   ["MO-TO","Tourismus: Englisch"],["MO-TO","Tourismus: Gastronomie"],["MO-TO","Tourismus: Kulinarik & Servicemanagement"],["MO-TO","Tourismus: Geografie"]],"Modul",[8]),
+ ...S([["UÜ","Codebusters"],["UÜ","E-Games"],["UÜ","FIRST LEGO League"],["UÜ","Fit & Fun"],["UÜ","Fußball"],["UÜ","Heartful Minds"],["UÜ","Radio eMMA"],["UÜ","Robotik"],["UÜ","Schulband"],["UÜ","Science Club"],["UÜ","Tabletop Club"],["UÜ","Zumba & Tanz"]],"Unverbindliche Übung",[5,6,7,8]),
+];
+FAECHER.forEach((f,i)=>{f.id="f"+i;f.aus=false;f.niv=f.k==="Unterrichtsfach"&&["D","E","M"].includes(f.ab)});
+const KURSARTEN=["Unterrichtsfach","Förderkurs","Modul","Unverbindliche Übung"];
+const KDEF={"Unterrichtsfach":{teil:"klasse",beurt:true},"Förderkurs":{teil:"auswahl",beurt:false},"Modul":{teil:"auswahl",beurt:true},"Unverbindliche Übung":{teil:"auswahl",beurt:false}};
+const NIVEAU_FAECHER=["Deutsch","Englisch","Mathematik"];
+function niveauFach(name){const f=FAECHER.find(x=>x.n===name);return !!f&&!!f.niv}
+
+const db={
+ klassen:["1A","1B","1C","1D","2A","2B","2C","2D","2E","3A","3B","3C","3D","4A","4B","4C","4D","FMS"],
+ users:[], kurse:[], aufgaben:[], niveaus:{}, pending:[]
+};
+function stufeOf(k){return k==="FMS"?"FMS":+k[0]+4}
+function addU(vn,nn,rolle,klasse,extra={}){const u={id:uid("u"),vn,nn,rolle,klasse,mail:`${vn.toLowerCase()}.${slug(nn).toLowerCase()}@${rolle==="s"?"s.edu.magwien.gv.at":"schule.wien.gv.at"}`,...extra};db.users.push(u);return u}
+const T1=addU("Sabine","Krenn","l",null,{admin:true});
+const T2=addU("Ali","Yılmaz","l",null);
+const T3=addU("Petra","Wallner","l",null);
+addU("Markus","Edlinger","l",null);
+const kids2A=[["Lena","Bauer"],["Jonas","Aigner"],["Mia","Novak"],["Elias","Hofer"],["Sara","Kovač"],["David","Huber"],["Amira","Haddad"],["Luca","Steiner"],["Emma","Wagner"],["Noah","Gruber"],["Zeynep","Demir"],["Felix","Mayer"]].map(([v,n])=>addU(v,n,"s","2A"));
+const kids4=[["Anna","Fischer","4A"],["Ben","Schmid","4A"],["Clara","Leitner","4A"],["Deniz","Arslan","4B"],["Eva","Pichler","4B"],["Finn","Moser","4B"],["Hannah","Berger","4C"],["Ivan","Petrović","4D"]].map(([v,n,k])=>addU(v,n,"s",k));
+[["Sophie","Lang","2B"],["Tim","Brandl","2B"]].forEach(([v,n,k])=>addU(v,n,"s",k));
+const ME_S=kids2A[0];
+db.pending=[{id:uid("p"),vn:"Kerstin",nn:"Ofner",mail:"k.ofner@gmx.at",rolle:"Lehrkraft",wann:at(-1,"18:20")},{id:uid("p"),vn:"Marko",nn:"Ilić",mail:"marko2014@gmail.com",rolle:"Schüler·in, Code für 2A Englisch",wann:at(0,"07:12")}];
+
+function addK(o){const k={id:uid("k"),code:code(),archiv:false,lehrer:[T1.id],eigentuemer:T1.id,frist:"08:00",niveaus:false,zusatz:"",...o};db.kurse.push(k);return k}
+const kE=addK({art:"Unterrichtsfach",fach:"Englisch",klassen:["2A"],sj:SJ,bew:"punkte",punkte:10,teil:"klasse",schueler:kids2A.map(u=>u.id),lehrer:[T1.id,T2.id],niveaus:true,beurt:true});
+const kGW=addK({art:"Unterrichtsfach",fach:"Geografie u. wirtschaftliche Bildung",klassen:["2A"],sj:SJ,bew:"symbole",teil:"klasse",schueler:kids2A.map(u=>u.id),beurt:true});
+const kM=addK({art:"Unterrichtsfach",fach:"Mathematik",klassen:["2A"],sj:SJ,bew:"prozent",teil:"klasse",schueler:kids2A.map(u=>u.id),lehrer:[T3.id],eigentuemer:T3.id,beurt:true});
+const kT=addK({art:"Modul",fach:"Technik: Mathematik",klassen:["4A","4B"],sj:SJ,bew:"punkte",punkte:20,teil:"auswahl",schueler:kids4.slice(0,6).map(u=>u.id),beurt:true});
+const kR=addK({art:"Unverbindliche Übung",fach:"Robotik",klassen:["2A","2B","4A"],sj:SJ,bew:"symbole",teil:"auswahl",schueler:[ME_S.id,kids2A[3].id,kids4[0].id],beurt:false});
+const kAlt=addK({art:"Unterrichtsfach",fach:"Englisch",klassen:["1A"],sj:SJ_PREV,bew:"punkte",punkte:10,teil:"klasse",schueler:kids2A.map(u=>u.id),archiv:true,beurt:true});
+kids2A.forEach((u,i)=>db.niveaus[`${u.id}|Englisch|${SJ}`]=i%3===1?"Standard":"Standard AHS");
+
+function addA(kurs,o){const a={id:uid("a"),kurs:kurs.id,bew:kurs.bew,max:kurs.punkte||10,abgabe:"online",fuer:"alle",auswahl:[],spaet:true,sichtbar:at(-30),freigegeben:false,anhaenge:[],beschreibung:"",subs:{},...o};
+  db.aufgaben.push(a);return a}
+function sub(a,u,o){a.subs[u]={files:[],score:null,abwesend:false,feedback:"",zeit:null,...o}}
+// Englisch
+const e1=addA(kE,{titel:"Unit 2: Workbook S. 18–19",beschreibung:"Übungen 1 bis 5 im Workbook. Fotografiere beide Seiten gut lesbar.",frist:at(-12),freigegeben:true});
+kids2A.forEach((u,i)=>sub(e1,u.id,i===4?{abwesend:true}:{files:[{n:"workbook_s18.jpg",kb:412}],zeit:at(-13,"19:40"),score:[9,7,10,6,0,8,10,5,9,7,8,6][i]}));
+const SEED=[];SEED.push(()=>{
+ const s1=e1.subs[ME_S.id];sendL(s1,"Sehr sauber gearbeitet! Bei Übung 4 bitte noch einmal die Verneinung anschauen.",null,at(-10,"16:40"));s1.sNeu=false;
+ const s2=e1.subs[kids2A[1].id];sendL(s2,"Übung 3 fehlt leider.",null,at(-10,"16:45"));s2.sNeu=false;sendS(s2,"Ich habe Übung 3 auf der Rückseite gemacht, das zweite Foto ist leider nicht mitgekommen. Kann ich es noch nachschicken?",at(-1,"18:12"));
+ const s3=e1.subs[kids2A[3].id];sendL(s3,"Bitte die Sätze 2 und 5 verbessern.",null,at(-11,"17:00"));
+ const s4=e1.subs[kids2A[9].id];sendL(s4,"Gut gemacht!",null,at(-10,"17:05"));s4.sNeu=false;s4.erledigt=true;
+});
+const e2=addA(kE,{titel:"Vocabulary Test Unit 2",abgabe:"keine",beschreibung:"Der Test läuft in der Lernplattform. Die Punkte trägt die Lehrkraft hier ein.",frist:at(-5),max:20,freigegeben:true});
+kids2A.forEach((u,i)=>sub(e2,u.id,i===2?{abwesend:true}:{score:[18,14,null,11,17,16,20,9,15,13,19,12][i]}));
+const e3=addA(kE,{titel:"My favourite place – Text schreiben",beschreibung:"Schreibe 80–100 Wörter über deinen Lieblingsort in Wien.",frist:at(1),fuer:"niveau:Standard AHS",max:15});
+kids2A.forEach((u,i)=>sub(e3,u.id,i%3===0&&i!==0?{files:[{n:"favourite_place.docx",kb:38}],zeit:at(-1,"17:05")}:{}));
+const e3b=addA(kE,{titel:"My favourite place – Lückentext",beschreibung:"Fülle den Lückentext auf dem Arbeitsblatt aus.",frist:at(1),fuer:"niveau:Standard",anhaenge:["Lueckentext_favourite_place.pdf"]});
+kids2A.forEach(u=>sub(e3b,u.id,{}));
+const e4=addA(kE,{titel:"Reading: The London Eye",beschreibung:"Lies den Text und beantworte die Fragen 1–6.",frist:at(4),anhaenge:["London_Eye_Reading.pdf"]});
+kids2A.forEach((u,i)=>sub(e4,u.id,i===5?{files:[{n:"IMG_4021.jpg",kb:388}],zeit:at(0,"07:30")}:{}));
+const e5=addA(kE,{titel:"Unit 2: Grammar Revision",frist:at(-2),beschreibung:"Arbeitsblatt Present Progressive."});
+kids2A.forEach((u,i)=>sub(e5,u.id,i===0?{}:i<9?{files:[{n:"grammar.jpg",kb:455}],zeit:at(i===7?-1:-3,i===7?"16:00":"18:00")}:{}));
+SEED.push(()=>{const s=e5.subs[kids2A[7].id];s.files=[{n:"grammar.jpg",kb:455}];s.zeit=at(-3,"18:00");s.score=null;sendL(s,"Übung 3 bitte noch einmal verbessern, die Verbformen stimmen noch nicht.",null,at(-2,"07:50"));s.sNeu=false;sendS(s,"Hier ist meine Verbesserung von Übung 3.",at(-1,"16:00"));const mm=msgs(s);mm[mm.length-1].files=[{n:"grammar_verbesserung.jpg",kb:398}];s.lNeu=false;s.verbesserung=true;s.erledigt=true});
+const e6=addA(kE,{titel:"Extra-Übung Aussprache",fuer:"auswahl",auswahl:[kids2A[3].id,kids2A[7].id,kids2A[9].id],frist:at(6),abgabe:"schule",beschreibung:"Übe die Wörter auf der Liste laut. Wir hören sie uns in der nächsten Stunde an."});
+[kids2A[3],kids2A[7],kids2A[9]].forEach(u=>sub(e6,u.id,{}));
+// Geografie
+const g1=addA(kGW,{titel:"Karte Europa beschriften",frist:at(-9),freigegeben:true,abgabe:"schule"});
+kids2A.forEach((u,i)=>sub(g1,u.id,{score:["+","+","~","+","–","+","~","+","+","~","+","~"][i]}));
+const g2=addA(kGW,{titel:"Steckbrief: ein Land in Europa",frist:at(-3),freigegeben:true});
+kids2A.forEach((u,i)=>sub(g2,u.id,{files:[{n:"steckbrief.pdf",kb:820}],zeit:at(-4),score:["~","+","+","~","+","–","+","~","+","+","~","+"][i]}));
+SEED.push(()=>{sendL(g2.subs[ME_S.id],"Gute Auswahl an Fakten. Die Hauptstadt fehlt noch im Steckbrief.",null,at(-1,"15:20"))});
+const g3=addA(kGW,{titel:"Klimazonen: Arbeitsblatt",frist:at(2),anhaenge:["Klimazonen.pdf"]});
+kids2A.forEach(u=>sub(g3,u.id,{}));
+// Mathematik
+const m1=addA(kM,{titel:"Bruchrechnen Übungsblatt 3",bew:"prozent",frist:at(-6),freigegeben:true});
+kids2A.forEach((u,i)=>sub(m1,u.id,{files:[{n:"bruch3.jpg",kb:501}],zeit:at(-7),score:[85,70,92,60,75,88,95,55,80,72,90,66][i]}));
+const m2=addA(kM,{titel:"Textaufgaben Brüche",bew:"prozent",frist:at(-1),beschreibung:"Aufgaben 4, 7 und 9 aus dem Buch."});
+kids2A.forEach((u,i)=>sub(m2,u.id,i===0?{}:{files:[{n:"textaufgaben.jpg",kb:430}],zeit:at(-2)}));
+const m3=addA(kM,{titel:"Dezimalzahlen Wiederholung",bew:"prozent",frist:at(3)});
+kids2A.forEach(u=>sub(m3,u.id,{}));
+// Technik
+const t1=addA(kT,{titel:"Maßstab und Pläne lesen",frist:at(-4),max:20});
+kids4.slice(0,6).forEach((u,i)=>sub(t1,u.id,i<5?{files:[{n:"plan.pdf",kb:640}],zeit:at(-5),score:i<2?[18,15][i]:null}:{}));
+const t2=addA(kT,{titel:"Werkstück: Kostenrechnung",frist:at(5),max:20});
+kids4.slice(0,6).forEach(u=>sub(t2,u.id,{}));
+// Robotik
+const r1=addA(kR,{titel:"Roboter-Parcours planen",frist:at(3),abgabe:"online",bew:"symbole"});
+kR.schueler.forEach(u=>sub(r1,u,{}));
+// Archiv
+const al=addA(kAlt,{titel:"My family – Steckbrief",frist:at(-300),freigegeben:true,beschreibung:"Stelle deine Familie in 6 Sätzen vor. Zeichne oder klebe ein Bild dazu."});
+const al2=addA(kAlt,{titel:"Numbers and colours – Quiz",frist:at(-280),freigegeben:true,beschreibung:"Kurzes Quiz zu Zahlen und Farben."});
+
+/* ---------- Abfragen ---------- */
+const U=id=>db.users.find(u=>u.id===id);
+const K=id=>db.kurse.find(k=>k.id===id);
+const A=id=>db.aufgaben.find(a=>a.id===id);
+const kursName=k=>`${k.art==="Modul"||k.art==="Unverbindliche Übung"?"":k.klassen.join(", ")+" "}${k.fach}${k.zusatz?" "+k.zusatz:""} ${k.sj}`.trim();
+const kursKurz=k=>`${k.art==="Modul"||k.art==="Unverbindliche Übung"?k.klassen.join("/")+" · ":k.klassen.join(", ")+" "}${k.fach}${k.zusatz?" · "+k.zusatz:""}`;
+function niveauOf(uId,k){return db.niveaus[`${uId}|${k.fach}|${k.sj}`]||null}
+function zielgruppe(a){const k=K(a.kurs);
+  if(a.fuer==="alle")return k.schueler;
+  if(a.fuer==="auswahl")return a.auswahl.filter(id=>k.schueler.includes(id));
+  const n=a.fuer.split(":")[1];return k.schueler.filter(id=>niveauOf(id,k)===n)}
+function fuerText(a){if(a.fuer==="alle")return"Alle";if(a.fuer==="auswahl")return`${a.auswahl.length} ausgewählte`;return"Nur "+a.fuer.split(":")[1]}
+function getSub(a,u){if(!a.subs[u])a.subs[u]={files:[],score:null,abwesend:false,feedback:"",zeit:null};return a.subs[u]}
+/* Feedback-Verlauf pro Abgabe */
+function msgs(s){return s.msgs||(s.msgs=[])}
+function hatFb(s){return msgs(s).some(m=>m.von==="l")}
+function letzteL(s){return [...msgs(s)].reverse().find(m=>m.von==="l")}
+function fbZeit(s){const m=msgs(s);return m.length?m[m.length-1].zeit:0}
+function sendL(s,text,bild,zeit=Date.now()){msgs(s).push({von:"l",u:T1.id,text,bild,zeit});s.sNeu=true;s.erledigt=false;s.verbesserung=false}
+function sendS(s,text,zeit=Date.now(),sys=false){msgs(s).push({von:"s",text,zeit,sys});if(!sys)s.lNeu=true}
+function letzteVerb(s){const m=msgs(s);for(let i=m.length-1;i>=0;i--){if(m[i].von==="s"&&m[i].files&&m[i].files.length)return i}return -1}
+function fbStatusS(s){if(!hatFb(s))return null;if(s.erledigt)return"erledigt";return s.sNeu?"neu":"gelesen"}
+function fbStatusL(s){if(!hatFb(s))return null;if(s.lNeu)return"Antwort neu";if(s.verbesserung)return"Verbesserung";if(s.erledigt)return"erledigt";return s.sNeu?"ungelesen":"gelesen"}
+const FBP={"neu":"p-done","gelesen":"p-open","erledigt":"p-graded","ungelesen":"p-open","Antwort neu":"p-done","Verbesserung":"p-done"};
+const fbPill=t=>t?`<span class="pill ${FBP[t]}">${t}</span>`:"";
+function auszug(t,n=70){return t.length>n?t.slice(0,n-2)+"…":t}
+function verlauf(a,uId,sicht){const s=getSub(a,uId);const u=U(uId);
+ return `<div class="thread">${msgs(s).map((m,i)=>m.sys?`<div class="msg sys">${esc(m.text)} · ${fmtDate(m.zeit)}, ${fmtTime(m.zeit)}</div>`:`<div class="msg ${m.von}"><small>${m.von==="l"?esc(U(m.u).vn+" "+U(m.u).nn):sicht==="s"?"Du":esc(u.vn)} · ${fmtDate(m.zeit)}, ${fmtTime(m.zeit)}</small>${m.bild?`<button data-act="bild" data-a="${a.id}" data-u="${uId}" data-m="${i}" style="border:0;padding:0;background:none;cursor:pointer;text-align:left" aria-label="Korrektur vergrößern"><img src="${m.bild}" alt="Korrigierte Abgabe"></button>`:""}${m.text?`<p>${esc(m.text)}</p>`:""}${m.files&&m.files.length?`<div style="display:flex;flex-wrap:wrap;gap:6px">${m.files.map((f,fi)=>`<button class="btn small ghost" style="background:var(--surface)" data-act="mfile" data-a="${a.id}" data-u="${uId}" data-m="${i}" data-fi="${fi}">${bildVon(f,a)?`<img src="${bildVon(f,a)}" alt="" style="width:28px;height:28px;object-fit:cover;border-radius:4px;max-width:none">`:`<span class="tag">${esc((f.n.split(".").pop()||"").toUpperCase())}</span>`}${esc(f.n)}</button>`).join("")}</div>`:""}</div>`).join("")||`<p style="color:var(--muted)">Noch kein Feedback.</p>`}</div>`}
+function status(a,uId){const s=getSub(a,uId);
+  if(s.score!==null&&s.score!=="")return"bewertet";
+  if(s.abwesend)return"abwesend";
+  if(s.files.length)return s.zeit>a.frist?"verspätet":"abgegeben";
+  if(a.abgabe==="keine")return"offen";
+  if(a.abgabe==="schule")return NOW>a.frist?"in der Schule fällig":"offen";
+  return NOW>a.frist?"überfällig":"offen"}
+const PILL={"bewertet":"p-graded","abgegeben":"p-done","verspätet":"p-warn","überfällig":"p-late","offen":"p-open","abwesend":"p-abs","in der Schule fällig":"p-open"};
+const pill=st=>`<span class="pill ${PILL[st]}">${st}</span>`;
+function sichtbarFuer(a,uId){return a.sichtbar<=Date.now()&&zielgruppe(a).includes(uId)&&!K(a.kurs).archiv}
+const BEW={punkte:"Punkte",prozent:"Prozent",symbole:"Symbole"};
+const zahl=n=>String(n).replace(".",",");
+/* Eingabe "7,5" oder "7.5" → 7.5; leer → ""; ungültig → NaN */
+function parseZahl(v){v=String(v??"").trim().replace(/\s/g,"").replace(",",".");if(v==="")return "";if(!/^\d+(\.\d+)?$/.test(v))return NaN;return Math.round(parseFloat(v)*10)/10}
+function pruefeScore(a,v){const n=parseZahl(v);if(n==="")return{ok:true,val:null};const max=a.bew==="punkte"?a.max:100;if(Number.isNaN(n))return{ok:false,msg:"Bitte nur eine Zahl eingeben, z. B. 7 oder 7,5."};if(n>max)return{ok:false,msg:`Höchstens ${zahl(max)} ${a.bew==="punkte"?"Punkte":"%"} möglich.`};return{ok:true,val:n}}
+function scoreText(a,s){if(s.score===null||s.score==="")return"–";if(a.bew==="punkte")return`${zahl(s.score)} / ${a.max}`;if(a.bew==="prozent")return`${zahl(s.score)} %`;return s.score}
+function isMax(a,s){if(a.bew==="punkte")return+s.score>=a.max;if(a.bew==="prozent")return+s.score>=100;return s.score==="+"}
+function auswertung(k,uId,nurFrei){
+  const as=db.aufgaben.filter(a=>a.kurs===k.id&&zielgruppe(a).includes(uId)&&(!nurFrei||a.freigegeben));
+  let pe=0,pm=0,pc=0,ps=0,pn=0;const sym={"+":0,"~":0,"–":0};
+  as.forEach(a=>{const s=getSub(a,uId);if(s.score===null||s.score==="")return;
+    if(a.bew==="punkte"){pe+=+s.score;pm+=a.max;pc++}else if(a.bew==="prozent"){ps+=+s.score;pn++}else sym[s.score]++});
+  return{punkte:pm?{p:Math.round(pe/pm*100),txt:`${zahl(Math.round(pe*10)/10)} von ${pm} Punkten`,n:pc}:null,prozent:pn?{p:Math.round(ps/pn),n:pn}:null,sym:(sym["+"]+sym["~"]+sym["–"])?sym:null}}
+function distBar(sym){const t=sym["+"]+sym["~"]+sym["–"];return `<span style="display:inline-flex;gap:8px;align-items:center"><span class="dist" aria-hidden="true"><i style="width:${sym["+"]/t*100}%;background:var(--green)"></i><i style="width:${sym["~"]/t*100}%;background:var(--orange)"></i><i style="width:${sym["–"]/t*100}%;background:var(--red)"></i></span><span>${sym["+"]}× +, ${sym["~"]}× ~, ${sym["–"]}× –</span></span>`}
+
+/* ---------- Speichern pro Gerät (Testversion) ---------- */
+SEEDING=false;
+const DEMO_V=1,DEMO_KEY="mate-demo",FEEDBACK_MAIL="";
+let speicherOk=false,_saveT=null;
+function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open("mate-demo",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
+async function idbGet(){const d=await idb();return new Promise(res=>{try{const q=d.transaction("kv").objectStore("kv").get(DEMO_KEY);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)}catch(e){res(null)}})}
+async function idbPut(v){const d=await idb();return new Promise((res,rej)=>{try{const t=d.transaction("kv","readwrite");t.objectStore("kv").put(v,DEMO_KEY);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error)}catch(e){rej(e)}})}
+async function idbDel(){const d=await idb();return new Promise(res=>{try{const t=d.transaction("kv","readwrite");t.objectStore("kv").delete(DEMO_KEY);t.oncomplete=()=>res(true);t.onerror=()=>res(false)}catch(e){res(false)}})}
+function demoAnwenden(s){if(!s||s.v!==DEMO_V||!s.db||!Array.isArray(s.db.users))return false;
+ if(!s.db.users.some(u=>u.id===T1.id)||!s.db.users.some(u=>u.id===ME_S.id))return false;
+ s.db.users.forEach(u=>{const e=db.users.find(x=>x.id===u.id);if(e){Object.keys(e).forEach(k=>{if(!(k in u))delete e[k]});Object.assign(e,u)}else db.users.push(u)});
+ ["klassen","kurse","aufgaben","pending"].forEach(k=>{if(Array.isArray(s.db[k]))db[k]=s.db[k]});if(s.db.niveaus)db.niveaus=s.db.niveaus;
+ if(Array.isArray(s.faecher))FAECHER.splice(0,FAECHER.length,...s.faecher);return true}
+function demoSpeichern(){if(!speicherOk)return;clearTimeout(_saveT);_saveT=setTimeout(async()=>{try{await idbPut({v:DEMO_V,db,faecher:FAECHER,zeit:Date.now()})}catch(e){speicherOk=false;toast("Auf diesem Gerät ist kein Speicherplatz mehr frei. Mit „Zurücksetzen“ startest du neu.");speicherHinweis()}},500)}
+function speicherHinweis(){const el=document.getElementById("demo-speicher");if(el)el.textContent=speicherOk?" · Änderungen bleiben auf diesem Gerät":" · nichts wird gespeichert"}
+["click","change","submit","keyup"].forEach(ev=>document.addEventListener(ev,()=>demoSpeichern(),true));
+addEventListener("pagehide",()=>{if(speicherOk){clearTimeout(_saveT);idbPut({v:DEMO_V,db,faecher:FAECHER,zeit:Date.now()}).catch(()=>{})}});
+
+/* ---------- Zustand ---------- */
+const st={role:"schueler",view:"start",p:{},tab:"aufgaben",filter:{status:"alle",kurs:""},ffilter:{status:"offen",kurs:""},lfilter:"dran",reply:[],sorts:{fa:{key:"none",dir:1},lu:{key:"name",dir:1},tn:{key:"name",dir:1},sk:{key:"frist",dir:-1},auf:{key:"name",dir:1},ak:{key:"name",dir:1},as:{key:"klasse",dir:1},al:{key:"name",dir:1}},lsort:"neu"};
+const ICON={
+ home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ tasks:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
+ book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+ grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+ people:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.3-5 6.5-5s5.7 1.5 6.5 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5c2.6.2 4.6 1.6 5.3 4.5"/>',
+ check:'<path d="M20 6L9 17l-5-5"/>',
+ list:'<path d="M4 6h16M4 12h16M4 18h10"/>',
+ cycle:'<path d="M20 12a8 8 0 0 1-14 5.3M4 12A8 8 0 0 1 18 6.7"/><path d="M18 3v4h-4M6 21v-4h4"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ chat:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>',
+ edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>',
+ copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+ trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+ zip:'<path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/>',
+ eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+ eyeoff:'<path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6 0 10 6 10 6a17 17 0 0 1-3 3.6M6.6 6.6A17 17 0 0 0 2 12s4 7 10 7a9.6 9.6 0 0 0 4.4-1"/>'};
+const ico=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
+function me(){return st.role==="schueler"?ME_S:T1}
+function navItems(){
+ if(st.role==="schueler"){const ds=dashS();return[["start","Startseite","home",ds.over.length],["aufgaben","Meine Aufgaben","tasks"],["feedback","Feedback","chat",ds.neu],["kurse","Kurse","book"],["profil","Profil","user"]]}
+ if(st.role==="lehrkraft"){const dl=dashL();return[["start","Startseite","home",dl.korr.length],["kurse","Meine Kurse","book"],["feedback","Feedback","chat",dl.antw.length+dl.verb.length],["profil","Profil","user"]]}
+ return[["start","Übersicht","home",db.pending.length],["kurse","Kurse","book"],["klassen","Schulklassen","grid"],["schueler","Schüler·innen","people"],["lehrer","Lehrkräfte","user"],["faecher","Fächerliste","list"],["wechsel","Schuljahreswechsel","cycle"]]}
+function go(view,p={}){st.view=view;st.p=p;st.reply=[];if(view!=="kurs")st.tab="aufgaben";render();window.scrollTo(0,0)}
+
+/* ---------- Rahmen ---------- */
+function renderChrome(){
+ const items=navItems();const cur=st.view==="kurs"||st.view==="aufgabe"||st.view==="neu"||st.view==="kursneu"?(st.role==="schueler"&&st.p.from==="aufgaben"?"aufgaben":"kurse"):st.view;
+ const u=me();const rollen=st.role==="admin"?"Admin · auch Lehrkraft":st.role==="lehrkraft"?"Lehrkraft"+(u.admin?" · auch Admin":""):"Schüler·in · "+u.klasse;
+ $("#side").innerHTML=`<div class="brand"><svg class="logo" viewBox="0 0 851 200" role="img" aria-label="MATE"><g transform="translate(0.00 0.00) scale(0.26738) translate(-169 -250)"><path fill="#F7900A" d="M170.0,320.0Q170.0,250.0 240.0,250.0L385.0,250.0Q385.0,250.0 385.0,250.0L385.0,903.0Q385.0,998.0 290.0,998.0L265.0,998.0Q170.0,998.0 170.0,903.0Z"/><path fill="#5E2396" d="M870.0,250.0Q870.0,250.0 870.0,250.0L1015.0,250.0Q1085.0,250.0 1085.0,320.0L1085.0,903.0Q1085.0,998.0 990.0,998.0L965.0,998.0Q870.0,998.0 870.0,903.0Z"/><path fill="#A8C614" d="M797.7,293.8Q831.0,250.0 886.0,250.0L1040.0,250.0Q1085.0,250.0 1057.8,285.9L729.0,720.0Q729.0,720.0 729.0,720.0L565.0,600.0Q565.0,600.0 565.0,600.0Z"/><path fill="#1E9BDE" d="M192.5,282.4Q169.0,250.0 209.0,250.0L384.0,250.0Q429.0,250.0 455.4,286.4L748.0,690.3Q755.0,700.0 747.7,709.6L682.5,795.4Q622.0,875.0 563.3,794.0Z"/></g><path fill="currentColor" d="M468.01716577540105 64.62V198.0H435.52716577540104V118.01L405.69716577540106 198.0H379.4771657754011L349.45716577540105 117.82V198.0H316.96716577540104V64.62H355.3471657754011L392.77716577540104 156.96L429.82716577540106 64.62ZM578.4171657754011 174.44H528.6371657754011L520.657165775401 198.0H486.6471657754011L534.907165775401 64.62H572.527165775401L620.787165775401 198.0H586.397165775401ZM570.0571657754011 149.36 553.527165775401 100.53 537.1871657754011 149.36ZM735.3671657754011 64.62V90.65H700.027165775401V198.0H667.537165775401V90.65H632.197165775401V64.62ZM788.197165775401 90.65V117.63H831.707165775401V142.71H788.197165775401V171.97H837.407165775401V198.0H755.707165775401V64.62H837.407165775401V90.65Z"/></svg><small>Modulare Mittelstufe Aspern</small></div>
+ <nav class="nav" aria-label="Hauptnavigation">${items.map(([v,l,i,n])=>`<button data-go="${v}" aria-current="${cur===v}">${ico(i)}<span>${l}</span>${n?`<span class="count">${n}</span>`:""}</button>`).join("")}</nav>
+ <button class="me" data-go="${st.role==="admin"?"start":"profil"}">${avatar(u)}<span><b>${esc(u.vn)} ${esc(u.nn)}</b><small>${esc(rollen)}</small></span></button>`;
+ const KURZ={"Übersicht":"Start","Meine Aufgaben":"Aufgaben","Meine Kurse":"Kurse","Schulklassen":"Klassen","Schüler·innen":"Schüler","Lehrkräfte":"Lehrer","Fächerliste":"Fächer","Schuljahreswechsel":"Wechsel"};
+ $("#bottom").innerHTML=items.map(([v,l,i,n])=>`<button data-go="${v}" aria-current="${cur===v}" aria-label="${l}${n?`, ${n} neu`:""}"><span class="bi">${ico(i)}${n?`<span class="bdg">${n}</span>`:""}</span><span>${KURZ[l]||l}</span></button>`).join("");
+ $("#mobilebar").innerHTML=`<svg class="logo logo-s" viewBox="0 0 851 200" role="img" aria-label="MATE"><g transform="translate(0.00 0.00) scale(0.26738) translate(-169 -250)"><path fill="#F7900A" d="M170.0,320.0Q170.0,250.0 240.0,250.0L385.0,250.0Q385.0,250.0 385.0,250.0L385.0,903.0Q385.0,998.0 290.0,998.0L265.0,998.0Q170.0,998.0 170.0,903.0Z"/><path fill="#5E2396" d="M870.0,250.0Q870.0,250.0 870.0,250.0L1015.0,250.0Q1085.0,250.0 1085.0,320.0L1085.0,903.0Q1085.0,998.0 990.0,998.0L965.0,998.0Q870.0,998.0 870.0,903.0Z"/><path fill="#A8C614" d="M797.7,293.8Q831.0,250.0 886.0,250.0L1040.0,250.0Q1085.0,250.0 1057.8,285.9L729.0,720.0Q729.0,720.0 729.0,720.0L565.0,600.0Q565.0,600.0 565.0,600.0Z"/><path fill="#1E9BDE" d="M192.5,282.4Q169.0,250.0 209.0,250.0L384.0,250.0Q429.0,250.0 455.4,286.4L748.0,690.3Q755.0,700.0 747.7,709.6L682.5,795.4Q622.0,875.0 563.3,794.0Z"/></g><path fill="currentColor" d="M468.01716577540105 64.62V198.0H435.52716577540104V118.01L405.69716577540106 198.0H379.4771657754011L349.45716577540105 117.82V198.0H316.96716577540104V64.62H355.3471657754011L392.77716577540104 156.96L429.82716577540106 64.62ZM578.4171657754011 174.44H528.6371657754011L520.657165775401 198.0H486.6471657754011L534.907165775401 64.62H572.527165775401L620.787165775401 198.0H586.397165775401ZM570.0571657754011 149.36 553.527165775401 100.53 537.1871657754011 149.36ZM735.3671657754011 64.62V90.65H700.027165775401V198.0H667.537165775401V90.65H632.197165775401V64.62ZM788.197165775401 90.65V117.63H831.707165775401V142.71H788.197165775401V171.97H837.407165775401V198.0H755.707165775401V64.62H837.407165775401V90.65Z"/></svg><span style="display:flex;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)">${esc(u.vn)} ${avatar(u)}</span>`;
+ document.querySelectorAll(".demo [data-role]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.role===st.role));
+}
+
+/* ---------- Schüler·in ---------- */
+function meineAufgaben(uId){return db.aufgaben.filter(a=>sichtbarFuer(a,uId))}
+function dashS(){const u=ME_S.id;const as=meineAufgaben(u);const week=at(7,"23:59");
+ const over=as.filter(a=>status(a,u)==="überfällig").sort((a,b)=>a.frist-b.frist);
+ const bald=as.filter(a=>a.frist>=NOW&&a.frist<=week&&["offen"].includes(status(a,u))).sort((a,b)=>a.frist-b.frist);
+ const fb=as.filter(a=>["neu","gelesen"].includes(fbStatusS(getSub(a,u)))).sort((a,b)=>fbZeit(getSub(b,u))-fbZeit(getSub(a,u)));
+ return{over,bald,fb,neu:fb.filter(a=>getSub(a,u).sNeu).length}}
+function alleFbS(){return db.aufgaben.filter(a=>zielgruppe(a).includes(ME_S.id)&&hatFb(getSub(a,ME_S.id))).sort((a,b)=>fbZeit(getSub(b,ME_S.id))-fbZeit(getSub(a,ME_S.id)))}
+function fbRowS(a){const s=getSub(a,ME_S.id);const m=[...msgs(s)].reverse().find(x=>!x.sys);const t=letzteL(s);
+ return `<li><button class="row click" data-open-task="${a.id}" data-from="feedback"><span class="main"><b>${esc(a.titel)}</b><span class="sub">${esc(kursKurz(K(a.kurs)))} · ${m.von==="s"?"Du: ":""}${m.text?"„"+esc(auszug(m.text))+"“":"Korrektur"}${t.bild&&m===t&&t.text?" · mit Korrektur":""}</span></span>${fbPill(fbStatusS(s))}<span class="due"><b>${rel(fbZeit(s))}</b>${fmtDate(fbZeit(s))}</span></button></li>`}
+function vFeedbackS(){const f=st.ffilter;let as=alleFbS();const kurse=[...new Set(as.map(a=>a.kurs))].map(K);
+ if(f.status==="offen")as=as.filter(a=>fbStatusS(getSub(a,ME_S.id))!=="erledigt");if(f.status==="erledigt")as=as.filter(a=>fbStatusS(getSub(a,ME_S.id))==="erledigt");if(f.kurs)as=as.filter(a=>a.kurs===f.kurs);
+ return `<div class="head"><div><h1>Feedback</h1><p>Alle Rückmeldungen deiner Lehrkräfte in diesem Schuljahr.</p></div></div>
+ <div class="chips" role="group" aria-label="Filter">${[["offen","Offen"],["erledigt","Erledigt"],["alle","Alle"]].map(([v,l])=>`<button class="chip" data-ff="${v}" aria-pressed="${f.status===v}">${l}</button>`).join("")}<select id="ffkurs" class="chip" aria-label="Kurs filtern"><option value="">Alle Kurse</option>${kurse.map(k=>`<option value="${k.id}" ${f.kurs===k.id?"selected":""}>${esc(kursKurz(k))}</option>`).join("")}</select></div>
+ <section class="panel"><ul class="list">${as.map(fbRowS).join("")||`<li class="empty">${f.status==="offen"?"Kein offenes Feedback. Alles erledigt.":"Kein Feedback für diesen Filter."}</li>`}</ul></section>`}
+function taskRow(a,uId,opts={}){const k=K(a.kurs);const s=status(a,uId);const late=a.frist<NOW&&!["bewertet","abgegeben","verspätet","abwesend"].includes(s)&&a.abgabe!=="keine";
+ const right=opts.score?`<span class="due"><b>${scoreText(a,getSub(a,uId))}</b>${fmtDate(a.frist)}</span>`:`<span class="due ${late?"late":""}"><b>${rel(a.frist)}</b>${fmtDate(a.frist)}, ${fmtTime(a.frist)}</span>`;
+ const fbn=st.role==="schueler"&&getSub(a,uId).sNeu&&!getSub(a,uId).erledigt;
+ return `<li><button class="row click" data-open-task="${a.id}" data-from="${opts.from||""}"><span class="main"><b>${esc(a.titel)}${fbn?` <span class="pill p-done" style="vertical-align:2px">neues Feedback</span>`:""}</b><span class="sub">${esc(kursKurz(k))}${a.abgabe==="keine"?" · keine Abgabe nötig":a.abgabe==="schule"?" · Abgabe in der Schule":""}${opts.spaet&&a.spaet?" · verspätete Abgabe noch möglich":""}</span></span>${opts.pill!==false?pill(s):""}${right}</button></li>`}
+function vStartS(){const{over,bald,fb}=dashS();const h=NOW.getHours();
+ return `<div class="head"><div><h1>${h<11?"Guten Morgen":h<18?"Hallo":"Guten Abend"}, ${esc(ME_S.vn)}</h1><p>${fmtDate(NOW.getTime())} · ${over.length?`${over.length} Aufgabe${over.length>1?"n sind":" ist"} überfällig`:"Nichts überfällig"} · ${bald.length} bald fällig</p></div><button class="btn" data-go="aufgaben">Alle Aufgaben</button></div>
+ <div class="grid2">
+ <section class="panel"><header><h2>Überfällig</h2><span class="pill p-late">${over.length}</span></header><ul class="list">${over.map(a=>taskRow(a,ME_S.id,{pill:false,spaet:true})).join("")||`<li class="empty">Du hast alles rechtzeitig abgegeben.</li>`}</ul></section>
+ <section class="panel"><header><h2>Bald fällig</h2><span class="sub" style="color:var(--muted);font-size:.85rem">nächste 7 Tage</span></header><ul class="list">${bald.map(a=>taskRow(a,ME_S.id,{pill:false})).join("")||`<li class="empty">In den nächsten 7 Tagen ist nichts fällig.</li>`}</ul></section>
+ </div>
+ <section class="panel"><header><h2>Offenes Feedback</h2><button class="btn small ghost" data-go="feedback">Alle Rückmeldungen</button></header><ul class="list">${fb.map(fbRowS).join("")||`<li class="empty">Kein offenes Feedback.</li>`}</ul></section>
+ <section class="panel"><header><h2>Zuletzt bewertet</h2></header><ul class="list">${meineAufgaben(ME_S.id).filter(a=>a.freigegeben&&getSub(a,ME_S.id).score!==null).sort((a,b)=>b.frist-a.frist).slice(0,4).map(a=>taskRow(a,ME_S.id,{score:true})).join("")||`<li class="empty">Noch keine freigegebenen Bewertungen.</li>`}</ul></section>`}
+function vAufgabenS(){const u=ME_S.id;const f=st.filter;let as=meineAufgaben(u);
+ const kurse=[...new Set(as.map(a=>a.kurs))].map(K);
+ if(f.status==="offen")as=as.filter(a=>["offen","überfällig"].includes(status(a,u)));
+ if(f.status==="nichtvoll")as=as.filter(a=>{const s=getSub(a,u);return a.freigegeben&&s.score!==null&&!isMax(a,s)});
+ if(f.kurs)as=as.filter(a=>a.kurs===f.kurs);
+ as.sort((a,b)=>a.frist-b.frist);
+ return `<div class="head"><div><h1>Meine Aufgaben</h1><p>Alle Aufgaben aus allen Kursen, nach Frist sortiert.</p></div></div>
+ <div class="chips" role="group" aria-label="Filter">${[["alle","Alle"],["offen","Offen"],["nichtvoll","Nicht volle Bewertung"]].map(([v,l])=>`<button class="chip" data-filter="${v}" aria-pressed="${f.status===v}">${l}</button>`).join("")}
+ <select id="fkurs" class="chip" aria-label="Kurs filtern"><option value="">Alle Kurse</option>${kurse.map(k=>`<option value="${k.id}" ${f.kurs===k.id?"selected":""}>${esc(kursKurz(k))}</option>`).join("")}</select></div>
+ <section class="panel"><ul class="list">${as.map(a=>{const s=getSub(a,u);return taskRow(a,u,{from:"aufgaben",score:a.freigegeben&&s.score!==null})}).join("")||`<li class="empty">Keine Aufgaben für diesen Filter.</li>`}</ul></section>`}
+function vKurseS(){const ks=db.kurse.filter(k=>k.schueler.includes(ME_S.id)&&!k.archiv);const arch=db.kurse.filter(k=>k.schueler.includes(ME_S.id)&&k.archiv);
+ const card=k=>{const offen=meineAufgaben(ME_S.id).filter(a=>a.kurs===k.id&&["offen","überfällig"].includes(status(a,ME_S.id))).length;const n=niveauOf(ME_S.id,k);
+  return `<li><button class="row click" data-open-kurs="${k.id}"><span class="main"><b>${esc(kursKurz(k))}</b><span class="sub">${k.art} · ${k.lehrer.map(id=>esc(U(id).vn+" "+U(id).nn)).join(", ")}${n&&k.niveaus?" · "+n:""}</span></span>${offen?`<span class="pill p-open">${offen} offen</span>`:""}</button></li>`};
+ return `<div class="head"><div><h1>Meine Kurse</h1><p>Schuljahr ${SJ} · Klasse ${ME_S.klasse}</p></div><button class="btn" data-modal="code">${ico("plus")}Kurscode eingeben</button></div>
+ <section class="panel"><ul class="list">${ks.map(card).join("")}</ul></section>
+`}
+function vKursS(k){const u=ME_S.id;const as=meineAufgaben(u).filter(a=>a.kurs===k.id).sort((a,b)=>b.frist-a.frist);const n=niveauOf(u,k);const aw=auswertung(k,u,true);
+ return `<div class="head"><div><button class="crumb" data-go="kurse">← Kurse</button><h1>${esc(kursKurz(k))}</h1><p>${k.art} · ${k.lehrer.map(id=>esc(U(id).vn+" "+U(id).nn)).join(", ")}</p></div>${k.niveaus&&n?`<span class="pill p-done" style="font-size:.9rem;padding:5px 12px"><span class="d-only">Leistungsniveau: </span>${n}</span>`:""}</div>
+ ${k.beurt?`<div class="grid3">${aw.punkte?`<div class="panel stat"><small>Punkte</small><span class="big">${aw.punkte.p} %</span><small>${aw.punkte.txt}</small></div>`:""}${aw.prozent?`<div class="panel stat"><small>Prozent-Aufgaben</small><span class="big">${aw.prozent.p} %</span><small>Mittelwert aus ${aw.prozent.n}</small></div>`:""}${aw.sym?`<div class="panel stat"><small>Symbole</small>${distBar(aw.sym)}</div>`:""}${!aw.punkte&&!aw.prozent&&!aw.sym?`<div class="panel stat"><small>Übersicht</small><span>Noch keine freigegebenen Bewertungen.</span></div>`:""}</div>`:""}
+ <section class="panel"><header><h2>Aufgaben</h2></header><ul class="list">${as.map(a=>{const s=getSub(a,u);return taskRow(a,u,{score:a.freigegeben&&s.score!==null})}).join("")||`<li class="empty">Noch keine Aufgaben.</li>`}</ul></section>`}
+function vAufgabeS(a){const u=ME_S.id;const k=K(a.kurs);const s=getSub(a,u);const stt=status(a,u);const offenUpload=a.abgabe!=="schule"&&a.abgabe!=="keine"&&(NOW<a.frist||a.spaet)&&!(s.score!==null&&s.score!=="");
+ return `<div class="head"><div><button class="crumb" data-back>← Zurück</button><h1>${esc(a.titel)}</h1><p>${esc(kursKurz(k))} · ${a.fuer.startsWith("niveau")?esc(a.fuer.split(":")[1])+" · ":""}${BEW[a.bew]}${a.bew==="punkte"?` (max. ${a.max})`:""}</p></div>${pill(stt)}</div>
+ <div class="grid2">
+ <section class="panel"><header><h2>Auftrag</h2><span class="due ${a.frist<NOW?"late":""}"><b>Frist ${fmtDate(a.frist)}, ${fmtTime(a.frist)}</b>${rel(a.frist)}</span></header><div class="body">
+  <p>${esc(a.beschreibung||"Keine weitere Beschreibung.")}</p>
+  ${a.anhaenge.length?`<div class="files">${a.anhaenge.map(n=>`<div class="file">📎<span class="main">${esc(n)}</span></div>`).join("")}</div>`:""}
+  ${a.abgabe==="keine"?`<div class="note info">Keine Abgabe in MATE nötig. Die Aufgabe wird woanders erledigt, die Bewertung trägt deine Lehrkraft hier ein.</div>`:a.abgabe==="schule"?`<div class="note info">Abgabe in der Schule.</div>`:""}
+ </div></section>
+ <section class="panel"><header><h2>Deine Abgabe</h2></header><div class="body">
+  ${s.files.length?`<div class="files">${s.files.map((f,i)=>`<div class="file">${f.img?`<img src="${f.img}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:6px;flex:none">`:`<span class="tag">${esc((f.n.split(".").pop()||"").toUpperCase())}</span>`}<button class="main" style="border:0;background:none;text-align:left;cursor:pointer;padding:0;color:var(--blue-ink);text-decoration:underline" data-act="vorschau" data-i="${i}">${esc(f.n)}</button><span class="tag">${f.kb} KB</span>${offenUpload&&NOW<a.frist?`<button class="btn small ghost" data-act="datei-weg" data-i="${i}">Entfernen</button>`:""}</div>${f.info?`<span class="sub" style="color:var(--muted);font-size:.8rem;padding-left:4px">${esc(f.info)}</span>`:""}`).join("")}</div><p class="sub" style="color:var(--muted)">Abgegeben ${fmtDate(s.zeit)}, ${fmtTime(s.zeit)}${s.zeit>a.frist?" · verspätet":""} · Tippe auf eine Datei für die Vorschau.</p>`:a.abgabe==="online"||a.abgabe==="beides"?`<p style="color:var(--muted)">Noch nichts abgegeben.</p>`:""}
+  ${offenUpload?`<label class="drop" for="upl"><b>Fotos oder Dateien hochladen</b><span style="color:var(--muted);font-size:.88rem">Höchstens 10 Dateien, je bis 10 MB. Fotos werden automatisch verkleinert.</span><span class="btn">Dateien wählen</span></label><input type="file" id="upl" multiple accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" class="vh">${NOW>a.frist?`<div class="note warn">Die Frist ist vorbei. Deine Abgabe wird als verspätet markiert.</div>`:""}`:""}
+  ${s.abwesend&&(s.score===null||s.score==="")?`<div class="note info">Als abwesend vermerkt. Die Aufgabe zählt nicht zu deiner Übersicht, außer du holst sie nach.</div>`:""}
+  ${a.freigegeben&&s.score!==null&&s.score!==""?`<div class="panel stat" style="background:var(--tint-green);border-color:transparent"><small style="color:var(--green-ink)">Bewertung</small><span class="big" style="color:var(--green-ink)">${esc(scoreText(a,s))}</span></div>`:s.score!==null&&s.score!==""?`<p style="color:var(--muted)">Bewertet, aber noch nicht freigegeben.</p>`:""}
+ </div></section></div>
+ ${hatFb(s)?`<section class="panel"><header><h2>Feedback</h2><span style="display:flex;gap:8px;align-items:center">${fbPill(fbStatusS(s))}${s.erledigt?`<button class="btn small ghost" data-act="fb-offen">Wieder öffnen</button>`:`<button class="btn small" data-act="fb-erledigt">Als erledigt markieren</button>`}</span></header><div class="body">${verlauf(a,u,"s")}
+  <div class="field"><label for="antwort">Antworten</label><textarea id="antwort" placeholder="z. B. eine Rückfrage, oder wenn bei deiner Abgabe etwas übersehen wurde">${esc(st.reply.text||"")}</textarea></div>
+  ${st.reply.length?`<div class="files">${st.reply.map((f,i)=>`<div class="file">${f.img?`<img src="${f.img}" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:6px;flex:none">`:`<span class="tag">${esc((f.n.split(".").pop()||"").toUpperCase())}</span>`}<span class="main">${esc(f.n)}</span><span class="tag">${f.kb} KB</span><button class="btn small ghost" data-act="reply-weg" data-i="${i}">Entfernen</button></div>`).join("")}</div>`:""}
+  <div class="actions"><button class="btn primary" data-act="antwort">${st.reply.length?"Antwort mit Dateien senden":"Antwort senden"}</button><label class="btn" for="antwort-files">Dateien anhängen</label><input type="file" id="antwort-files" multiple accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" class="vh"></div>
+  <p style="color:var(--muted);font-size:.85rem">Mit deiner Antwort ist das Feedback erledigt. Angehängte Dateien gelten als Verbesserung. Deine erste Abgabe bleibt erhalten. Höchstens 10 Dateien, je bis 10 MB, Fotos werden verkleinert.</p>
+</div></section>`:""}`}
+function vProfil(){const u=me();
+ return `<div class="head"><div><h1>Profil</h1><p>${esc(u.mail)}</p></div></div>
+ <section class="panel"><div class="body" style="flex-direction:row;flex-wrap:wrap;align-items:center;gap:20px">${avatar(u,"lg")}<div style="display:flex;flex-direction:column;gap:8px"><b style="font-size:1.1rem">${esc(u.vn)} ${esc(u.nn)}</b><span style="color:var(--muted)">${u.rolle==="s"?"Schüler·in, Klasse "+u.klasse+", Schuljahr "+SJ:"Lehrkraft"+(u.admin?" und Admin":"")}</span>
+ <div class="actions"><label class="btn" for="foto">Profilbild hochladen</label><input type="file" id="foto" accept="image/*" class="vh">${u.foto?`<button class="btn ghost" data-act="foto-weg">Bild entfernen</button>`:""}</div></div></div>
+ <div class="body" style="border-top:1px solid var(--line)"><h3>Passwort</h3><p style="color:var(--muted)">Über „Passwort vergessen“ bei der Anmeldung kommt ein Link an deine Schul-E-Mail-Adresse.</p><div><button class="btn" data-toast="Demo: Ein Link zum Zurücksetzen wurde an ${esc(u.mail)} geschickt.">Passwort ändern</button></div></div></section>`}
+
+/* ---------- Lehrkraft ---------- */
+function meineKurse(){return db.kurse.filter(k=>k.lehrer.includes(T1.id))}
+function dashL(){const ks=meineKurse().filter(k=>!k.archiv).map(k=>k.id);const as=db.aufgaben.filter(a=>ks.includes(a.kurs));
+ const korr=[];as.forEach(a=>zielgruppe(a).forEach(u=>{const s=getSub(a,u);if(s.files.length&&(s.score===null||s.score===""))korr.push({a,u})}));
+ const fristen=as.filter(a=>a.frist>=NOW&&a.frist<=at(7,"23:59")).sort((a,b)=>a.frist-b.frist);
+ const frei=as.filter(a=>!a.freigegeben&&zielgruppe(a).some(u=>{const s=getSub(a,u);return s.score!==null&&s.score!==""}));
+ const alle=alleFbL();const antw=alle.filter(x=>x.s.lNeu&&!x.s.verbesserung);const verb=alle.filter(x=>x.s.verbesserung);
+ return{korr,fristen,frei,antw,verb}}
+function alleFbL(){const out=[];meineKurse().forEach(k=>db.aufgaben.filter(a=>a.kurs===k.id).forEach(a=>zielgruppe(a).forEach(u=>{const s=getSub(a,u);if(hatFb(s))out.push({a,u,s,k})})));return out.sort((x,y)=>fbZeit(y.s)-fbZeit(x.s))}
+function fbRowL(x){const u=U(x.u);const lu=fbStatusL(x.s)==="ungelesen"?Math.floor((Date.now()-letzteL(x.s).zeit)/86400000):0;const m=[...msgs(x.s)].reverse().find(y=>!y.sys)||{};const sys=msgs(x.s)[msgs(x.s).length-1];
+ return `<li><button class="row click" data-open-task="${x.a.id}" data-fbu="${u.id}">${avatar(u)}<span class="main"><b>${esc(u.vn)} ${esc(u.nn)} · ${esc(x.a.titel)}</b><span class="sub">${esc(kursKurz(x.k))} · ${sys&&sys.sys?esc(sys.text):m.von==="s"?esc(u.vn)+": „"+esc(auszug(m.text||""))+"“":"Du: "+(m.text?"„"+esc(auszug(m.text))+"“":"Korrektur")}</span></span>${lu>=7?`<span class="pill p-warn" title="seit ${lu} Tagen ungelesen">${lu} Tage ungelesen</span>`:fbPill(fbStatusL(x.s))}<span class="due"><b>${rel(fbZeit(x.s))}</b>${fmtDate(fbZeit(x.s))}</span></button></li>`}
+function vFeedbackL(){const f=st.lfilter;let xs=alleFbL();const woche=at(-7,"00:00");const ls=st.lsort;
+ const SO={neu:(x,y)=>fbZeit(y.s)-fbZeit(x.s),alt:(x,y)=>fbZeit(x.s)-fbZeit(y.s),kind:(x,y)=>(U(x.u).nn+U(x.u).vn).localeCompare(U(y.u).nn+U(y.u).vn,"de")||fbZeit(y.s)-fbZeit(x.s),aufgabe:(x,y)=>x.a.titel.localeCompare(y.a.titel,"de")||fbZeit(y.s)-fbZeit(x.s),status:(x,y)=>(FB_RANG[fbStatusL(x.s)]||9)-(FB_RANG[fbStatusL(y.s)]||9)||fbZeit(y.s)-fbZeit(x.s)};
+ const F={dran:x=>x.s.lNeu||x.s.verbesserung,wartet:x=>!x.s.erledigt&&!x.s.lNeu&&!x.s.verbesserung,erledigt:x=>x.s.erledigt&&!x.s.lNeu&&!x.s.verbesserung,alle:()=>true};const alle=xs;xs=xs.filter(F[f]).sort(SO[ls]);
+ const lange=alle.filter(x=>F.wartet(x)&&x.s.sNeu&&letzteL(x.s).zeit<woche).length;
+ const LEER={dran:"Gerade nichts zu tun. Neue Antworten und Verbesserungen erscheinen hier.",wartet:"Kein Feedback wartet auf eine Reaktion der Kinder.",erledigt:"Noch nichts erledigt.",alle:"Du hast noch kein Feedback geschickt."};
+ return `<div class="head"><div><h1>Feedback</h1><p>Alle deine Rückmeldungen über alle Kurse, geordnet danach, wer als Nächstes etwas tun muss.</p></div></div>
+ <div class="chips" role="group" aria-label="Filter">${[["dran","Du bist dran"],["wartet","Wartet auf das Kind"],["erledigt","Erledigt"],["alle","Alle"]].map(([v,l])=>{const n=v==="alle"?alle.length:alle.filter(F[v]).length;return `<button class="chip" data-lf="${v}" aria-pressed="${f===v}">${l} <span style="opacity:.7">${n}</span></button>`}).join("")}<select id="lsort" class="chip" aria-label="Sortieren">${[["neu","Neueste zuerst"],["alt","Älteste zuerst"],["kind","Nach Kind"],["aufgabe","Nach Aufgabe"],["status","Nach Status"]].map(([v,l])=>`<option value="${v}" ${ls===v?"selected":""}>${l}</option>`).join("")}</select></div>
+ <p style="color:var(--muted);font-size:.86rem;margin-top:-10px">${f==="dran"?"Kinder haben geantwortet oder eine Verbesserung abgegeben.":f==="wartet"?`Dein Feedback ist noch nicht erledigt.${lange?` ${lange} davon ${lange>1?"sind":"ist"} seit über einer Woche ungelesen und markiert.`:""}`:f==="erledigt"?"Das Kind hat geantwortet, verbessert oder das Feedback als erledigt markiert.":"Alle Rückmeldungen dieses Schuljahres."}</p>
+ <section class="panel"><ul class="list">${xs.map(fbRowL).join("")||`<li class="empty">${LEER[f]}</li>`}</ul></section>`}
+function abgabeStand(a){const z=zielgruppe(a);const n=z.filter(u=>getSub(a,u).files.length||(getSub(a,u).score!==null&&getSub(a,u).score!=="")).length;return{n,t:z.length}}
+function vStartL(){const{korr,fristen,frei,antw,verb}=dashL();const proA={};korr.forEach(({a})=>proA[a.id]=(proA[a.id]||0)+1);
+ return `<div class="head"><div><h1>Guten Tag, ${esc(T1.vn)}</h1><p>${fmtDate(NOW.getTime())} · ${korr.length} Abgaben zu korrigieren</p></div><div class="actions"><button class="btn primary" data-go="kursneu">${ico("plus")}Kurs anlegen</button></div></div>
+ <div class="grid2">
+ <section class="panel"><header><h2>Zu korrigieren</h2><span class="pill p-done">${korr.length}</span></header><ul class="list">${Object.entries(proA).map(([id,n])=>{const a=A(id);return `<li><button class="row click" data-open-task="${a.id}"><span class="main"><b>${esc(a.titel)}</b><span class="sub">${esc(kursKurz(K(a.kurs)))}</span></span><span class="pill p-done">${n} neu</span></button></li>`}).join("")||`<li class="empty">Alles korrigiert.</li>`}</ul></section>
+ <section class="panel"><header><h2>Bald endende Fristen</h2><span style="color:var(--muted);font-size:.85rem">nächste 7 Tage</span></header><ul class="list">${fristen.map(a=>{const{n,t}=abgabeStand(a);return `<li><button class="row click" data-open-task="${a.id}"><span class="main"><b>${esc(a.titel)}</b><span class="sub">${esc(kursKurz(K(a.kurs)))} · ${a.abgabe==="keine"?"keine Abgabe nötig":`${n} von ${t} abgegeben`}</span></span><span class="due"><b>${rel(a.frist)}</b>${fmtDate(a.frist)}, ${fmtTime(a.frist)}</span></button></li>`}).join("")||`<li class="empty">Keine Fristen in den nächsten 7 Tagen.</li>`}</ul></section>
+ </div>
+ <div class="grid2">
+ <section class="panel"><header><h2>Neue Antworten auf Feedback</h2><span class="pill p-done">${antw.length}</span></header><ul class="list">${antw.map(fbRowL).join("")||`<li class="empty">Keine neuen Antworten.</li>`}</ul></section>
+ <section class="panel"><header><h2>Verbesserungen eingegangen</h2><span class="pill p-done">${verb.length}</span></header><ul class="list">${verb.map(x=>{const u=U(x.u);return `<li><button class="row click" data-open-task="${x.a.id}" data-fbu="${u.id}">${avatar(u)}<span class="main"><b>${esc(u.vn)} ${esc(u.nn)} · ${esc(x.a.titel)}</b><span class="sub">${esc(kursKurz(x.k))} · nach deinem Feedback abgegeben</span></span><span class="due"><b>${rel(fbZeit(x.s))}</b>${fmtDate(fbZeit(x.s))}</span></button></li>`}).join("")||`<li class="empty">Keine neuen Verbesserungen.</li>`}</ul></section>
+ </div>
+ <section class="panel"><header><h2>Bewertet, noch nicht freigegeben</h2></header><ul class="list">${frei.map(a=>`<li><button class="row click" data-open-task="${a.id}"><span class="main"><b>${esc(a.titel)}</b><span class="sub">${esc(kursKurz(K(a.kurs)))}</span></span><span class="pill p-warn">nicht freigegeben</span></button></li>`).join("")||`<li class="empty">Alle Bewertungen sind freigegeben.</li>`}</ul></section>`}
+function vKurseL(){const ks=meineKurse().filter(k=>!k.archiv);const arch=meineKurse().filter(k=>k.archiv);
+ const row=k=>`<li><button class="row click" data-open-kurs="${k.id}"><span class="main"><b>${esc(kursName(k))}</b><span class="sub">${k.art} · ${k.schueler.length} Schüler·innen · ${BEW[k.bew]}${k.lehrer.length>1?" · mit "+k.lehrer.filter(i=>i!==T1.id).map(i=>esc(U(i).vn+" "+U(i).nn)).join(", "):""}</span></span>${k.eigentuemer!==T1.id?`<span class="tag">eingeladen</span>`:""}${k.archiv?`<span class="tag">archiviert</span>`:""}</button></li>`;
+ return `<div class="head"><div><h1>Meine Kurse</h1><p>Schuljahr ${SJ}</p></div><button class="btn primary" data-go="kursneu">${ico("plus")}Kurs anlegen</button></div>
+ <section class="panel"><ul class="list">${ks.map(row).join("")}</ul></section>
+ <section class="panel"><header><h2>Archiv</h2><span class="tag">nur lesen</span></header><ul class="list">${arch.map(row).join("")}</ul></section>`}
+function vKursL(k){const mine=k.eigentuemer===T1.id;const ro=k.archiv;
+ const tabs=[["aufgaben","Aufgaben","Aufgaben"],["uebersicht","Leistungsübersicht","Leistung"],["teil","Teilnehmende","Kinder"],["einst","Einstellungen","Optionen"]].filter(t=>k.beurt||t[0]!=="uebersicht");
+ let body="";
+ if(st.tab==="aufgaben"){const as=db.aufgaben.filter(a=>a.kurs===k.id).sort((a,b)=>b.frist-a.frist);
+  body=`<section class="panel"><header><h2>Aufgaben</h2>${ro?"":`<div class="actions"><button class="btn primary" data-go="neu" data-kurs="${k.id}">${ico("plus")}Neue Aufgabe</button></div>`}</header><ul class="list">${as.map(a=>{const{n,t}=abgabeStand(a);return `<li><button class="row click" data-open-task="${a.id}"><span class="main"><b>${esc(a.titel)}</b><span class="sub">${fuerText(a)} · ${BEW[a.bew]}${a.bew==="punkte"?" ("+a.max+")":""} · ${a.abgabe==="keine"?"keine Abgabe":`${n} von ${t} abgegeben`}</span></span>${a.sichtbar>Date.now()?`<span class="pill p-open">noch nicht sichtbar</span>`:""}${a.freigegeben?`<span class="pill p-graded">freigegeben</span>`:""}<span class="due"><b>${fmtDate(a.frist)}</b>${fmtTime(a.frist)}</span></button></li>`}).join("")||`<li class="empty">Noch keine Aufgaben. Lege die erste an oder öffne eine Aufgabe in einem anderen Kurs und kopiere sie hierher.</li>`}</ul></section>`}
+ if(st.tab==="uebersicht"){const as=db.aufgaben.filter(a=>a.kurs===k.id);const hasP=as.some(a=>a.bew==="punkte"),hasPr=as.some(a=>a.bew==="prozent"),hasS=as.some(a=>a.bew==="symbole");
+  const rows=k.schueler.map(U).map(u=>{const aw=auswertung(k,u.id,false);const z=zaehlung(k,u.id);const sy=aw.sym?(aw.sym["+"]*2+aw.sym["~"])/(2*(aw.sym["+"]+aw.sym["~"]+aw.sym["–"])):null;return{u,aw,z,v:{name:u.nn+" "+u.vn,niveau:niveauOf(u.id,k)||"",erledigt:z.gesamt?z.erledigt/z.gesamt:0,offen:z.offen,ueber:z.ueber,abw:z.abw,punkte:aw.punkte?aw.punkte.p:null,prozent:aw.prozent?aw.prozent.p:null,sym:sy}}});
+  rows.sort((x,y)=>x.v.name.localeCompare(y.v.name,"de"));sortBy("lu","name",rows,(r,key)=>r.v[key]);
+  const th=(key,label,num)=>thS("lu",key,label,{num,desc:!["name","niveau"].includes(key)});
+  body=`<section class="panel"><header><h2>Leistungsübersicht</h2><span style="color:var(--muted);font-size:.85rem">Spaltenkopf antippen zum Sortieren, Kind antippen für alle Aufgaben. Keine Noten, als abwesend Vermerktes zählt nicht.</span></header><div class="tablewrap"><table><thead><tr>${th("name","Schüler·in")}${k.niveaus?th("niveau","Niveau"):""}${th("erledigt","Erledigt",1)}${th("offen","Offen",1)}${th("ueber","Überfällig",1)}${th("abw","Abwesend",1)}${hasP?th("punkte","Punkte gesamt",1):""}${hasPr?th("prozent","Prozent gesamt",1):""}${hasS?th("sym","Symbole"):""}<th></th></tr></thead><tbody>${rows.map(({u,aw,z})=>`<tr class="clickrow" data-sk="${u.id}" tabindex="0" style="cursor:pointer"><td><span class="who">${avatar(u)}<span>${esc(u.nn)} ${esc(u.vn)}</span></span></td>${k.niveaus?`<td>${esc(niveauOf(u.id,k)||"–")}</td>`:""}<td class="num"><b>${z.erledigt}</b> <span style="color:var(--muted)">von ${z.gesamt}</span></td><td class="num">${z.offen||"–"}</td><td class="num">${z.ueber?`<span class="pill p-late">${z.ueber}</span>`:"–"}</td><td class="num">${z.abw?`<span class="pill p-abs">${z.abw}</span>`:"–"}</td>${hasP?`<td class="num"><b>${aw.punkte?aw.punkte.p+" %":"–"}</b>${aw.punkte?`<br><span style="color:var(--muted);font-size:.8rem">${aw.punkte.txt.replace(" Punkten","")}</span>`:""}</td>`:""}${hasPr?`<td class="num"><b>${aw.prozent?aw.prozent.p+" %":"–"}</b></td>`:""}${hasS?`<td>${aw.sym?distBar(aw.sym):"–"}</td>`:""}<td style="color:var(--blue-ink);white-space:nowrap">Details ›</td></tr>`).join("")}</tbody></table></div></section>`}
+ if(st.tab==="teil"){body=`<section class="panel"><header><h2>${k.schueler.length} Teilnehmende</h2><span class="tag" style="white-space:normal">${k.teil==="klasse"?"ganze Schulklasse, neue Schüler·innen kommen automatisch dazu":"ausgewählte Schüler·innen"}</span></header>
+  ${k.niveaus?`<div class="body" style="padding-bottom:0"><div class="note info">Leistungsniveaus sind eingeschaltet. Die Zuordnung gilt für ${esc(k.fach)} im Schuljahr ${k.sj}, also auch für weitere Kurse dieses Fachs.</div></div>`:""}
+  <div class="tablewrap"><table><thead><tr>${thS("tn","name","Name")}${thS("tn","klasse","Klasse")}${k.niveaus?thS("tn","niveau","Leistungsniveau"):""}${ro?"":"<th></th>"}</tr></thead><tbody>${sortBy("tn","name",k.schueler.map(U).sort((a,b)=>a.nn.localeCompare(b.nn,"de")),(u,key)=>key==="name"?u.nn+" "+u.vn:key==="klasse"?u.klasse:niveauOf(u.id,k)).map(u=>`<tr><td><span class="who">${avatar(u)}${esc(u.nn)} ${esc(u.vn)}</span></td><td>${u.klasse}</td>${k.niveaus?`<td><select data-niveau="${u.id}" ${ro?"disabled":""} aria-label="Leistungsniveau ${esc(u.vn)}"><option ${niveauOf(u.id,k)==="Standard"?"selected":""}>Standard</option><option ${niveauOf(u.id,k)==="Standard AHS"?"selected":""}>Standard AHS</option></select></td>`:""}${ro?"":`<td style="text-align:right"><button class="btn small ghost" data-act="tn-weg" data-kurs="${k.id}" data-u="${u.id}">Entfernen</button></td>`}</tr>`).join("")}</tbody></table></div></section>`}
+ if(st.tab==="einst"){let qr="";try{const q=qrcode(0,"M");q.addData(`https://eibe.example/registrieren?code=${k.code}`);q.make();qr=q.createSvgTag({cellSize:4,margin:2,scalable:true})}catch(e){qr=""}
+  body=`<div class="grid2"><section class="panel"><header><h2>Kurscode</h2></header><div class="body" style="align-items:flex-start">
+   <span class="code">${k.code}</span>${qr?`<span class="qr">${qr}</span>`:""}
+   <p style="color:var(--muted)">Schüler·innen registrieren sich mit ihrer Adresse auf @s.edu.magwien.gv.at und diesem Code. Wer den QR-Code scannt, landet direkt in der Registrierung.</p>
+   ${ro?"":`<div class="actions"><button class="btn" data-act="neucode" data-kurs="${k.id}">Neuen Code erzeugen</button><button class="btn ghost" data-toast="Demo: Der Code ${k.code} ist jetzt deaktiviert.">Code deaktivieren</button></div>`}</div></section>
+  <section class="panel"><header><h2>Lehrkräfte</h2></header><ul class="list">${k.lehrer.map(U).map(u=>`<li><div class="row">${avatar(u)}<span class="main"><b>${esc(u.vn)} ${esc(u.nn)}</b><span class="sub">${u.id===k.eigentuemer?"verantwortlich":"eingeladen"}</span></span>${mine&&u.id!==k.eigentuemer&&!ro?`<span class="actions"><button class="btn small" data-act="uebergeben" data-kurs="${k.id}" data-u="${u.id}">Verantwortung übergeben</button><button class="btn small ghost" data-act="lk-weg" data-kurs="${k.id}" data-u="${u.id}">Entfernen</button></span>`:""}</div></li>`).join("")}</ul>
+   ${mine&&!ro?`<div class="body" style="border-top:1px solid var(--line)"><div class="field"><label for="einl">Lehrkraft einladen</label><div style="display:flex;gap:8px"><select id="einl"><option value="">Registrierte Lehrkraft wählen</option>${db.users.filter(u=>u.rolle==="l"&&!k.lehrer.includes(u.id)).map(u=>`<option value="${u.id}">${esc(u.vn)} ${esc(u.nn)} · ${esc(u.mail)}</option>`).join("")}</select><button class="btn" data-act="lk-dazu" data-kurs="${k.id}">Einladen</button></div><span class="hint">Eingeladene Lehrkräfte haben dieselben Rechte auf Aufgaben, Bewertungen und Kurseinstellungen. Lehrkräfte einladen, entfernen und die Verantwortung übergeben kann nur die verantwortliche Lehrkraft.</span></div></div>`:!mine?`<div class="body" style="border-top:1px solid var(--line)"><button class="btn" data-act="verlassen" data-kurs="${k.id}">Kurs verlassen</button></div>`:""}</section></div>
+  <section class="panel"><header><h2>Kurseinstellungen</h2>${ro?`<span class="tag">archiviert</span>`:""}</header><div class="body"><form class="f" id="kseinst" data-kurs="${k.id}">
+   <div class="frow"><div class="field"><label for="ke-zusatz">Kurszusatz</label><input type="text" id="ke-zusatz" autocapitalize="sentences" autocomplete="off" enterkeyhint="next" value="${esc(k.zusatz)}" placeholder="z. B. Hausübungen" ${ro?"disabled":""}><span class="hint">Kursname: ${esc(kursName(k))}</span></div>
+   <div class="field"><label for="ke-frist">Standard-Uhrzeit für Fristen</label><input type="time" id="ke-frist" value="${k.frist}" ${ro?"disabled":""}></div></div>
+   <div class="frow"><div class="field"><span class="lbl">Standard-Bewertungsart</span><div class="radio">${["punkte","prozent","symbole"].map(b=>`<label><input type="radio" name="ke-bew" value="${b}" ${k.bew===b?"checked":""} ${ro?"disabled":""}>${BEW[b]}</label>`).join("")}</div></div>
+   <div class="field"><label for="ke-punkte">Standard-Punktezahl</label><input id="ke-punkte" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" enterkeyhint="done" value="${k.punkte||10}" ${ro?"disabled":""}><span class="hint">Nur bei Punkten.</span></div></div>
+   <label class="check"><input type="checkbox" id="ke-beurt" ${k.beurt?"checked":""} ${ro?"disabled":""}> Leistungsbeurteilung mit Bewertung und Leistungsübersicht</label>
+   ${niveauFach(k.fach)&&k.klassen.every(c=>stufeOf(c)!=="FMS"&&stufeOf(c)>=6)?`<label class="check"><input type="checkbox" id="ke-niv" ${k.niveaus?"checked":""} ${ro?"disabled":""}> Leistungsniveaus Standard und Standard AHS verwenden</label>`:""}
+   <p class="hint" style="color:var(--muted);font-size:.85rem">Standardwerte gelten für neue Aufgaben. Bestehende Aufgaben bleiben, wie sie sind.</p>
+   ${ro?"":`<div class="actions"><button class="btn primary" type="submit">Einstellungen speichern</button></div>`}</form></div></section>`}
+ return `<div class="head"><div><button class="crumb" data-go="kurse">← Meine Kurse</button><h1>${esc(kursName(k))}</h1><p>${k.art} · ${k.schueler.length} Schüler·innen${ro?" · archiviert, nur lesen":""}</p></div></div>
+ <div class="tabs" role="tablist">${tabs.map(([t,l,m])=>`<button role="tab" data-tab="${t}" aria-selected="${st.tab===t}" aria-label="${l}"><span class="d-only">${l}</span><span class="m-only">${m}</span></button>`).join("")}</div>${body}`}
+function sortState(id,def,dir=1){return st.sorts[id]||(st.sorts[id]={key:def,dir})}
+function leer(v){return v===null||v===undefined||v===""}
+function sortBy(id,def,rows,get,dir=1){const so=sortState(id,def,dir);return rows.sort((x,y)=>{const a=get(x,so.key),b=get(y,so.key);if(leer(a)&&leer(b))return 0;if(leer(a))return 1;if(leer(b))return -1;const r=typeof a==="string"?a.localeCompare(b,"de"):a-b;return r*so.dir})}
+function thS(id,key,label,o={}){const so=st.sorts[id]||{};const on=so.key===key;return `<th class="${o.num?"num":""}" aria-sort="${on?(so.dir>0?"ascending":"descending"):"none"}"><button class="sortbtn" data-sort="${key}" data-st="${id}" data-d="${o.desc?-1:1}">${label}<span aria-hidden="true">${on?(so.dir>0?" ▲":" ▼"):" ↕"}</span></button></th>`}
+const ST_RANG={"abgegeben":1,"verspätet":2,"überfällig":3,"in der Schule fällig":4,"offen":5,"abwesend":6,"bewertet":7};
+const FB_RANG={"Antwort neu":1,"Verbesserung":2,"ungelesen":3,"gelesen":4,"erledigt":5};
+function scoreNorm(a,s){if(leer(s.score))return null;if(a.bew==="punkte")return +s.score/a.max*100;if(a.bew==="prozent")return +s.score;return {"+":100,"~":50,"–":0}[s.score]}
+function erledigtSt(a,uId){const st0=status(a,uId);return ["abgegeben","verspätet","bewertet"].includes(st0)}
+function zaehlung(k,uId){const as=db.aufgaben.filter(a=>a.kurs===k.id&&zielgruppe(a).includes(uId)&&a.sichtbar<=Date.now());let z={gesamt:as.length,erledigt:0,offen:0,ueber:0,abw:0};as.forEach(a=>{const st0=status(a,uId);if(erledigtSt(a,uId))z.erledigt++;else if(st0==="abwesend")z.abw++;else if(st0==="überfällig")z.ueber++;else z.offen++});return z}
+function vSchuelerKurs(){const k=K(st.p.kurs);const u=U(st.p.u);const as=db.aufgaben.filter(a=>a.kurs===k.id&&zielgruppe(a).includes(u.id)).sort((a,b)=>b.frist-a.frist);const aw=auswertung(k,u.id,false);const z=zaehlung(k,u.id);const nicht=db.aufgaben.filter(a=>a.kurs===k.id&&!zielgruppe(a).includes(u.id)).length;
+ const idx=k.schueler.map(U).sort((a,b)=>a.nn.localeCompare(b.nn));const pos=idx.findIndex(x=>x.id===u.id);const prev=idx[pos-1],next=idx[pos+1];
+ return `<div class="head"><div>${st.p.froma&&A(st.p.froma)?`<button class="crumb" data-open-task="${st.p.froma}">← Zurück zu „${esc(A(st.p.froma).titel)}“</button> · <button class="crumb" data-open-kurs="${k.id}" data-tab-to="uebersicht">Leistungsübersicht ${esc(kursKurz(k))}</button>`:`<button class="crumb" data-open-kurs="${k.id}" data-tab-to="uebersicht">← Leistungsübersicht ${esc(kursKurz(k))}</button>`}<div style="display:flex;gap:14px;align-items:center">${avatar(u,"lg")}<div><h1>${esc(u.vn)} ${esc(u.nn)}</h1><p>Klasse ${u.klasse}${k.niveaus&&niveauOf(u.id,k)?" · "+esc(niveauOf(u.id,k)):""} · ${esc(kursName(k))}</p></div></div></div>
+ <div class="actions">${prev?`<button class="btn small" data-sk="${prev.id}">‹ ${esc(prev.vn)}</button>`:""}${next?`<button class="btn small" data-sk="${next.id}">${esc(next.vn)} ›</button>`:""}</div></div>
+ <div class="grid3"><div class="panel stat"><small>Erledigt</small><span class="big">${z.erledigt} <span style="font-size:1rem;color:var(--muted)">von ${z.gesamt}</span></span><small>${z.offen} offen · ${z.ueber} überfällig · ${z.abw} abwesend</small></div>
+ ${aw.punkte?`<div class="panel stat"><small>Punkte gesamt</small><span class="big">${aw.punkte.p} %</span><small>${aw.punkte.txt}</small></div>`:""}${aw.prozent?`<div class="panel stat"><small>Prozent-Aufgaben</small><span class="big">${aw.prozent.p} %</span><small>Mittelwert aus ${aw.prozent.n}</small></div>`:""}${aw.sym?`<div class="panel stat"><small>Symbole</small>${distBar(aw.sym)}</div>`:""}</div>
+ <section class="panel"><header><h2>Alle Aufgaben</h2>${nicht?`<span style="color:var(--muted);font-size:.85rem">${nicht} Aufgabe${nicht>1?"n gelten":" gilt"} nicht für ${esc(u.vn)}</span>`:""}</header><div class="tablewrap"><table><thead><tr>${thS("sk","titel","Aufgabe")}${thS("sk","frist","Frist",{desc:1})}${thS("sk","status","Status")}${thS("sk","abgabe","Abgabe",{desc:1})}${thS("sk","bew","Bewertung",{num:1,desc:1})}${thS("sk","fb","Feedback")}</tr></thead><tbody>${sortBy("sk","frist",[...as],(a,key)=>{const s=getSub(a,u.id);return key==="titel"?a.titel:key==="frist"?a.frist:key==="status"?ST_RANG[status(a,u.id)]:key==="abgabe"?(s.files.length?s.zeit:null):key==="bew"?scoreNorm(a,s):FB_RANG[fbStatusL(s)]},-1).map(a=>{const s=getSub(a,u.id);const nf=msgs(s).filter(m=>!m.sys).length;return `<tr class="clickrow" data-open-task="${a.id}" tabindex="0" style="cursor:pointer"><td><b>${esc(a.titel)}</b>${a.sichtbar>Date.now()?` <span class="pill p-open">noch nicht sichtbar</span>`:""}<br><span style="color:var(--muted);font-size:.84rem">${BEW[a.bew]}${a.bew==="punkte"?" ("+a.max+")":""} · ${a.abgabe==="keine"?"keine Abgabe nötig":a.abgabe==="schule"?"in der Schule":"online"}</span></td><td style="white-space:nowrap">${fmtDate(a.frist)}<br><span style="color:var(--muted);font-size:.84rem">${fmtTime(a.frist)}</span></td><td>${pill(status(a,u.id))}</td><td>${s.files.length?`${s.files.length} Datei${s.files.length>1?"en":""}<br><span style="color:var(--muted);font-size:.84rem">${fmtDate(s.zeit)}, ${fmtTime(s.zeit)}${s.zeit>a.frist?" · verspätet":""}</span>`:"–"}</td><td class="num"><b>${esc(scoreText(a,s))}</b>${s.score!==null&&s.score!==""&&!a.freigegeben?`<br><span style="color:var(--muted);font-size:.8rem">nicht freigegeben</span>`:""}</td><td>${nf?`${nf} Nachricht${nf>1?"en":""} ${fbPill(fbStatusL(s))}`:"–"}</td></tr>`}).join("")||`<tr><td colspan="6" class="empty">Noch keine Aufgaben für ${esc(u.vn)}.</td></tr>`}</tbody></table></div></section>`}
+function vAufgabeL(a){const k=K(a.kurs);const z=zielgruppe(a).map(U).sort((x,y)=>x.nn.localeCompare(y.nn));const{n,t}=abgabeStand(a);const ro=k.archiv;
+ const inp=(u,s)=>a.bew==="symbole"?`<select data-score="${u.id}" aria-label="Bewertung ${esc(u.vn)}" ${ro?"disabled":""}><option value="">–</option>${["+","~","–"].map(o=>`<option ${s.score===o?"selected":""}>${o}</option>`).join("")}</select>`:`<input class="score" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="next" value="${s.score===null||s.score===""?"":zahl(s.score)}" data-score="${u.id}" aria-label="Bewertung ${esc(u.vn)}" ${ro?"disabled":""}>${a.bew==="punkte"?` <span style="color:var(--muted)">/ ${a.max}</span>`:" %"}`;
+ return `<div class="head"><div><button class="crumb" data-open-kurs="${k.id}">← ${esc(kursKurz(k))}</button><h1>${esc(a.titel)}</h1><p>Frist ${fmtDate(a.frist)}, ${fmtTime(a.frist)} · ${fuerText(a)} · ${BEW[a.bew]}${a.bew==="punkte"?" (max. "+a.max+")":""} · ${a.abgabe==="keine"?"keine Abgabe nötig":a.abgabe==="schule"?"Abgabe in der Schule":`${n} von ${t} abgegeben`}</p></div>
+ </div>
+ ${ro?`<div class="actions"><button class="btn primary" data-act="kopieren" data-a="${a.id}">Aufgabe in einen Kurs kopieren</button></div>`:`<div class="toolbar">
+  <div class="tgroup" role="group" aria-labelledby="tg-auf-${a.id}"><span class="tlabel" id="tg-auf-${a.id}">Aufgabe</span><div class="actions"><button class="btn" data-act="a-edit" data-a="${a.id}" aria-label="Aufgabe bearbeiten"><span class="m-only">${ico("edit")}</span><span class="d-only">Aufgabe bearbeiten</span><span class="m-only">Bearbeiten</span></button><button class="btn" data-act="kopieren" data-a="${a.id}" aria-label="Aufgabe kopieren"><span class="m-only">${ico("copy")}</span><span class="d-only">Aufgabe kopieren</span><span class="m-only">Kopieren</span></button><button class="btn danger" data-act="a-del" data-a="${a.id}" aria-label="Aufgabe löschen"><span class="m-only">${ico("trash")}</span><span class="d-only">Aufgabe löschen</span><span class="m-only">Löschen</span></button></div></div>
+  <div class="tgroup" role="group" aria-labelledby="tg-abg-${a.id}"><span class="tlabel" id="tg-abg-${a.id}">Abgaben</span><div class="actions">${a.abgabe!=="keine"&&a.abgabe!=="schule"?`<button class="btn" data-act="zip" data-a="${a.id}" aria-label="Alle Abgaben als ZIP"><span class="m-only">${ico("zip")}</span><span class="d-only">Alle Abgaben als ZIP</span><span class="m-only">ZIP</span></button>`:""}<button class="btn" data-act="massfb" data-a="${a.id}" aria-label="Feedback an mehrere"><span class="m-only">${ico("chat")}</span><span class="d-only">Feedback an mehrere</span><span class="m-only">Feedback an alle</span></button><button class="btn ${a.freigegeben?"":"primary"}" data-act="freigabe" data-a="${a.id}" aria-label="${a.freigegeben?"Freigabe zurücknehmen":"Bewertungen freigeben"}"><span class="m-only">${ico(a.freigegeben?"eyeoff":"eye")}</span><span class="d-only">${a.freigegeben?"Freigabe zurücknehmen":"Bewertungen freigeben"}</span><span class="m-only">${a.freigegeben?"Zurücknehmen":"Freigeben"}</span></button></div></div>
+ </div>`}
+ ${a.sichtbar>Date.now()&&!ro?`<div class="note warn flex" style="align-items:center;justify-content:space-between;flex-wrap:wrap">Diese Aufgabe ist für die Schüler·innen noch nicht sichtbar.<button class="btn small" data-act="a-zeigen" data-a="${a.id}">Jetzt sichtbar machen</button></div>`:""}
+ ${a.beschreibung?`<p style="max-width:65ch">${esc(a.beschreibung)}</p>`:""}
+ ${(()=>{const neu=z.filter(u=>getSub(a,u.id).verbesserung||getSub(a,u.id).lNeu);return neu.length?`<section class="panel" style="border-color:var(--blue)"><header><h2>Neu seit deinem Feedback</h2><span class="pill p-done">${neu.length}</span></header><ul class="list">${neu.map(u=>{const s=getSub(a,u.id);return `<li><div class="row">${avatar(u)}<span class="main"><b>${esc(u.vn)} ${esc(u.nn)}</b><span class="sub">${s.verbesserung?"hat eine Verbesserung abgegeben":"hat auf dein Feedback geantwortet"} · ${fmtDate(fbZeit(s))}, ${fmtTime(fbZeit(s))}</span></span><button class="btn small primary" data-act="feedback" data-a="${a.id}" data-u="${u.id}">${s.verbesserung?"Verbesserung ansehen":"Antwort ansehen"}</button></div></li>`}).join("")}</ul></section>`:""})()}
+ <section class="panel"><header><h2>Abgaben</h2><span style="color:var(--muted);font-size:.85rem">Bewertung eintragen und mit Tab zur nächsten Spalte, Spaltenkopf zum Sortieren</span></header><div class="tablewrap"><table><thead><tr>${thS("auf","name","Schüler·in")}${thS("auf","status","Status")}${thS("auf","abgabe","Abgabe",{desc:1})}${thS("auf","bew","Bewertung",{desc:1})}${thS("auf","abw","Abwesend",{desc:1})}${thS("auf","fb","Feedback")}</tr></thead><tbody>${sortBy("auf","name",[...z],(u,key)=>{const s=getSub(a,u.id);return key==="name"?u.nn+" "+u.vn:key==="status"?ST_RANG[status(a,u.id)]:key==="abgabe"?(s.files.length?s.zeit:null):key==="bew"?scoreNorm(a,s):key==="abw"?(s.abwesend?1:null):FB_RANG[fbStatusL(s)]}).map(u=>{const s=getSub(a,u.id);return `<tr${s.verbesserung||s.lNeu?' style="background:var(--tint-blue)"':""}><td><span class="who">${avatar(u)}<span><button class="namelink" data-sk="${u.id}" data-k="${k.id}" data-froma="${a.id}" title="Leistungsübersicht von ${esc(u.vn)} in diesem Kurs">${esc(u.nn)} ${esc(u.vn)}</button>${k.niveaus?`<br><span style="color:var(--muted);font-size:.8rem">${esc(niveauOf(u.id,k)||"")}</span>`:""}</span></span></td><td>${pill(status(a,u.id))}</td>
+ <td><span style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">${s.files.length?s.files.map((f,i)=>`<button class="btn small ghost" data-act="l-vorschau" data-u="${u.id}" data-i="${i}" title="Vorschau öffnen">${f.img?`<img src="${f.img}" alt="" style="width:26px;height:26px;object-fit:cover;border-radius:4px">`:""}${esc(f.n)}</button>`).join("")+(a.abgabe!=="keine"?`<button class="btn small" data-act="korr" data-u="${u.id}">Korrigieren</button>`:""):`<span style="color:var(--muted)">–</span>`}</span></td>
+ <td style="white-space:nowrap">${inp(u,s)}</td><td><input type="checkbox" data-abw="${u.id}" ${s.abwesend?"checked":""} aria-label="${esc(u.vn)} abwesend" ${ro?"disabled":""}></td>
+ <td><span style="display:flex;gap:6px;align-items:center;white-space:nowrap"><button class="btn small ghost" data-act="feedback" data-a="${a.id}" data-u="${u.id}">Feedback${msgs(s).filter(m=>!m.sys).length?` (${msgs(s).filter(m=>!m.sys).length})`:""}</button>${fbPill(fbStatusL(s))}</span></td></tr>`}).join("")}</tbody></table></div></section>
+ ${a.freigegeben?"":`<p style="color:var(--muted)">Die Bewertungen sind für die Schüler·innen erst sichtbar, wenn du sie freigibst.</p>`}`}
+
+/* Kurs anlegen */
+const kf={art:"Unterrichtsfach",klassen:["2A"],fach:"",sj:SJ,zusatz:"",bew:"punkte",punkte:10,frist:"08:00",teil:"klasse",auswahl:[],niveaus:false};
+function faecherFuer(art,klassen){if(!klassen.length)return[];const stufen=klassen.map(stufeOf);return FAECHER.filter(f=>!f.aus&&f.k===art&&stufen.every(s=>f.st.includes(s)))}
+function vKursNeu(){const fs=faecherFuer(kf.art,kf.klassen);if(!fs.find(f=>f.n===kf.fach))kf.fach=fs[0]?.n||"";
+ const multi=kf.art!=="Unterrichtsfach";const klassenListe=db.klassen.filter(c=>kf.art==="Unterrichtsfach"||c!=="FMS");
+ const dup=kf.fach&&db.kurse.some(k=>!k.archiv&&k.fach===kf.fach&&k.sj===kf.sj&&k.klassen.join()===kf.klassen.join());
+ const niv=niveauFach(kf.fach)&&kf.klassen.length&&kf.klassen.every(c=>stufeOf(c)!=="FMS"&&stufeOf(c)>=6);
+ const schuelerListe=db.users.filter(u=>u.rolle==="s"&&kf.klassen.includes(u.klasse)).sort((a,b)=>a.klasse.localeCompare(b.klasse)||a.nn.localeCompare(b.nn));
+ const name=kf.fach?`${multi?"":kf.klassen.join(", ")+" "}${kf.fach}${kf.zusatz?" "+kf.zusatz:""} ${kf.sj}`:"";
+ const sjs=[SJ,SJ_PREV];
+ return `<div class="head"><div><button class="crumb" data-go="kurse">← Meine Kurse</button><h1>Kurs anlegen</h1><p>Der Kursname entsteht automatisch.</p></div></div>
+ <section class="panel"><div class="body"><form class="f" id="kursform">
+ <div class="field"><span class="lbl">1. Kursart</span><div class="chips">${KURSARTEN.map(a=>`<button type="button" class="chip" data-kf-art="${a}" aria-pressed="${kf.art===a}">${a}</button>`).join("")}</div></div>
+ <div class="field"><span class="lbl">2. Schulklasse${multi?"n":""}</span><div class="chips">${klassenListe.map(c=>`<button type="button" class="chip" data-kf-kl="${c}" aria-pressed="${kf.klassen.includes(c)}">${c}</button>`).join("")}</div><span class="hint">${multi?"Mehrere möglich, z. B. 4A und 4B für ein Modul.":"Eine Schulklasse."}${kf.art!=="Unterrichtsfach"?" Für die FMS gibt es keine Förderkurse, Module und UÜ.":""}</span></div>
+ <div class="frow"><div class="field"><label for="kf-fach">3. Fach</label><select id="kf-fach">${fs.map(f=>`<option ${f.n===kf.fach?"selected":""}>${esc(f.n)}</option>`).join("")||"<option value=''>Für diese Auswahl gibt es kein Fach</option>"}</select><span class="hint">Nur Fächer, die laut Stundentafel in dieser Schulstufe unterrichtet werden.</span></div>
+ <div class="field"><label for="kf-sj">4. Schuljahr</label><select id="kf-sj">${sjs.map(s=>`<option ${s===kf.sj?"selected":""}>${s}</option>`).join("")}</select><span class="hint">Vorgeschlagen ist das laufende Schuljahr.</span></div></div>
+ <div class="field"><label for="kf-zusatz">5. Kurszusatz ${dup?"(Pflicht)":"(optional)"}</label><input type="text" id="kf-zusatz" autocapitalize="sentences" autocomplete="off" enterkeyhint="next" value="${esc(kf.zusatz)}" placeholder="z. B. Gruppe 1 oder Hausübungen">
+ ${dup?`<div class="note warn">Diesen Kurs gibt es schon. Du kannst dich von der betreuenden Lehrkraft einladen lassen oder mit einem Zusatz einen weiteren Kurs anlegen, z. B. „Hausübungen“.</div>`:""}</div>
+ <div class="frow"><div class="field"><span class="lbl">6. Standard-Bewertungsart</span><div class="radio">${["punkte","prozent","symbole"].map(b=>`<label><input type="radio" name="kf-bew" value="${b}" ${kf.bew===b?"checked":""}>${BEW[b]}</label>`).join("")}</div>${kf.bew==="symbole"?`<div class="note info">Symbole werden als Verteilung ausgewertet, z. B. 6× +, 3× ~, 1× –, nicht als Durchschnitt.</div>`:""}</div>
+ ${kf.bew==="punkte"?`<div class="field"><label for="kf-punkte">Standard-Punktezahl</label><input id="kf-punkte" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" enterkeyhint="done" value="${kf.punkte}"></div>`:""}
+ <div class="field"><label for="kf-frist">Standard-Uhrzeit für Fristen</label><input type="time" id="kf-frist" value="${kf.frist}"><span class="hint">8:00 Uhr, weil dann der Unterricht beginnt.</span></div></div>
+ ${niv?`<label class="check"><input type="checkbox" id="kf-niv" ${kf.niveaus?"checked":""}> Leistungsniveaus Standard und Standard AHS verwenden</label>`:""}
+ <div class="field"><span class="lbl">7. Teilnehmende</span><div class="radio"><label><input type="radio" name="kf-teil" value="klasse" ${kf.teil==="klasse"?"checked":""}>Ganze Schulklasse, später registrierte kommen automatisch dazu</label><label><input type="radio" name="kf-teil" value="auswahl" ${kf.teil==="auswahl"?"checked":""}>Ausgewählte Schüler·innen</label></div>
+ ${kf.teil==="auswahl"?`<div class="picklist">${schuelerListe.map(u=>`<label><input type="checkbox" data-kf-s="${u.id}" ${kf.auswahl.includes(u.id)?"checked":""}>${esc(u.nn)} ${esc(u.vn)} <span class="tag">${u.klasse}</span></label>`).join("")||"<span style='color:var(--muted)'>In diesen Klassen ist noch niemand registriert.</span>"}</div>`:""}</div>
+ <div class="note info">Kursname: <b>${esc(name)||"–"}</b> · Leistungsbeurteilung ${KDEF[kf.art].beurt?"an":"aus"}</div>
+ <div class="actions"><button class="btn primary" type="submit" ${!kf.fach||!kf.klassen.length||(dup&&!kf.zusatz.trim())?"disabled":""}>Kurs anlegen</button><button class="btn ghost" type="button" data-go="kurse">Abbrechen</button></div>
+ </form></div></section>`}
+
+/* Aufgabe anlegen */
+let af=null;
+function startAufgabe(kursId,vorlage,edit){const k=K(kursId);if(edit){const d=new Date(edit.frist);const pad=n=>String(n).padStart(2,"0");af={kurs:kursId,edit:edit.id,titel:edit.titel,beschreibung:edit.beschreibung,anhaenge:[...edit.anhaenge],fuer:edit.fuer,auswahl:[...edit.auswahl],bew:edit.bew,max:edit.max,abgabe:edit.abgabe,datum:`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,zeit:`${pad(d.getHours())}:${pad(d.getMinutes())}`,spaet:edit.spaet,sicht:edit.sichtbar>Date.now()?"spaeter":"sofort",bewertet:Object.values(edit.subs).some(s=>s.score!==null&&s.score!=="")};go("neu",{kurs:kursId});return}af={kurs:kursId,titel:vorlage?.titel||"",beschreibung:vorlage?.beschreibung||"",anhaenge:vorlage?[...vorlage.anhaenge]:[],fuer:"alle",auswahl:[],bew:k.bew,max:k.punkte||10,abgabe:"online",datum:(()=>{const d=new Date(at(7));return d.toISOString().slice(0,10)})(),zeit:k.frist,spaet:true,sicht:"sofort",kopiert:!!vorlage};go("neu",{kurs:kursId})}
+function vAufgabeNeu(){const k=K(af.kurs);const abw=af.bew!==k.bew;
+ return `<div class="head"><div><button class="crumb" data-open-kurs="${k.id}">← ${esc(kursKurz(k))}</button><h1>${af.edit?"Aufgabe bearbeiten":"Neue Aufgabe"}</h1><p>${af.edit?"Änderungen gelten sofort für alle Schüler·innen dieser Aufgabe.":af.kopiert?"Kopiert: Titel, Beschreibung und Anhänge sind übernommen, alles andere legst du hier neu fest.":"Vorbelegt mit den Standardwerten des Kurses."}</p></div></div>
+ <section class="panel"><div class="body"><form class="f" id="aufgform">
+ <div class="field"><label for="af-titel">Titel</label><input type="text" id="af-titel" autocapitalize="sentences" autocomplete="off" enterkeyhint="next" value="${esc(af.titel)}" placeholder="z. B. Workbook S. 20" required></div>
+ <div class="field"><label for="af-beschr">Beschreibung</label><textarea id="af-beschr">${esc(af.beschreibung)}</textarea></div>
+ <div class="field"><span class="lbl">Für wen gilt die Aufgabe?</span><div class="radio"><label><input type="radio" name="af-fuer" value="alle" ${af.fuer==="alle"?"checked":""}>Alle Schüler·innen des Kurses</label><label><input type="radio" name="af-fuer" value="auswahl" ${af.fuer==="auswahl"?"checked":""}>Ausgewählte Schüler·innen</label>${k.niveaus?`<label><input type="radio" name="af-fuer" value="niveau:Standard" ${af.fuer==="niveau:Standard"?"checked":""}>Nur Standard</label><label><input type="radio" name="af-fuer" value="niveau:Standard AHS" ${af.fuer==="niveau:Standard AHS"?"checked":""}>Nur Standard AHS</label>`:""}</div>
+ ${af.fuer==="auswahl"?`<div class="picklist">${k.schueler.map(U).sort((a,b)=>a.nn.localeCompare(b.nn)).map(u=>`<label><input type="checkbox" data-af-s="${u.id}" ${af.auswahl.includes(u.id)?"checked":""}>${esc(u.nn)} ${esc(u.vn)}${k.niveaus?` <span class="tag">${esc(niveauOf(u.id,k)||"")}</span>`:""}</label>`).join("")}</div>`:""}</div>
+ <div class="frow"><div class="field"><span class="lbl">Bewertungsart</span><div class="radio">${af.bewertet?`<div class="note info">Es gibt schon Bewertungen. Die Bewertungsart lässt sich nicht mehr ändern.</div>`:""}${["punkte","prozent","symbole"].map(b=>`<label><input type="radio" name="af-bew" value="${b}" ${af.bew===b?"checked":""} ${af.bewertet?"disabled":""}>${BEW[b]}${b===k.bew?" (Kursstandard)":""}</label>`).join("")}</div>
+ ${abw?`<div class="note warn">Abweichend vom Kursstandard: Diese Aufgabe wird in der Übersicht getrennt ausgewertet${af.bew==="symbole"?", als Verteilung statt als Durchschnitt":""}.</div>`:""}</div>
+ ${af.bew==="punkte"?`<div class="field"><label for="af-max">Erreichbare Punkte</label><input id="af-max" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" enterkeyhint="done" value="${af.max}"></div>`:""}
+ <div class="field"><span class="lbl">Abgabeart</span><div class="radio">${[["online","Online"],["schule","In der Schule"],["beides","Online oder in der Schule"],["keine","Keine Abgabe notwendig"]].map(([v,l])=>`<label><input type="radio" name="af-abg" value="${v}" ${af.abgabe===v?"checked":""}>${l}</label>`).join("")}</div>${af.abgabe==="keine"?`<span class="hint">Für Aufgaben in einem anderen System. Kein Upload. Die Aufgabe steht trotzdem auf der Startseite unter Bald fällig.</span>`:""}</div></div>
+ <div class="field"><span class="lbl">Anhänge</span><div class="files">${af.anhaenge.map((n,i)=>`<div class="file">📎<span class="main">${esc(n)}</span><button type="button" class="btn small ghost" data-af-del="${i}">Entfernen</button></div>`).join("")}</div><label class="btn" for="af-file" style="align-self:flex-start">Datei anhängen</label><input type="file" id="af-file" multiple class="vh"></div>
+ <div class="frow"><div class="field"><label for="af-datum">Frist: Datum</label><input type="date" id="af-datum" value="${af.datum}"></div><div class="field"><label for="af-zeit">Frist: Uhrzeit</label><input type="time" id="af-zeit" value="${af.zeit}"><span class="hint">Kursstandard ${k.frist} Uhr</span></div>
+ <div class="field"><label for="af-sicht">Sichtbar</label><select id="af-sicht"><option value="sofort" ${af.sicht==="sofort"?"selected":""}>Sofort</option><option value="spaeter" ${af.sicht==="spaeter"?"selected":""}>Später, manuell</option><option value="zeit" ${af.sicht==="zeit"?"selected":""}>Automatisch ab einem Zeitpunkt</option></select></div></div>
+ ${af.abgabe!=="keine"&&af.abgabe!=="schule"?`<label class="check"><input type="checkbox" id="af-spaet" ${af.spaet?"checked":""}> Verspätete Abgabe erlauben und kennzeichnen</label>`:""}
+ <div class="actions"><button class="btn primary" type="submit">${af.edit?"Änderungen speichern":"Aufgabe anlegen"}</button><button class="btn ghost" type="button" ${af.edit?`data-open-task="${af.edit}"`:`data-open-kurs="${k.id}"`}>Abbrechen</button></div>
+ </form></div></section>`}
+
+/* ---------- Admin ---------- */
+function vStartA(){const s=db.users.filter(u=>u.rolle==="s").length,l=db.users.filter(u=>u.rolle==="l").length;
+ return `<div class="head"><div><h1>Verwaltung</h1><p>Schuljahr ${SJ}</p></div></div>
+ <div class="grid3"><div class="panel stat"><small>Schulklassen</small><span class="big">${db.klassen.length}</span></div><div class="panel stat"><small>Schüler·innen registriert</small><span class="big">${s}</span><small>Demo-Auszug</small></div><div class="panel stat"><small>Lehrkräfte</small><span class="big">${l}</span></div><div class="panel stat"><small>Kurse ${SJ}</small><span class="big">${db.kurse.filter(k=>!k.archiv).length}</span></div></div>
+ <section class="panel"><header><h2>Registrierungen freigeben</h2><span class="pill ${db.pending.length?"p-warn":"p-graded"}">${db.pending.length}</span></header>
+ <div class="body" style="padding-bottom:0"><p style="color:var(--muted)">Adressen auf @schule.wien.gv.at, @edu.magwien.gv.at und @s.edu.magwien.gv.at werden automatisch freigeschaltet. Hier landen nur andere Adressen.</p></div>
+ <ul class="list">${db.pending.map(p=>`<li><div class="row"><span class="main"><b>${esc(p.vn)} ${esc(p.nn)}</b><span class="sub">${esc(p.mail)} · ${esc(p.rolle)} · ${fmtDate(p.wann)}, ${fmtTime(p.wann)}</span></span><div class="actions"><button class="btn small primary" data-act="ok" data-p="${p.id}">Freigeben</button><button class="btn small ghost" data-act="nein" data-p="${p.id}">Ablehnen</button></div></div></li>`).join("")||`<li class="empty">Keine offenen Registrierungen.</li>`}</ul></section>`}
+function vKurseA(){const ks=db.kurse.filter(k=>!k.archiv).sort((a,b)=>kursName(a).localeCompare(kursName(b)));const ls=db.users.filter(u=>u.rolle==="l");
+ return `<div class="head"><div><h1>Kurse</h1><p>Alle Kurse im Schuljahr ${SJ}. Hier legst du fest, wer verantwortlich ist, etwa wenn eine Lehrkraft die Schule verlässt.</p></div></div>
+ <section class="panel"><div class="tablewrap"><table><thead><tr>${thS("ak","name","Kurs")}${thS("ak","art","Kursart")}${thS("ak","n","Schüler·innen",{num:1,desc:1})}${thS("ak","lk","Lehrkräfte")}${thS("ak","ver","Verantwortlich")}</tr></thead><tbody>${sortBy("ak","name",ks,(k,key)=>key==="name"?kursName(k):key==="art"?k.art:key==="n"?k.schueler.length:key==="lk"?k.lehrer.map(i=>U(i).nn).join(", "):U(k.eigentuemer).nn+" "+U(k.eigentuemer).vn).map(k=>`<tr><td><b>${esc(kursName(k))}</b></td><td>${k.art}</td><td class="num">${k.schueler.length}</td><td>${k.lehrer.map(i=>esc(U(i).vn+" "+U(i).nn)).join(", ")}</td><td><select data-verantw="${k.id}" aria-label="Verantwortliche Lehrkraft für ${esc(kursName(k))}">${ls.map(u=>`<option value="${u.id}" ${u.id===k.eigentuemer?"selected":""}>${esc(u.vn)} ${esc(u.nn)}</option>`).join("")}</select></td></tr>`).join("")}</tbody></table></div></section>`}
+function klasseLeer(c){const n=db.users.filter(u=>u.rolle==="s"&&u.klasse===c).length;const kk=db.kurse.filter(k=>!k.archiv&&k.klassen.includes(c)).length;
+ if(n||kk){toast(`${c} lässt sich nicht entfernen: ${n?`${n} Schüler·innen`:""}${n&&kk?" und ":""}${kk?`${kk} Kurs${kk>1?"e":""}`:""} gehören noch dazu. Ändere zuerst ihre Schulklasse.`);return false}return true}
+function vKlassenA(){const all=["A","B","C","D","E"];
+ return `<div class="head"><div><h1>Schulklassen</h1><p>Einmal anhaken, danach erzeugt der Schuljahreswechsel die Klassen selbst.</p></div></div>
+ <section class="panel"><div class="body"><div class="raster" role="group" aria-label="Klassenraster"><span></span>${all.map(b=>`<b style="text-align:center">${b}</b>`).join("")}
+ ${[1,2,3,4].map(j=>`<b>${j}. Klasse</b>${all.map(b=>`<button class="cell" data-kl="${j}${b}" aria-pressed="${db.klassen.includes(j+b)}">${j}${b}</button>`).join("")}`).join("")}</div>
+ <label class="check"><input type="checkbox" data-kl-fms ${db.klassen.includes("FMS")?"checked":""}> Fachmittelschule (FMS)</label>
+ <p><b>${db.klassen.length}</b> Schulklassen im Schuljahr ${SJ}</p></div></section>`}
+function vSchuelerA(){const q=(st.p.q||"").toLowerCase();const kl=st.p.kl||"";let us=db.users.filter(u=>u.rolle==="s");
+ if(kl)us=us.filter(u=>u.klasse===kl);if(q)us=us.filter(u=>(u.vn+" "+u.nn+" "+u.mail).toLowerCase().includes(q));us.sort((a,b)=>a.klasse.localeCompare(b.klasse)||a.nn.localeCompare(b.nn));
+ return `<div class="head"><div><h1>Schüler·innen</h1><p>Demo-Auszug. Stammdaten ändern, Passwörter zurücksetzen.</p></div></div>
+ <div class="frow"><div class="field"><label for="sq">Suchen</label><input type="search" id="sq" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="search" value="${esc(st.p.q||"")}" placeholder="Name oder E-Mail"></div><div class="field"><label for="skl">Schulklasse</label><select id="skl"><option value="">Alle</option>${db.klassen.map(c=>`<option ${kl===c?"selected":""}>${c}</option>`).join("")}</select></div></div>
+ <section class="panel"><div class="tablewrap"><table><thead><tr>${thS("as","name","Name")}${thS("as","klasse","Klasse")}${thS("as","mail","E-Mail")}<th></th></tr></thead><tbody>${sortBy("as","klasse",us,(u,key)=>key==="name"?u.nn+" "+u.vn:key==="klasse"?u.klasse:u.mail).map(u=>`<tr><td><span class="who">${avatar(u)}${esc(u.nn)} ${esc(u.vn)}</span></td><td>${u.klasse}</td><td style="overflow-wrap:anywhere">${esc(u.mail)}</td><td style="white-space:nowrap"><button class="btn small" data-act="edit" data-u="${u.id}">Bearbeiten</button> <button class="btn small ghost" data-toast="Demo: Passwort von ${esc(u.vn)} ${esc(u.nn)} zurückgesetzt. Ein Link ging an ${esc(u.mail)}.">Passwort zurücksetzen</button></td></tr>`).join("")||`<tr><td colspan="4" class="empty">Niemand gefunden.</td></tr>`}</tbody></table></div></section>`}
+function vLehrerA(){const ls=db.users.filter(u=>u.rolle==="l");
+ return `<div class="head"><div><h1>Lehrkräfte</h1><p>Lehrkräfte mit Schuladresse werden automatisch freigeschaltet.</p></div></div>
+ <section class="panel"><div class="tablewrap"><table><thead><tr>${thS("al","name","Name")}${thS("al","mail","E-Mail")}${thS("al","kurse","Kurse",{num:1,desc:1})}${thS("al","admin","Admin",{desc:1})}<th></th></tr></thead><tbody>${sortBy("al","name",ls.sort((a,b)=>a.nn.localeCompare(b.nn,"de")),(u,key)=>key==="name"?u.nn+" "+u.vn:key==="mail"?u.mail:key==="kurse"?db.kurse.filter(k=>k.lehrer.includes(u.id)&&!k.archiv).length:(u.admin?1:null)).map(u=>`<tr><td><span class="who">${avatar(u)}${esc(u.nn)} ${esc(u.vn)}</span></td><td style="overflow-wrap:anywhere">${esc(u.mail)}</td><td class="num">${db.kurse.filter(k=>k.lehrer.includes(u.id)&&!k.archiv).length}</td><td><input type="checkbox" data-admin="${u.id}" ${u.admin?"checked":""} ${u.id===T1.id?"disabled title='Du kannst dir die Admin-Rolle nicht selbst nehmen'":""} aria-label="${esc(u.vn)} ist Admin"></td><td style="white-space:nowrap"><button class="btn small ghost" data-toast="Demo: Passwort von ${esc(u.vn)} ${esc(u.nn)} zurückgesetzt.">Passwort zurücksetzen</button> <button class="btn small ghost" data-toast="Demo: Konto von ${esc(u.vn)} ${esc(u.nn)} deaktiviert.">Deaktivieren</button></td></tr>`).join("")}</tbody></table></div></section>`}
+function stufenText(st0){return st0[0]==="FMS"?"FMS":st0.length>1&&st0[st0.length-1]-st0[0]===st0.length-1?st0[0]+"–"+st0[st0.length-1]:st0.join(", ")}
+function vFaecherA(){const art=st.p.art||"";const fs=FAECHER.filter(f=>!art||f.k===art);const nutz=f=>db.kurse.filter(k=>k.fach===f.n&&!k.archiv).length;
+ return `<div class="head"><div><h1>Fächerliste</h1><p>${FAECHER.filter(f=>!f.aus).length} aktive Fächer. Ausgeblendete Fächer stehen beim Kurs anlegen nicht mehr zur Wahl, bestehende Kurse bleiben.</p></div><button class="btn primary" data-act="fach-neu">${ico("plus")}Fach hinzufügen</button></div>
+ <div class="chips"><button class="chip" data-fart="" aria-pressed="${!art}">Alle</button>${KURSARTEN.map(a=>`<button class="chip" data-fart="${a}" aria-pressed="${art===a}">${a}</button>`).join("")}</div>
+ <section class="panel"><div class="tablewrap"><table><thead><tr>${thS("fa","ab","Abk.")}${thS("fa","n","Fach")}${thS("fa","k","Kursart")}${thS("fa","st","Schulstufen")}${thS("fa","niv","Niveaus",{desc:1})}${thS("fa","kurse","Kurse",{num:1,desc:1})}<th></th></tr></thead><tbody>${sortBy("fa","none",[...fs],(f,key)=>key==="ab"?f.ab:key==="n"?f.n:key==="k"?f.k:key==="st"?String(f.st[0]):key==="niv"?(f.niv?1:null):key==="kurse"?nutz(f):null).map(f=>`<tr style="${f.aus?"opacity:.55":""}"><td>${esc(f.ab)}</td><td>${esc(f.n)}${f.aus?` <span class="pill p-open">ausgeblendet</span>`:""}</td><td>${f.k}</td><td>${stufenText(f.st)}</td><td>${f.niv?"Standard / AHS":"–"}</td><td class="num">${nutz(f)||"–"}</td><td style="white-space:nowrap;text-align:right"><button class="btn small" data-act="fach-edit" data-f="${f.id}">Bearbeiten</button> <button class="btn small ghost" data-act="fach-aus" data-f="${f.id}">${f.aus?"Einblenden":"Ausblenden"}</button></td></tr>`).join("")}</tbody></table></div></section>`}
+function fachForm(f){const st0=f?f.st:[5,6,7,8];return `<h2>${f?"Fach bearbeiten":"Fach hinzufügen"}</h2><form class="f" id="fachform" data-f="${f?f.id:""}">
+ <div class="frow"><div class="field"><label for="fa-ab">Abkürzung</label><input type="text" id="fa-ab" maxlength="6" autocapitalize="characters" autocorrect="off" spellcheck="false" autocomplete="off" value="${esc(f?f.ab:"")}" placeholder="z. B. INF"></div><div class="field"><label for="fa-k">Kursart</label><select id="fa-k">${KURSARTEN.map(a=>`<option ${f&&f.k===a?"selected":""}>${a}</option>`).join("")}</select></div></div>
+ <div class="field"><label for="fa-n">Name des Fachs</label><input type="text" id="fa-n" autocapitalize="sentences" autocomplete="off" enterkeyhint="next" value="${esc(f?f.n:"")}" placeholder="z. B. Informatik"><span class="hint">So erscheint das Fach im Kursnamen. Module schreibst du als „Modul: Teilfach“, z. B. „Technik: Robotik“.</span></div>
+ <div class="field"><span class="lbl">Schulstufen</span><div class="chips">${[5,6,7,8].map(n=>`<label class="chip"><input type="checkbox" name="fa-st" value="${n}" ${st0.includes(n)?"checked":""}> ${n}. (${n-4}. Klasse)</label>`).join("")}<label class="chip"><input type="checkbox" name="fa-st" value="FMS" ${st0.includes("FMS")?"checked":""}> FMS</label></div><span class="hint">Beim Kurs anlegen erscheint das Fach nur in diesen Schulstufen. FMS lässt sich nicht mit anderen Stufen kombinieren.</span></div>
+ <label class="check"><input type="checkbox" id="fa-niv" ${f&&f.niv?"checked":""}> Leistungsniveaus Standard und Standard AHS möglich</label><span class="hint" style="margin-top:-12px;color:var(--muted);font-size:.84rem">Gilt ab der 6. Schulstufe, nicht in der FMS. Lehrkräfte können die Niveaus dann im Kurs einschalten.</span>
+ ${f&&db.kurse.some(k=>k.fach===f.n)?`<div class="note info">${db.kurse.filter(k=>k.fach===f.n).length} Kurse verwenden dieses Fach. Ein neuer Name wird dort übernommen.</div>`:""}
+ <div class="actions"><button class="btn primary" type="submit">${f?"Speichern":"Hinzufügen"}</button><button class="btn ghost" type="button" data-close-btn>Abbrechen</button></div></form>`}
+function vWechselA(){const auf=db.klassen.filter(c=>c!=="FMS"&&+c[0]<4);const abs=db.klassen.filter(c=>c==="FMS"||c[0]==="4");const neuE=db.klassen.includes("4E");
+ const neu=["1A","1B","1C","1D",...(neuE?["1E"]:[]),"FMS"];
+ return `<div class="head"><div><h1>Schuljahreswechsel</h1><p>Von ${SJ} auf ${SJ_NEXT}. Ab August erinnert MATE daran.</p></div></div>
+ <section class="panel"><div class="tablewrap"><table><thead><tr><th>Bisher ${SJ}</th><th>Neu ${SJ_NEXT}</th></tr></thead><tbody>
+ <tr><td>${auf.join(", ")}</td><td>rücken auf: ${auf.map(c=>(+c[0]+1)+c[1]).join(", ")}</td></tr>
+ <tr><td>${abs.join(", ")}</td><td>Abschluss, Konten werden deaktiviert, außer beim Wechsel in die FMS</td></tr>
+ <tr><td>–</td><td>neu und leer: ${neu.join(", ")}</td></tr>
+ <tr><td>alle Kurse ${SJ}</td><td>werden archiviert, Lehrkräfte legen neue Kurse an</td></tr></tbody></table></div>
+ <div class="body" style="border-top:1px solid var(--line)"><p style="color:var(--muted)">Danach korrigierst du nur noch Ausnahmen: Wiederholungen, Klassenwechsel und Schulabgänge. Wer in die FMS wechselt, gibt einfach den Code eines FMS-Kurses ein.</p>
+ <div class="actions"><button class="btn primary" data-modal="wechsel">Schuljahreswechsel durchführen</button></div></div></section>`}
+
+/* ---------- Render ---------- */
+let rendering=false,renderAgain=false;
+const FKEYS=["id","data-score","data-abw","data-niveau","data-mfb","data-af-s","data-kf-s","data-kf-art","data-kf-kl","data-kl","data-sk","data-open-task","data-open-kurs","data-go","data-tab","data-filter","data-ff","data-lf","data-fart","data-verantw","data-admin"];
+function focusKey(el){if(!el||el===document.body||!document.getElementById("main").contains(el)&&!document.getElementById("side").contains(el)&&!document.getElementById("bottom").contains(el))return null;
+ if(el.dataset&&el.dataset.sort)return `[data-sort="${el.dataset.sort}"][data-st="${el.dataset.st}"]`;
+ if(el.dataset&&el.dataset.act)return `[data-act="${el.dataset.act}"]`+(el.dataset.u?`[data-u="${el.dataset.u}"]`:"")+(el.dataset.a?`[data-a="${el.dataset.a}"]`:"")+(el.dataset.i!==undefined?`[data-i="${el.dataset.i}"]`:"");
+ for(const k of FKEYS){const v=el.getAttribute&&el.getAttribute(k);if(v!==null&&v!==undefined)return k==="id"?"#"+CSS.escape(v):`[${k}="${CSS.escape(v)}"]`}return null}
+function render(){if(rendering){renderAgain=true;return}rendering=true;const fk=focusKey(document.activeElement);const inSide=fk&&document.getElementById("side").contains(document.activeElement);const sel=document.activeElement&&document.activeElement.selectionStart;
+ try{renderInner()}finally{rendering=false}
+ if(fk){const scope=inSide?document.getElementById("side"):document.getElementById("main");const el=scope.querySelector(fk)||document.querySelector(fk);if(el&&el!==document.activeElement){el.focus({preventScroll:true});if(typeof sel==="number"&&el.setSelectionRange&&/^(text|search|email)$/.test(el.type))try{el.setSelectionRange(sel,sel)}catch(e){}}}
+ if(renderAgain){renderAgain=false;render()}}
+function renderSoon(){setTimeout(render,0)}
+function renderInner(){renderChrome();let h="";const v=st.view,r=st.role;
+ if(r==="schueler")h=v==="start"?vStartS():v==="aufgaben"?vAufgabenS():v==="feedback"?vFeedbackS():v==="kurse"?vKurseS():v==="kurs"?vKursS(K(st.p.id)):v==="aufgabe"?vAufgabeS(A(st.p.id)):vProfil();
+ else if(r==="lehrkraft")h=v==="start"?vStartL():v==="sk"?vSchuelerKurs():v==="feedback"?vFeedbackL():v==="kurse"?vKurseL():v==="kurs"?vKursL(K(st.p.id)):v==="aufgabe"?vAufgabeL(A(st.p.id)):v==="kursneu"?vKursNeu():v==="neu"?vAufgabeNeu():vProfil();
+ else h=v==="kurse"?vKurseA():v==="klassen"?vKlassenA():v==="schueler"?vSchuelerA():v==="lehrer"?vLehrerA():v==="faecher"?vFaecherA():v==="wechsel"?vWechselA():vStartA();
+ $("#main").innerHTML=`<div class="wrap">${h}</div>`}
+function toast(t){document.querySelectorAll(".toast").forEach(x=>x.remove());const el=document.createElement("div");el.className="toast";el.setAttribute("role","status");el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),3800)}
+function modal(html){$("#layer").innerHTML=`<div class="modal-bg" data-close><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`;const f=$("#layer input,#layer select,#layer textarea,#layer button");f&&f.focus()}
+function closeModal(){$("#layer").innerHTML=""}
+
+/* ---------- Ereignisse ---------- */
+document.addEventListener("click",e=>{const t=e.target.closest("button,[data-close],label,tr.clickrow");if(!t)return;
+ if(t.matches("[data-close]")&&e.target===t){closeModal();return}
+ const d=t.dataset;
+ if(d.role){st.role=d.role;go("start");return}
+ if(d.go){if(d.go==="neu"){startAufgabe(d.kurs);return}if(d.go==="kursneu"){Object.assign(kf,{art:"Unterrichtsfach",klassen:["2A"],fach:"",sj:SJ,zusatz:"",bew:"punkte",punkte:10,frist:"08:00",teil:"klasse",auswahl:[],niveaus:false})}go(d.go);return}
+ if(d.openTask!==undefined&&d.openTask){if(st.role==="schueler"){const s=getSub(A(d.openTask),ME_S.id);s.sNeu=false}go("aufgabe",{id:d.openTask,from:d.from||st.view});if(d.fbu)$(`[data-act="feedback"][data-u="${d.fbu}"]`)?.click();return}
+ if(d.sk){const kid=d.k||(st.view==="sk"?st.p.kurs:st.p.id);const froma=d.froma||(st.view==="sk"?st.p.froma:null);go("sk",{kurs:kid,u:d.sk,froma});return}
+ if(d.openKurs){closeModal();if(d.tabTo)st.tab=d.tabTo;go("kurs",{id:d.openKurs});return}
+ if(t.hasAttribute("data-back")){const a=A(st.p.id);if(st.p.from==="kurs")go("kurs",{id:a.kurs});else go(st.p.from&&st.p.from!=="aufgabe"?st.p.from:"start");return}
+ if(d.tab){st.tab=d.tab;render();return}
+ if(d.sort){const so=st.sorts[d.st]||(st.sorts[d.st]={key:null,dir:1});if(so.key===d.sort)so.dir=-so.dir;else{so.key=d.sort;so.dir=+d.d}render();return}
+ if(d.ff){st.ffilter.status=d.ff;render();return}
+ if(d.lf){st.lfilter=d.lf;render();return}
+ if(d.filter){st.filter.status=d.filter;render();return}
+ if(d.toast){toast(d.toast);return}
+ if(d.fart!==undefined){st.p.art=d.fart;render();return}
+ if(d.kl){const i=db.klassen.indexOf(d.kl);if(i>=0&&!klasseLeer(d.kl))return;if(i>=0)db.klassen.splice(i,1);else db.klassen.push(d.kl);db.klassen.sort((a,b)=>a==="FMS"?1:b==="FMS"?-1:a.localeCompare(b));render();return}
+ if(d.kfArt){kf.art=d.kfArt;kf.teil=KDEF[kf.art].teil;if(kf.art!=="Unterrichtsfach")kf.klassen=kf.klassen.filter(c=>c!=="FMS");if(kf.art==="Modul")kf.klassen=["4A","4B"];if(kf.art==="Unterrichtsfach"&&kf.klassen.length>1)kf.klassen=[kf.klassen[0]];render();return}
+ if(d.kfKl){if(kf.art==="Unterrichtsfach")kf.klassen=[d.kfKl];else{const i=kf.klassen.indexOf(d.kfKl);i>=0?kf.klassen.splice(i,1):kf.klassen.push(d.kfKl)}kf.auswahl=[];render();return}
+ if(d.afDel!==undefined){af.anhaenge.splice(+d.afDel,1);render();return}
+ if(d.modal==="code"){modal(`<h2>Kurscode eingeben</h2><p style="color:var(--muted)">Du bekommst den Code von deiner Lehrkraft. Du kannst auch den QR-Code scannen.</p><div class="field"><label for="mc">Kurscode</label><input type="text" id="mc" placeholder="z. B. K7MP2Q" style="text-transform:uppercase;letter-spacing:.1em" maxlength="12" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="go"></div><div class="actions"><button class="btn primary" data-act="code-ok">Beitreten</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
+ if(d.act==="kopieren"||d.act==="kop-kl"){const a=A(d.a);const ziele=meineKurse().filter(k=>!k.archiv);const klassen=[...new Set(ziele.flatMap(k=>k.klassen))].sort((x,y)=>x==="FMS"?1:y==="FMS"?-1:x.localeCompare(y));const kl=d.act==="kop-kl"?$("#kop-kl").value:K(a.kurs).klassen[0];const klSel=klassen.includes(kl)?kl:klassen[0];
+  const kurse=ziele.filter(k=>k.klassen.includes(klSel));
+  modal(`<h2>Aufgabe kopieren</h2><p style="color:var(--muted);margin-top:-8px">„${esc(a.titel)}“ · Titel, Beschreibung und Anhänge werden übernommen, alles andere legst du im Zielkurs neu fest.</p>
+  <div class="frow"><div class="field"><label for="kop-kl">Schulklasse</label><select id="kop-kl" data-act-change="kop-kl" data-a="${a.id}">${klassen.map(c=>`<option ${c===klSel?"selected":""}>${esc(c)}</option>`).join("")}</select></div>
+  <div class="field"><label for="kop-k">Fach</label><select id="kop-k">${kurse.map(k=>`<option value="${k.id}" ${k.id===a.kurs?"selected":""}>${esc(k.fach)}${k.zusatz?" · "+esc(k.zusatz):""}${k.klassen.length>1?" ("+k.klassen.join(", ")+")":""}${k.eigentuemer!==T1.id?" · eingeladen":""}</option>`).join("")}</select></div></div>
+  <span class="hint" style="color:var(--muted);font-size:.85rem">Zur Auswahl stehen alle aktuellen Kurse, die du angelegt hast oder in die du eingeladen bist.</span>
+  <div class="actions"><button class="btn primary" data-act="kop-ok" data-a="${a.id}" ${kurse.length?"":"disabled"}>Weiter</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
+ if(d.act==="kop-ok"){const a=A(d.a);const ziel=$("#kop-k").value;closeModal();startAufgabe(ziel,a);return}
+ if(d.modal==="wechsel"){modal(`<h2>Schuljahreswechsel durchführen?</h2><p>Alle Klassen rücken auf ${SJ_NEXT} auf, die 4. Klassen und die FMS schließen ab, alle Kurse werden archiviert.</p><div class="note warn">Im Prototyp passiert nichts. In MATE lässt sich der Schritt nicht rückgängig machen, Ausnahmen korrigierst du danach einzeln.</div><div class="actions"><button class="btn primary" data-act="wechsel-ok">Wechsel durchführen</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
+ if(t.hasAttribute("data-close-btn")){closeModal();return}
+ const act=d.act;if(!act)return;
+ if(act==="code-ok"){const v=($("#mc").value||"").replace(/\s+/g,"").toUpperCase();if(!v){toast("Gib zuerst den Kurscode ein.");$("#mc").focus();return}const k=db.kurse.find(x=>x.code===v&&!x.archiv);if(!k){toast("Diesen Kurscode gibt es nicht. Prüfe die Schreibweise oder frag deine Lehrkraft.");$("#mc").focus();$("#mc").select();return}closeModal();if(k.schueler.includes(ME_S.id)){toast(`Du bist schon in ${kursName(k)}.`);return}k.schueler.push(ME_S.id);toast(`Du bist jetzt in ${kursName(k)}.`);render();return}
+ if(act==="wechsel-ok"){closeModal();toast(`Demo: In MATE wären jetzt alle Klassen im Schuljahr ${SJ_NEXT}.`);return}
+ if(act==="kopie"){const a=A(d.a);closeModal();startAufgabe(st.p.id,a);return}
+ if(act==="ok"||act==="nein"){const p=db.pending.find(x=>x.id===d.p);db.pending=db.pending.filter(x=>x.id!==d.p);toast(act==="ok"?`${p.vn} ${p.nn} ist freigeschaltet.`:`Registrierung von ${p.vn} ${p.nn} abgelehnt.`);render();return}
+ if(act==="edit"){const u=U(d.u);modal(`<h2>Stammdaten bearbeiten</h2><form class="f" id="editform" data-u="${u.id}"><div class="frow"><div class="field"><label for="ev">Vorname</label><input type="text" id="ev" autocapitalize="words" autocomplete="off" spellcheck="false" value="${esc(u.vn)}"></div><div class="field"><label for="en">Nachname</label><input type="text" id="en" autocapitalize="words" autocomplete="off" spellcheck="false" value="${esc(u.nn)}"></div></div><div class="field"><label for="em">E-Mail</label><input type="email" id="em" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" value="${esc(u.mail)}"></div><div class="field"><label for="ek">Schulklasse</label><select id="ek">${db.klassen.map(c=>`<option ${c===u.klasse?"selected":""}>${c}</option>`).join("")}</select></div>${u.foto?`<label class="check"><input type="checkbox" id="ef"> Profilbild entfernen</label>`:""}<div class="actions"><button class="btn primary" type="submit">Speichern</button><button class="btn ghost" type="button" data-close-btn>Abbrechen</button></div></form>`);return}
+ if(act==="tn-weg"){const k=K(d.kurs);const u=U(d.u);modal(`<h2>${esc(u.vn)} ${esc(u.nn)} aus dem Kurs entfernen?</h2><p>${esc(u.vn)} sieht ${esc(kursName(k))} danach nicht mehr. Abgaben und Bewertungen bleiben gespeichert und sind wieder da, wenn das Kind erneut aufgenommen wird.</p>${k.teil==="klasse"?`<div class="note warn">Der Kurs gilt für die ganze Schulklasse. Gehört ${esc(u.vn)} zu einer anderen Klasse, korrigiert der Admin die Schulklasse.</div>`:""}<div class="actions"><button class="btn primary" data-act="tn-weg-ok" data-kurs="${k.id}" data-u="${u.id}">Entfernen</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
+ if(act==="tn-weg-ok"){const k=K(d.kurs);k.schueler=k.schueler.filter(i=>i!==d.u);closeModal();toast(`${U(d.u).vn} ${U(d.u).nn} wurde aus dem Kurs entfernt.`);render();return}
+ if(act==="a-edit"){const a=A(d.a);startAufgabe(a.kurs,null,a);return}
+ if(act==="a-del"){const a=A(d.a);const n=Object.values(a.subs).filter(s=>s.files.length||(s.score!==null&&s.score!=="")||msgs(s).length).length;modal(`<h2>Aufgabe „${esc(a.titel)}“ löschen?</h2><p>${n?`${n} Schüler·innen haben dazu bereits Abgaben, Bewertungen oder Feedback. Das alles wird mitgelöscht.`:"Zu dieser Aufgabe gibt es noch keine Abgaben."}</p><div class="note warn">Das lässt sich nicht rückgängig machen.</div><div class="actions"><button class="btn danger solid" data-act="a-del-ok" data-a="${a.id}">Endgültig löschen</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
+ if(act==="a-del-ok"){const a=A(d.a);db.aufgaben=db.aufgaben.filter(x=>x.id!==a.id);closeModal();toast(`Aufgabe „${a.titel}“ gelöscht.`);go("kurs",{id:a.kurs});return}
+ if(act==="a-zeigen"){A(d.a).sichtbar=Date.now()-1000;toast("Die Aufgabe ist jetzt für die Schüler·innen sichtbar.");render();return}
+ if(act==="uebergeben"){const k=K(d.kurs);const u=U(d.u);modal(`<h2>Verantwortung an ${esc(u.vn)} ${esc(u.nn)} übergeben?</h2><p>${esc(u.vn)} wird verantwortlich für ${esc(kursName(k))} und kann dann Lehrkräfte einladen und entfernen. Du bleibst als eingeladene Lehrkraft im Kurs.</p><div class="actions"><button class="btn primary" data-act="uebergeben-ok" data-kurs="${k.id}" data-u="${u.id}">Übergeben</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
+ if(act==="uebergeben-ok"){const k=K(d.kurs);k.eigentuemer=d.u;if(!k.lehrer.includes(d.u))k.lehrer.push(d.u);closeModal();toast(`${U(d.u).vn} ${U(d.u).nn} ist jetzt verantwortlich.`);render();return}
+ if(act==="reset-demo"){modal(`<h2>Demo zurücksetzen?</h2><p>Alles, was du auf diesem Gerät angelegt, abgegeben oder bewertet hast, wird gelöscht. Danach startet MATE wieder mit den Beispieldaten.</p><div class="actions"><button class="btn danger" data-act="reset-demo-ok">Zurücksetzen</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
+ if(act==="reset-demo-ok"){speicherOk=false;clearTimeout(_saveT);idbDel().catch(()=>{}).finally(()=>location.reload());return}
+ if(act==="feedback-demo"){const wo=`${{schueler:"Schüler·in",lehrkraft:"Lehrkraft",admin:"Admin"}[st.role]} · ${st.view}${st.p&&st.p.id?" ("+st.p.id+")":""}`;modal(`<h2>Feedback zur Testversion</h2><form class="f" id="demofb"><div class="field"><label for="dfb">Was ist dir aufgefallen?</label><textarea id="dfb" rows="5" placeholder="z. B. Ich habe nicht gefunden, wo …"></textarea><span class="hint">Dein Mailprogramm öffnet sich mit dem Text. Mitgeschickt wird nur, wo du gerade bist: ${esc(wo)}.</span></div><div class="actions"><button class="btn primary" type="submit">Per E-Mail senden</button><button class="btn ghost" type="button" data-close-btn>Abbrechen</button></div></form>`);$("#demofb").dataset.wo=wo;return}
+ if(act==="fach-neu"){modal(fachForm(null));return}
+ if(act==="fach-edit"){modal(fachForm(FAECHER.find(f=>f.id===d.f)));return}
+ if(act==="fach-aus"){const f=FAECHER.find(x=>x.id===d.f);f.aus=!f.aus;toast(f.aus?`„${f.n}“ ist ausgeblendet. Bestehende Kurse bleiben.`:`„${f.n}“ steht wieder zur Wahl.`);render();return}
+ if(act==="neucode"){K(d.kurs).code=code();toast("Neuer Code erzeugt. Der alte gilt nicht mehr.");render();return}
+ if(act==="lk-dazu"){const v=$("#einl").value;if(!v){toast("Wähle zuerst eine Lehrkraft.");return}K(d.kurs).lehrer.push(v);toast(`${U(v).vn} ${U(v).nn} ist eingeladen.`);render();return}
+ if(act==="lk-weg"){const k=K(d.kurs);k.lehrer=k.lehrer.filter(i=>i!==d.u);toast(`${U(d.u).vn} ${U(d.u).nn} wurde aus dem Kurs entfernt.`);render();return}
+ if(act==="verlassen"){const k=K(d.kurs);k.lehrer=k.lehrer.filter(i=>i!==T1.id);toast("Du hast den Kurs verlassen.");go("kurse");return}
+ if(act==="freigabe"){const a=A(d.a);a.freigegeben=!a.freigegeben;toast(a.freigegeben?"Bewertungen freigegeben. Jedes Kind sieht nur seine eigene.":"Freigabe zurückgenommen.");render();return}
+ if(act==="zip"){const a=A(d.a);const z=zielgruppe(a).map(U).filter(u=>getSub(a,u.id).files.length);const bsp=z[0]?dateiname(a,z[0],getSub(a,z[0].id).files[0].n):"";modal(`<h2>Alle Abgaben als ZIP</h2><p>${z.length} Abgaben, sortiert nach Nachnamen. So heißen die Dateien:</p><div class="files">${z.slice(0,6).map(u=>getSub(a,u.id).files.map(f=>`<div class="file"><span class="main" style="font-family:ui-monospace,Menlo,monospace;font-size:.85rem">${esc(dateiname(a,u,f.n))}</span></div>`).join("")).join("")}${z.length>6?`<span style="color:var(--muted)">… und ${z.length-6} weitere</span>`:""}</div><div class="note info">Im Prototyp wird nichts heruntergeladen.</div><div class="actions"><button class="btn ghost" data-close-btn>Schließen</button></div>`);return}
+ if(act==="datei"){const a=A(d.a);toast(`Demo-Download: ${dateiname(a,U(d.u),d.f)}`);return}
+ if(act==="feedback"){const a=A(d.a||st.p.id);const u=U(d.u);const s=getSub(a,u.id);s.lNeu=false;modal(`<h2>Feedback: ${esc(u.vn)} ${esc(u.nn)}</h2><p style="color:var(--muted);margin-top:-8px">${esc(a.titel)} · ${esc(kursKurz(K(a.kurs)))} ${fbPill(fbStatusL(s))}</p>${verlauf(a,u.id,"l")}<div class="field"><label for="fb">Nachricht an ${esc(u.vn)}</label><textarea id="fb" placeholder="Nur ${esc(u.vn)} sieht diese Nachricht."></textarea></div><div class="actions"><button class="btn primary" data-act="fb-ok" data-a="${a.id}" data-u="${u.id}">Senden</button>${(()=>{if(st.view!=="aufgabe"||a.abgabe==="keine")return"";const vi=letzteVerb(s);if(vi>=0){const fi=msgs(s)[vi].files.findIndex(f=>bildVon(f,a));if(fi>=0)return `<button class="btn" data-act="korr" data-u="${u.id}" data-m="${vi}" data-fi="${fi}">Verbesserung korrigieren</button>`}return s.files.length?`<button class="btn" data-act="korr" data-u="${u.id}">Korrigieren</button>`:""})()}<button class="btn ghost" data-close-btn>Schließen</button></div>`);render();return}
+ if(act==="massfb"){const a=A(d.a);const z=zielgruppe(a).map(U).sort((x,y)=>x.nn.localeCompare(y.nn));
+  modal(`<h2>Feedback an mehrere</h2><p style="color:var(--muted);margin-top:-8px">${esc(a.titel)} · Jedes Kind bekommt die Nachricht in seinen eigenen Feedback-Verlauf und sieht nicht, wer sie sonst noch bekommen hat.</p>
+  <div class="field"><label for="mfb">Nachricht</label><textarea id="mfb" placeholder="z. B. Achtet bei der Verbesserung auf die Verbformen bei he, she, it."></textarea></div>
+  <div class="field"><span class="lbl">Empfänger·innen <span id="mfb-n" style="color:var(--muted);font-weight:400">(${z.length} von ${z.length})</span></span>
+  <div class="chips"><button type="button" class="chip" data-act="mfb-sel" data-w="alle" aria-pressed="true">Alle</button><button type="button" class="chip" data-act="mfb-sel" data-w="keine" aria-pressed="false">Keine</button><button type="button" class="chip" data-act="mfb-sel" data-w="abgegeben" aria-pressed="false">Nur mit Abgabe</button><button type="button" class="chip" data-act="mfb-sel" data-w="ohne" aria-pressed="false">Nur ohne Abgabe</button></div>
+  <span id="mfb-hint" class="hint" hidden>Eigene Auswahl</span><div class="picklist">${z.map(u=>{const st0=status(a,u.id);return `<label><input type="checkbox" data-mfb="${u.id}" data-st="${st0}" checked>${esc(u.nn)} ${esc(u.vn)} <span class="tag">${st0}</span></label>`}).join("")}</div></div>
+  <div class="actions"><button class="btn primary" data-act="mfb-ok" data-a="${a.id}">Senden</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
+ if(act==="mfb-sel"){document.querySelectorAll("[data-mfb]").forEach(c=>{const hat=["abgegeben","verspätet","bewertet"].includes(c.dataset.st);c.checked=d.w==="alle"||(d.w==="abgegeben"&&hat)||(d.w==="ohne"&&!hat)});mfbCount();return}
+ if(act==="mfb-ok"){const t=($("#mfb").value||"").trim();const ids=[...document.querySelectorAll("[data-mfb]:checked")].map(c=>c.dataset.mfb);if(!t){toast("Schreib zuerst eine Nachricht.");$("#mfb").focus();return}if(!ids.length){toast("Wähle mindestens eine Schülerin oder einen Schüler aus.");return}
+  const a=A(d.a);ids.forEach(id=>sendL(getSub(a,id),t));closeModal();toast(`Feedback an ${ids.length} Schüler·innen gesendet.`);render();return}
+ if(act==="fb-ok"){const t=$("#fb").value.trim();if(!t){toast("Schreib zuerst eine Nachricht.");return}sendL(getSub(A(d.a),d.u),t);closeModal();toast("Feedback gesendet.");render();return}
+ if(act==="antwort"){const t=($("#antwort").value||"").trim();const fs=[...st.reply];if(!t&&!fs.length){toast("Schreib eine Antwort oder häng eine Datei an.");$("#antwort").focus();return}const s=getSub(A(st.p.id),ME_S.id);sendS(s,t);s.erledigt=true;if(fs.length){msgs(s)[msgs(s).length-1].files=fs;s.verbesserung=true}st.reply=[];toast(fs.length?"Verbesserung gesendet. Das Feedback ist damit erledigt.":"Antwort gesendet und als erledigt markiert. Deine Lehrkraft sieht sie auf ihrer Startseite.");render();return}
+ if(act==="reply-weg"){st.reply.text=$("#antwort")?.value||"";st.reply.splice(+d.i,1);render();return}
+ if(act==="mfile"){const a=A(d.a);const u=U(d.u);const f=msgs(getSub(a,u.id))[+d.m].files[+d.fi];const src=bildVon(f,a);const lk=st.role==="lehrkraft";
+  modal(`<h2 style="overflow-wrap:anywhere">${esc(f.n)}</h2>${src?`<img src="${src}" alt="Vorschau ${esc(f.n)}" style="width:100%;border-radius:8px;border:1px solid var(--line);background:#fff">`:`<div class="drop"><b>${esc((f.n.split(".").pop()||"").toUpperCase())}-Datei, ${f.kb} KB</b><span style="color:var(--muted)">In MATE öffnet sich hier eine Vorschau des Dokuments. Im Prototyp werden PDFs und Office-Dateien nur aufgelistet.</span></div>`}<p style="color:var(--muted);font-size:.88rem">Mit einer Antwort im Feedback geschickt${f.info?" · "+esc(f.info):""}</p><div class="actions">${lk&&src&&st.view==="aufgabe"?`<button class="btn primary" data-act="korr" data-u="${u.id}" data-m="${d.m}" data-fi="${d.fi}">Korrigieren</button>`:""}${lk?`<button class="btn" data-toast="Demo-Download: ${esc(dateiname(a,u,f.n))}">Herunterladen</button>`:""}<button class="btn ghost" data-close-btn>Schließen</button></div>`);return}
+ if(act==="fb-erledigt"){getSub(A(st.p.id),ME_S.id).erledigt=true;toast("Als erledigt markiert. Du findest es weiter unter Feedback.");render();return}
+ if(act==="fb-offen"){getSub(A(st.p.id),ME_S.id).erledigt=false;render();return}
+ if(act==="bild"){const m=msgs(getSub(A(d.a),d.u))[+d.m];const inner=`<h2>Korrektur</h2><img src="${m.bild}" alt="Korrigierte Abgabe" style="width:100%;border-radius:8px;border:1px solid var(--line);background:#fff"><div class="actions"><button class="btn ghost" data-close-btn>Schließen</button></div>`;modal(inner);return}
+ if(act==="l-vorschau"){const a=A(st.p.id);const u=U(d.u);const s=getSub(a,u.id);const f=s.files[+d.i];const src=bildVon(f,a);
+  modal(`<h2 style="overflow-wrap:anywhere">${esc(u.vn)} ${esc(u.nn)}: ${esc(f.n)}</h2>${src?`<img src="${src}" alt="Abgabe von ${esc(u.vn)}" style="width:100%;border-radius:8px;border:1px solid var(--line);background:#fff">`:`<div class="drop"><b>${esc((f.n.split(".").pop()||"").toUpperCase())}-Datei, ${f.kb} KB</b><span style="color:var(--muted)">In MATE öffnet sich hier eine Vorschau des Dokuments. Im Prototyp werden PDFs und Office-Dateien nur aufgelistet.</span></div>`}<p style="color:var(--muted);font-size:.88rem">Abgegeben ${fmtDate(s.zeit)}, ${fmtTime(s.zeit)}${s.zeit>a.frist?" · verspätet":""} · ${f.kb} KB</p><div class="actions">${src&&a.abgabe!=="keine"?`<button class="btn primary" data-act="korr" data-u="${u.id}" data-i="${d.i}">Korrigieren</button>`:""}<button class="btn" data-act="datei" data-a="${a.id}" data-u="${u.id}" data-f="${esc(f.n)}">Herunterladen</button><button class="btn ghost" data-close-btn>Schließen</button></div>`);return}
+ if(act==="korr"){const a=A(st.p.id);const u=U(d.u);const s=getSub(a,u.id);const i=d.i!==undefined?+d.i:Math.max(0,s.files.findIndex(f=>bildVon(f,a)));const mf=d.m!==undefined?msgs(s)[+d.m].files[+d.fi]:null;const src=mf?bildVon(mf,a):(s.korrektur||bildVon(s.files[i]||{n:""},a));korrSrc=src;
+  modal(`<h2>Korrigieren: ${esc(u.vn)} ${esc(u.nn)}</h2><p style="color:var(--muted)">Zeichne mit Finger, Stift oder Maus direkt auf die Abgabe.${d.m!==undefined?" Du korrigierst die Verbesserung.":s.korrektur?" Du korrigierst weiter auf deiner letzten Korrektur.":""}</p><canvas id="korr" width="600" height="780" style="width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;touch-action:none"></canvas><div class="field"><label for="korr-score">Bewertung (${BEW[a.bew]}${a.bew==="punkte"?", max. "+a.max:""})</label>${a.bew==="symbole"?`<select id="korr-score" style="max-width:160px"><option value="">noch nicht bewertet</option>${["+","~","–"].map(o=>`<option ${s.score===o?"selected":""}>${o}</option>`).join("")}</select>`:`<span style="display:flex;gap:8px;align-items:center"><input id="korr-score" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" value="${s.score===null||s.score===""?"":zahl(s.score)}" style="max-width:120px"><span style="color:var(--muted)">${a.bew==="punkte"?"/ "+a.max+" Punkte":"%"}</span></span>`}</div><div class="field"><label for="korr-fb">Feedback an ${esc(u.vn)}</label><textarea id="korr-fb" placeholder="z. B. Achte auf die Verbform bei he, she, it."></textarea><span class="hint">Nur ${esc(u.vn)} sieht Korrektur und Feedback. Ein Feedback wird nur geschickt, wenn du auf die Abgabe zeichnest oder Text schreibst.</span></div><div class="actions"><button class="btn" data-act="korr-reset">Zurücksetzen</button><button class="btn primary" data-act="korr-ok" data-u="${u.id}">Speichern</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);initKorr(src);return}
+ if(act==="korr-reset"){initKorr(korrSrc);return}
+ if(act==="vorschau"){const a=A(st.p.id);const f=getSub(a,ME_S.id).files[+d.i];const src=f.img||(/\.(jpe?g|png|heic|webp)$/i.test(f.n)?demoBild(f.n,a.titel):null);
+  modal(`<h2 style="overflow-wrap:anywhere">${esc(f.n)}</h2>${src?`<img src="${src}" alt="Vorschau ${esc(f.n)}" style="width:100%;border-radius:8px;border:1px solid var(--line);background:#fff">`:`<div class="drop"><b>${esc((f.n.split(".").pop()||"").toUpperCase())}-Datei, ${f.kb} KB</b><span style="color:var(--muted)">In MATE öffnet sich hier eine Vorschau des Dokuments. Im Prototyp werden PDFs und Office-Dateien nur aufgelistet.</span></div>`}<p style="color:var(--muted);font-size:.88rem">Abgegeben ${fmtDate(getSub(a,ME_S.id).zeit)}, ${fmtTime(getSub(a,ME_S.id).zeit)}${f.info?" · "+esc(f.info):""}</p><div class="actions"><button class="btn ghost" data-close-btn>Schließen</button></div>`);return}
+ if(act==="korr-ansehen"){const s=getSub(A(st.p.id),ME_S.id);modal(`<h2>Korrektur deiner Lehrkraft</h2><img src="${s.korrektur}" alt="Korrigierte Abgabe" style="width:100%;border-radius:8px;border:1px solid var(--line);background:#fff"><div class="actions"><button class="btn ghost" data-close-btn>Schließen</button></div>`);return}
+ if(act==="datei-weg"){const s=getSub(A(st.p.id),ME_S.id);const f=s.files.splice(+d.i,1)[0];if(!s.files.length)s.zeit=null;toast(`${f.n} entfernt.`);render();return}
+ if(act==="korr-ok"){const ka=A(st.p.id);const s=getSub(ka,d.u);const c=$("#korr");const fbt=($("#korr-fb")?.value||"").trim();let bild=null;if(c&&korrDirty){bild=c.toDataURL("image/jpeg",.85);s.korrektur=bild}
+  let sv=$("#korr-score")?.value??"";if(ka.bew!=="symbole"){const r=pruefeScore(ka,sv);if(!r.ok){toast(r.msg);$("#korr-score").focus();return}sv=r.val===null?"":r.val}const neuScore=sv===""?null:sv;const scoreGeaendert=String(neuScore??"")!==String(s.score??"");
+  if(!bild&&!fbt&&!scoreGeaendert){closeModal();toast("Nichts geändert. Zeichne auf die Abgabe, schreib ein Feedback oder trag eine Bewertung ein.");return}
+  if(bild||fbt)sendL(s,fbt,bild);s.score=neuScore;if(s.score!==null){s.abwesend=false;s.verbesserung=false}
+  const teile=[bild?"Korrektur":null,fbt?"Feedback":null,scoreGeaendert?"Bewertung":null].filter(Boolean);const was=teile.length>1?teile.slice(0,-1).join(", ")+" und "+teile[teile.length-1]:teile[0];
+  closeModal();toast(`${was} gespeichert.${bild||fbt?" Das Kind sieht es unter Feedback.":""}${scoreGeaendert&&!ka.freigegeben?" Die Bewertung sieht das Kind erst nach der Freigabe.":""}`);render();return}
+ if(act==="foto-weg"){me().foto=null;render();return}
+});
+function mfbCount(){const all=[...document.querySelectorAll("[data-mfb]")],on=all.filter(c=>c.checked);const n=$("#mfb-n");if(n)n.textContent=`(${on.length} von ${all.length})`;
+ const hat=c=>["abgegeben","verspätet","bewertet"].includes(c.dataset.st);const passt={alle:all.every(c=>c.checked),keine:all.every(c=>!c.checked),abgegeben:all.some(hat)&&all.every(c=>c.checked===hat(c)),ohne:all.some(c=>!hat(c))&&all.every(c=>c.checked===!hat(c))};
+ let gewaehlt=["alle","keine","abgegeben","ohne"].find(k=>passt[k])||null;document.querySelectorAll('[data-act="mfb-sel"]').forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.w===gewaehlt)));
+ const hint=$("#mfb-hint");if(hint)hint.hidden=!!gewaehlt}
+function dateiname(a,u,orig){const s=getSub(a,u.id);const dot=orig.lastIndexOf(".");const base=dot>0?orig.slice(0,dot):orig,ext=dot>0?orig.slice(dot):"";return slug(`${u.nn}_${u.vn}_${base}_${s.zeit>a.frist?"verspaetet":"rechtzeitig"}`)+ext}
+const demoCache={};
+function demoBild(name,titel){const key=name+titel;if(demoCache[key])return demoCache[key];const c=document.createElement("canvas");c.width=600;c.height=780;const x=c.getContext("2d");
+ x.fillStyle="#FDFCF7";x.fillRect(0,0,600,780);x.strokeStyle="#C9D8E8";x.lineWidth=1;for(let y=90;y<780;y+=32){x.beginPath();x.moveTo(0,y);x.lineTo(600,y);x.stroke()}
+ x.strokeStyle="#E8A0A0";x.beginPath();x.moveTo(64,0);x.lineTo(64,780);x.stroke();x.fillStyle="#2a3a6a";x.font="italic 24px 'Segoe Print','Comic Sans MS',cursive";x.fillText(titel.slice(0,34),78,60);
+ x.font="italic 19px 'Segoe Print','Comic Sans MS',cursive";["1) I am reading a book.","2) She is playing football.","3) They are watching TV.","4) We are going to school.","5) He is cooking dinner.","6) It is raining today."].forEach((l,i)=>x.fillText(l,78,116+i*64));
+ return demoCache[key]=c.toDataURL("image/jpeg",.8)}
+let korrSrc=null,korrDirty=false;
+function bildVon(f,a){return f.img||(/\.(jpe?g|png|heic|webp)$/i.test(f.n)?demoBild(f.n,a.titel):null)}
+function initKorr(src){korrDirty=false;const c=$("#korr");if(!c)return;const x=c.getContext("2d");
+ const blank=()=>{c.width=600;c.height=400;x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.fillStyle="#333";x.font="20px Atkinson Hyperlegible, sans-serif";x.fillText("Keine Bildabgabe vorhanden.",30,60)};
+ if(src){const im=new Image();im.onload=()=>{const s=Math.min(1,900/Math.max(im.width,im.height));c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height)};im.onerror=blank;im.src=src}else blank();
+ let dr=false;const pos=e=>{const r=c.getBoundingClientRect();return[(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]};
+ c.onpointerdown=e=>{dr=true;x.strokeStyle="#D7261E";x.lineWidth=Math.max(3,c.width/200);x.lineCap="round";x.beginPath();x.moveTo(...pos(e));c.setPointerCapture(e.pointerId)};
+ c.onpointermove=e=>{if(!dr)return;korrDirty=true;x.lineTo(...pos(e));x.stroke()};c.onpointerup=()=>dr=false}
+
+document.addEventListener("change",async e=>{const t=e.target;const d=t.dataset;
+ if(d.mfb){mfbCount();return}
+ if(t.id==="kop-kl"){const b=document.createElement("button");b.dataset.act="kop-kl";b.dataset.a=d.a;document.body.appendChild(b);b.click();b.remove();return}
+ if(t.id==="lsort"){st.lsort=t.value;render();return}
+ if(t.id==="ffkurs"){st.ffilter.kurs=t.value;render();return}
+ if(t.id==="fkurs"){st.filter.kurs=t.value;render();return}
+ if(t.id==="skl"){st.p.kl=t.value;render();return}
+ if(d.niveau!==undefined){const k=K(st.p.id);db.niveaus[`${d.niveau}|${k.fach}|${k.sj}`]=t.value;toast("Leistungsniveau gespeichert.");return}
+ if(d.score!==undefined){const a=A(st.p.id);const s=getSub(a,d.score);let v=t.value;if(a.bew!=="symbole"){const r=pruefeScore(a,v);if(!r.ok){toast(r.msg);t.setAttribute("aria-invalid","true");t.value=s.score===null?"":zahl(s.score);return}t.removeAttribute("aria-invalid");v=r.val===null?"":r.val}s.score=v===""?null:v;s.verbesserung=false;if(s.score!==null)s.abwesend=false;renderSoon();return}
+ if(d.abw!==undefined){const s=getSub(A(st.p.id),d.abw);s.abwesend=t.checked;if(t.checked)s.score=null;renderSoon();return}
+ if(d.verantw){const k=K(d.verantw);k.eigentuemer=t.value;if(!k.lehrer.includes(t.value))k.lehrer.push(t.value);toast(`${U(t.value).vn} ${U(t.value).nn} ist jetzt verantwortlich für ${kursName(k)}.`);render();return}
+ if(d.admin!==undefined){U(d.admin).admin=t.checked;toast(t.checked?"Admin-Rolle vergeben.":"Admin-Rolle entzogen.");return}
+ if(t.hasAttribute("data-kl-fms")){if(!t.checked&&!klasseLeer("FMS")){t.checked=true;return}t.checked?db.klassen.push("FMS"):db.klassen.splice(db.klassen.indexOf("FMS"),1);render();return}
+ if(t.id==="kf-fach"){kf.fach=t.value;render();return}
+ if(t.id==="kf-sj"){kf.sj=t.value;render();return}
+ if(t.name==="kf-bew"){kf.bew=t.value;render();return}
+ if(t.id==="kf-punkte"){const n=parseInt(t.value,10);kf.punkte=n>0?n:10;t.value=kf.punkte;return}
+ if(t.id==="kf-frist"){kf.frist=t.value||"08:00";return}
+ if(t.id==="kf-niv"){kf.niveaus=t.checked;return}
+ if(t.name==="kf-teil"){kf.teil=t.value;render();return}
+ if(d.kfS){const i=kf.auswahl.indexOf(d.kfS);t.checked?kf.auswahl.push(d.kfS):kf.auswahl.splice(i,1);return}
+ if(af&&st.view==="neu"){if(t.name==="af-fuer"){syncAf();af.fuer=t.value;render();return}if(t.name==="af-bew"){syncAf();af.bew=t.value;render();return}if(t.name==="af-abg"){syncAf();af.abgabe=t.value;render();return}
+  if(d.afS){const i=af.auswahl.indexOf(d.afS);t.checked?af.auswahl.push(d.afS):af.auswahl.splice(i,1);return}
+  if(t.id==="af-file"){syncAf();[...t.files].forEach(f=>af.anhaenge.push(f.name));render();return}}
+ if(t.id==="upl"){await upload(t.files);return}
+ if(t.id==="antwort-files"){await anhaengen(t.files);return}
+ if(t.id==="foto"){const f=t.files[0];if(!f)return;try{me().foto=await quadrat(f);render();toast("Profilbild gespeichert.")}catch(err){toast("Das Bild ließ sich nicht lesen. Versuch ein JPG oder PNG.")}return}
+});
+document.addEventListener("focusin",e=>{const t=e.target;if(t.matches&&t.matches("input.score,#korr-score")&&t.value!==""){const v0=t.value;setTimeout(()=>{if(t.value===v0&&document.activeElement===t)try{t.select()}catch(x){}},0)}});
+document.addEventListener("input",e=>{const t=e.target;if(t.id==="kf-zusatz"){kf.zusatz=t.value;const pos=t.selectionStart;render();const n=$("#kf-zusatz");n.focus();n.setSelectionRange(pos,pos)}
+ if(t.id==="sq"){st.p.q=t.value;const pos=t.selectionStart;render();const n=$("#sq");n.focus();n.setSelectionRange(pos,pos)}});
+function syncAf(){if(!af)return;const g=id=>$(id);if(g("#af-titel"))af.titel=g("#af-titel").value;if(g("#af-beschr"))af.beschreibung=g("#af-beschr").value;if(g("#af-max"))af.max=Math.max(1,parseInt(g("#af-max").value,10)||10);if(g("#af-datum"))af.datum=g("#af-datum").value;if(g("#af-zeit"))af.zeit=g("#af-zeit").value;if(g("#af-sicht"))af.sicht=g("#af-sicht").value;if(g("#af-spaet"))af.spaet=g("#af-spaet").checked}
+document.addEventListener("submit",e=>{e.preventDefault();const f=e.target;
+ if(f.id==="kursform"){const zn=kf.zusatz.trim().toLowerCase();if(db.kurse.some(x=>!x.archiv&&x.fach===kf.fach&&x.sj===kf.sj&&x.klassen.join()===kf.klassen.join()&&(x.zusatz||"").trim().toLowerCase()===zn)){toast(zn?"Einen Kurs mit diesem Zusatz gibt es schon. Wähle einen anderen Zusatz.":"Diesen Kurs gibt es schon. Gib einen Kurszusatz ein, z. B. Hausübungen.");$("#kf-zusatz")?.focus();return}if(!kf.fach||!kf.klassen.length){toast("Wähle Schulklasse und Fach.");return}const k=addK({art:kf.art,fach:kf.fach,klassen:[...kf.klassen],sj:kf.sj,zusatz:kf.zusatz.trim(),bew:kf.bew,punkte:kf.punkte,frist:kf.frist,teil:kf.teil,niveaus:kf.niveaus,beurt:KDEF[kf.art].beurt,schueler:kf.teil==="klasse"?db.users.filter(u=>u.rolle==="s"&&kf.klassen.includes(u.klasse)).map(u=>u.id):[...kf.auswahl]});toast(`Kurs ${kursName(k)} angelegt. Kurscode ${k.code}.`);st.view="kurs";st.p={id:k.id};st.tab="einst";render();return}
+ if(f.id==="aufgform"){syncAf();if(!af.titel.trim()){toast("Gib der Aufgabe einen Titel.");$("#af-titel").focus();return}if(af.fuer==="auswahl"&&!af.auswahl.length){toast("Wähle mindestens eine Schülerin oder einen Schüler aus.");return}
+  {if(!/^\d{4}-\d{2}-\d{2}$/.test(af.datum||"")||isNaN(new Date(af.datum+"T00:00"))){toast("Wähle ein Datum für die Frist.");$("#af-datum")?.focus();return}}
+  if(af.edit&&af.bew==="punkte"){const a0=A(af.edit);const hoechst=Math.max(0,...Object.values(a0.subs).map(s=>s.score!=null&&s.score!==""&&!isNaN(+s.score)?+s.score:0));if(a0.bew==="punkte"&&af.max<hoechst){toast(`Es wurden schon ${zahl(hoechst)} Punkte vergeben. Die erreichbaren Punkte müssen mindestens ${zahl(hoechst)} sein.`);$("#af-max")?.focus();return}}
+  const[h,m]=(/^\d{1,2}:\d{2}$/.test(af.zeit||"")?af.zeit:K(af.kurs).frist||"08:00").split(":");const dd=new Date(af.datum+"T00:00");dd.setHours(+h,+m,0,0);const k=K(af.kurs);
+  const felder={titel:af.titel.trim(),beschreibung:af.beschreibung.trim(),anhaenge:af.anhaenge,fuer:af.fuer,auswahl:af.auswahl,bew:af.bew,max:af.max,abgabe:af.abgabe,frist:dd.getTime(),spaet:af.spaet};
+  if(af.edit){const a=A(af.edit);const warSichtbar=a.sichtbar<=Date.now();Object.assign(a,felder);if(af.sicht==="sofort"&&!warSichtbar)a.sichtbar=Date.now()-1000;if(af.sicht!=="sofort")a.sichtbar=at(365);zielgruppe(a).forEach(u=>getSub(a,u));toast(`Änderungen an „${a.titel}“ gespeichert.`);go("aufgabe",{id:a.id});return}
+  const a=addA(k,{...felder,sichtbar:af.sicht==="sofort"?Date.now()-1000:at(365)});zielgruppe(a).forEach(u=>getSub(a,u));
+  toast(`Aufgabe „${a.titel}“ angelegt.`);go("kurs",{id:k.id});return}
+ if(f.id==="kseinst"){const k=K(f.dataset.kurs);const z=$("#ke-zusatz").value.trim();const dup=db.kurse.some(x=>x.id!==k.id&&!x.archiv&&x.fach===k.fach&&x.sj===k.sj&&x.klassen.join()===k.klassen.join()&&(x.zusatz||"").trim().toLowerCase()===z.toLowerCase());if(dup){toast("Einen Kurs mit diesem Namen gibt es schon. Wähle einen anderen Zusatz.");return}
+  k.zusatz=z;k.frist=$("#ke-frist").value||"08:00";k.bew=(document.querySelector('input[name="ke-bew"]:checked')||{}).value||k.bew;k.punkte=Math.max(1,parseInt($("#ke-punkte").value,10)||10);k.beurt=$("#ke-beurt").checked;if($("#ke-niv"))k.niveaus=$("#ke-niv").checked;if(!k.beurt&&st.tab==="uebersicht")st.tab="aufgaben";toast("Einstellungen gespeichert.");render();return}
+ if(f.id==="fachform"){const ab=$("#fa-ab").value.trim(),n=$("#fa-n").value.trim(),k=$("#fa-k").value;let stv=[...document.querySelectorAll('input[name="fa-st"]:checked')].map(c=>c.value==="FMS"?"FMS":+c.value);
+  if(!n){toast("Gib dem Fach einen Namen.");$("#fa-n").focus();return}if(!stv.length){toast("Wähle mindestens eine Schulstufe.");return}if(stv.includes("FMS")&&stv.length>1){toast("FMS lässt sich nicht mit anderen Schulstufen kombinieren.");return}
+  const alt=f.dataset.f?FAECHER.find(x=>x.id===f.dataset.f):null;if(FAECHER.some(x=>x!==alt&&x.n.toLowerCase()===n.toLowerCase()&&x.k===k)){toast("Dieses Fach gibt es in dieser Kursart schon.");return}
+  if(alt){if(alt.n!==n){db.kurse.forEach(c=>{if(c.fach===alt.n)c.fach=n});Object.keys(db.niveaus).forEach(key=>{const [u,fa,sj]=key.split("|");if(fa===alt.n){db.niveaus[`${u}|${n}|${sj}`]=db.niveaus[key];delete db.niveaus[key]}})}Object.assign(alt,{ab:ab||alt.ab,n,k,st:stv,niv:$("#fa-niv").checked});if(!alt.niv)db.kurse.forEach(c=>{if(c.fach===n)c.niveaus=false});toast(`„${n}“ gespeichert.`)}else{FAECHER.push({id:"f"+FAECHER.length+uid(""),ab:ab||n.slice(0,3).toUpperCase(),n,k,st:stv,aus:false,niv:$("#fa-niv").checked});toast(`„${n}“ hinzugefügt.`)}
+  closeModal();render();return}
+ if(f.id==="demofb"){const t=$("#dfb").value.trim();if(!t){toast("Schreib zuerst, was dir aufgefallen ist.");$("#dfb").focus();return}const body=`${t}\n\n---\nAnsicht: ${f.dataset.wo}\nGerät: ${navigator.userAgent}\nBildschirm: ${innerWidth}×${innerHeight}`;location.href=`mailto:${FEEDBACK_MAIL}?subject=${encodeURIComponent("MATE Testversion: Feedback")}&body=${encodeURIComponent(body)}`;closeModal();toast("Danke! Bitte schick die E-Mail noch ab.");return}
+ if(f.id==="editform"){const u=U(f.dataset.u);const vn=$("#ev").value.trim(),nn=$("#en").value.trim(),mail=$("#em").value.trim().toLowerCase(),kl=$("#ek").value;
+  if(!vn||!nn){toast("Vor- und Nachname dürfen nicht leer sein.");(vn?$("#en"):$("#ev")).focus();return}
+  if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(mail)){toast("Das ist keine gültige E-Mail-Adresse.");$("#em").focus();return}
+  if(db.users.some(x=>x!==u&&x.mail.toLowerCase()===mail)){toast("Diese E-Mail-Adresse verwendet schon jemand anderer.");$("#em").focus();return}
+  const alt=u.klasse;Object.assign(u,{vn,nn,mail,klasse:kl});if($("#ef")?.checked)u.foto=null;let neu=0;
+  if(alt!==kl){db.kurse.filter(k=>!k.archiv&&k.teil==="klasse"&&k.klassen.includes(kl)&&!k.schueler.includes(u.id)).forEach(k=>{k.schueler.push(u.id);neu++})}
+  const altK=alt!==kl?db.kurse.filter(k=>!k.archiv&&k.teil==="klasse"&&k.klassen.includes(alt)&&k.schueler.includes(u.id)).length:0;
+  closeModal();toast(alt!==kl?`${vn} ist jetzt in ${kl}${neu?` und in ${neu} Kurs${neu>1?"en":""} dieser Klasse`:""}.${altK?` Aus den ${altK} Kursen von ${alt} entfernt die jeweilige Lehrkraft ${vn} bei Bedarf.`:""}`:"Stammdaten gespeichert.");render();return}
+});
+document.addEventListener("keydown",e=>{
+ if(e.key==="Enter"&&e.target.matches&&e.target.matches("input.score")){e.preventDefault();const all=[...document.querySelectorAll("input.score")];const i=all.indexOf(e.target);e.target.blur();setTimeout(()=>{const nx=[...document.querySelectorAll("input.score")][i+1];if(nx){nx.focus();nx.select()}},20);return}
+ if(e.key==="Enter"&&e.target.id==="mc"){e.preventDefault();document.querySelector('[data-act="code-ok"]')?.click();return}
+ if(e.key==="Enter"&&e.target.id==="korr-score"){e.preventDefault();$("#korr-fb")?.focus();return}
+ if(e.key==="Escape")closeModal();if(e.key==="Enter"&&e.target.matches&&e.target.matches("tr.clickrow"))e.target.click()});
+
+/* ---------- Bilder ---------- */
+async function bitmap(file){if("createImageBitmap" in window){try{return await createImageBitmap(file,{imageOrientation:"from-image"})}catch(e){}}
+ return await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file)})}
+async function verkleinern(file,maxSide=2000,q=.8){const b=await bitmap(file);const w=b.width,h=b.height;const s=Math.min(1,maxSide/Math.max(w,h));
+ const c=document.createElement("canvas");c.width=Math.round(w*s);c.height=Math.round(h*s);c.getContext("2d").drawImage(b,0,0,c.width,c.height);
+ const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",q));return{blob,w:c.width,h:c.height,ow:w,oh:h}}
+async function quadrat(file){const b=await bitmap(file);const m=Math.min(b.width,b.height);const c=document.createElement("canvas");c.width=c.height=256;
+ c.getContext("2d").drawImage(b,(b.width-m)/2,(b.height-m)/2,m,m,0,0,256,256);return c.toDataURL("image/jpeg",.85)}
+const ERLAUBT=/\.(jpe?g|png|heic|heif|webp|gif|pdf|docx?|pptx?|xlsx?|odt|ods|odp|txt)$/i;
+/* prüft eine Datei; liefert {datei} oder {fehler} */
+async function prozessDatei(f){
+ if(!ERLAUBT.test(f.name))return{fehler:`„${f.name}“: Dieser Dateityp geht nicht. Erlaubt sind Fotos, PDF und Office-Dateien.`};
+ if(f.size===0)return{fehler:`„${f.name}“ ist leer.`};
+ const istHeic=/\.(heic|heif)$/i.test(f.name);
+ if(f.type.startsWith("image/")||/\.(jpe?g|png|webp|gif|heic|heif)$/i.test(f.name)){
+  try{const r=await verkleinern(f);if(r.blob.size>10*1024*1024)return{fehler:`„${f.name}“ ist auch verkleinert größer als 10 MB.`};
+   const name=f.name.replace(/\.(heic|heif|png|webp|jpeg|gif)$/i,".jpg");const img=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=()=>res(null);fr.readAsDataURL(r.blob)});
+   return{datei:{n:name,img,kb:Math.round(r.blob.size/1024),info:`${(f.size/1048576).toFixed(1)} MB → ${Math.round(r.blob.size/1024)} KB, ${r.w}×${r.h}`}}}
+  catch(e){if(istHeic&&f.size<=10*1024*1024)return{datei:{n:f.name.replace(/\.(heic|heif)$/i,".jpg"),kb:Math.round(f.size/1024),info:"iPhone-Foto, wird in MATE in JPEG umgewandelt"}};
+   return{fehler:`„${f.name}“ lässt sich nicht als Bild öffnen. Die Datei ist vielleicht beschädigt.`}}}
+ if(f.size>10*1024*1024)return{fehler:`„${f.name}“ ist größer als 10 MB.`};
+ return{datei:{n:f.name,kb:Math.max(1,Math.round(f.size/1024))}}}
+async function pruefeAlle(list){const ok=[],fehler=[];for(const f of list){const r=await prozessDatei(f);if(r.datei)ok.push(r.datei);else fehler.push(r.fehler)}return{ok,fehler}}
+function meldung(ok,fehler,okText){if(fehler.length&&ok.length)toast(`${ok.length} ${ok.length>1?"Dateien":"Datei"} gespeichert. Nicht übernommen: ${fehler.join(" ")}`);else if(fehler.length)toast(fehler.join(" "));else if(ok.length)toast(okText)}
+async function upload(files){const a=A(st.p.id);const s=getSub(a,ME_S.id);const list=[...files];if(!list.length)return;
+ if(s.files.length+list.length>10){toast(`Höchstens 10 Dateien pro Abgabe. Du kannst noch ${10-s.files.length} hinzufügen.`);return}
+ const{ok,fehler}=await pruefeAlle(list);
+ if(ok.length){s.files.push(...ok);if(hatFb(s)){sendS(s,"Verbesserung abgegeben",Date.now(),true);s.verbesserung=true;s.erledigt=true}s.zeit=Date.now()}
+ meldung(ok,fehler,"Abgabe gespeichert. Deine Lehrkraft sieht sie jetzt.");render()}
+async function anhaengen(files){const list=[...files];if(!list.length)return;if(st.reply.length+list.length>10){toast(`Höchstens 10 Dateien pro Antwort. Du kannst noch ${10-st.reply.length} anhängen.`);return}
+ st.reply.text=($("#antwort")?.value)||st.reply.text;const{ok,fehler}=await pruefeAlle(list);st.reply.push(...ok);if(fehler.length)toast(fehler.join(" "));render()}
+
+SEED.forEach(f=>f());
+(async()=>{try{const g=await idbGet();speicherOk=true;if(g&&!demoAnwenden(g))await idbDel()}catch(e){speicherOk=false}speicherHinweis();render()})();
+render();
+</script>
+
+</body>
+</html>
