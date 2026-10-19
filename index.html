@@ -439,7 +439,7 @@ function distBar(sym){const t=sym["+"]+sym["~"]+sym["–"];return `<span style="
 
 /* ---------- Speichern pro Gerät (Testversion) ---------- */
 SEEDING=false;
-const DEMO_V=1,DEMO_KEY="mate-demo",FEEDBACK_MAIL="";
+const DEMO_V=1,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
 function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open("mate-demo",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
 async function idbGet(){const d=await idb();return new Promise(res=>{try{const q=d.transaction("kv").objectStore("kv").get(DEMO_KEY);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)}catch(e){res(null)}})}
