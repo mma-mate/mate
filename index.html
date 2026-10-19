@@ -50,6 +50,7 @@ a{color:var(--blue-ink)}
 :focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px}
 
 .intro{margin:8px 0 12px;padding-left:20px;display:flex;flex-direction:column;gap:8px}.intro-links{color:var(--muted);font-size:.9rem}.linkbtn{background:none;border:0;padding:0;color:var(--blue-ink);text-decoration:underline;cursor:pointer;font:inherit}
+.chipn{display:inline-block;min-width:1.5em;padding:0 6px;margin-left:2px;border-radius:999px;background:color-mix(in srgb,currentColor 12%,transparent);font-size:.8em;font-variant-numeric:tabular-nums;text-align:center}
 .legal{display:flex;flex-wrap:wrap;gap:4px 10px;justify-content:center;align-items:center;margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}.legal button{background:none;border:0;padding:6px 2px;color:var(--muted);cursor:pointer;font:inherit;text-decoration:underline;text-underline-offset:3px}.legal button:hover{color:var(--fg)}
 .recht{max-width:68ch;gap:4px}.recht h2{font-size:1.1rem;margin-top:18px}.recht p{margin:6px 0}.recht .lead{font-size:1.05rem;padding:12px 14px;background:var(--tint-blue);border-radius:var(--r)}.recht .stand{color:var(--muted);font-size:.88rem;margin-top:20px}.recht a{color:var(--blue-ink);overflow-wrap:anywhere}
 .demo-act{display:flex;gap:6px}.demo-act button{background:transparent;border:1px solid color-mix(in srgb,var(--bg) 45%,transparent);color:var(--bg);border-radius:999px;padding:3px 12px;font-size:.82rem;cursor:pointer;min-height:30px}.demo-act button:hover{background:color-mix(in srgb,var(--bg) 14%,transparent)}
@@ -551,7 +552,7 @@ function speicherHinweis(){const el=document.getElementById("demo-speicher");if(
 addEventListener("pagehide",()=>{if(speicherOk){clearTimeout(_saveT);idbPut({v:DEMO_V,db,faecher:FAECHER,zeit:Date.now()}).catch(()=>{})}});
 
 /* ---------- Zustand ---------- */
-const st={role:"schueler",view:"start",p:{},tab:"aufgaben",filter:{status:"alle",kurs:""},ffilter:{status:"offen",kurs:""},lfilter:"dran",reply:[],sorts:{fa:{key:"none",dir:1},lu:{key:"name",dir:1},tn:{key:"name",dir:1},sk:{key:"frist",dir:-1},auf:{key:"name",dir:1},ak:{key:"name",dir:1},as:{key:"klasse",dir:1},al:{key:"name",dir:1}},lsort:"neu"};
+const st={role:"schueler",view:"start",p:{},tab:"aufgaben",filter:{status:"offen",kurs:""},afilter:{status:"korr",kurs:""},ffilter:{status:"offen",kurs:""},lfilter:"dran",reply:[],sorts:{fa:{key:"none",dir:1},lu:{key:"name",dir:1},tn:{key:"name",dir:1},sk:{key:"frist",dir:-1},auf:{key:"name",dir:1},ak:{key:"name",dir:1},as:{key:"klasse",dir:1},al:{key:"name",dir:1}},lsort:"neu"};
 const ICON={
  home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
  tasks:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
@@ -573,14 +574,14 @@ const ICON={
 const ico=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
 function me(){return st.role==="schueler"?ME_S:T1}
 function navItems(){
- if(st.role==="schueler"){const ds=dashS();return[["start","Startseite","home",ds.over.length],["aufgaben","Meine Aufgaben","tasks"],["feedback","Feedback","chat",ds.neu],["kurse","Kurse","book"],["profil","Profil","user"]]}
- if(st.role==="lehrkraft"){const dl=dashL();return[["start","Startseite","home",dl.korr.length],["kurse","Meine Kurse","book"],["feedback","Feedback","chat",dl.antw.length+dl.verb.length],["profil","Profil","user"]]}
+ if(st.role==="schueler"){const ds=dashS();return[["start","Startseite","home",ds.over.length],["aufgaben","Aufgaben","tasks"],["feedback","Feedback","chat",ds.neu],["kurse","Kurse","book"],["profil","Profil","user"]]}
+ if(st.role==="lehrkraft"){const dl=dashL();return[["start","Startseite","home",dl.korr.length],["aufgaben","Aufgaben","tasks"],["feedback","Feedback","chat",dl.antw.length+dl.verb.length],["kurse","Kurse","book"],["profil","Profil","user"]]}
  return[["start","Übersicht","home",db.pending.length],["kurse","Kurse","book"],["klassen","Schulklassen","grid"],["schueler","Schüler·innen","people"],["lehrer","Lehrkräfte","user"],["faecher","Fächerliste","list"],["wechsel","Schuljahreswechsel","cycle"]]}
 function go(view,p={}){if(view!=="recht"&&/^#(impressum|datenschutz|nutzung)$/.test(location.hash))try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}st.view=view;st.p=p;st.reply=[];if(view!=="kurs")st.tab="aufgaben";render();window.scrollTo(0,0)}
 
 /* ---------- Rahmen ---------- */
 function renderChrome(){
- const items=navItems();const cur=st.view==="kurs"||st.view==="aufgabe"||st.view==="neu"||st.view==="kursneu"?(st.role==="schueler"&&st.p.from==="aufgaben"?"aufgaben":"kurse"):st.view;
+ const items=navItems();const cur=st.view==="kurs"||st.view==="aufgabe"||st.view==="neu"||st.view==="kursneu"?(st.p.from==="aufgaben"?"aufgaben":"kurse"):st.view;
  const u=me();const rollen=st.role==="admin"?"Admin · auch Lehrkraft":st.role==="lehrkraft"?"Lehrkraft"+(u.admin?" · auch Admin":""):"Schüler·in · "+u.klasse;
  $("#side").innerHTML=`<div class="brand"><svg class="logo" viewBox="0 0 851 200" role="img" aria-label="MATE"><g transform="translate(0.00 0.00) scale(0.26738) translate(-169 -250)"><path fill="#F7900A" d="M170.0,320.0Q170.0,250.0 240.0,250.0L385.0,250.0Q385.0,250.0 385.0,250.0L385.0,903.0Q385.0,998.0 290.0,998.0L265.0,998.0Q170.0,998.0 170.0,903.0Z"/><path fill="#5E2396" d="M870.0,250.0Q870.0,250.0 870.0,250.0L1015.0,250.0Q1085.0,250.0 1085.0,320.0L1085.0,903.0Q1085.0,998.0 990.0,998.0L965.0,998.0Q870.0,998.0 870.0,903.0Z"/><path fill="#A8C614" d="M797.7,293.8Q831.0,250.0 886.0,250.0L1040.0,250.0Q1085.0,250.0 1057.8,285.9L729.0,720.0Q729.0,720.0 729.0,720.0L565.0,600.0Q565.0,600.0 565.0,600.0Z"/><path fill="#1E9BDE" d="M192.5,282.4Q169.0,250.0 209.0,250.0L384.0,250.0Q429.0,250.0 455.4,286.4L748.0,690.3Q755.0,700.0 747.7,709.6L682.5,795.4Q622.0,875.0 563.3,794.0Z"/></g><path fill="currentColor" d="M468.01716577540105 64.62V198.0H435.52716577540104V118.01L405.69716577540106 198.0H379.4771657754011L349.45716577540105 117.82V198.0H316.96716577540104V64.62H355.3471657754011L392.77716577540104 156.96L429.82716577540106 64.62ZM578.4171657754011 174.44H528.6371657754011L520.657165775401 198.0H486.6471657754011L534.907165775401 64.62H572.527165775401L620.787165775401 198.0H586.397165775401ZM570.0571657754011 149.36 553.527165775401 100.53 537.1871657754011 149.36ZM735.3671657754011 64.62V90.65H700.027165775401V198.0H667.537165775401V90.65H632.197165775401V64.62ZM788.197165775401 90.65V117.63H831.707165775401V142.71H788.197165775401V171.97H837.407165775401V198.0H755.707165775401V64.62H837.407165775401V90.65Z"/></svg><small>Modulare Mittelstufe Aspern</small></div>
  <nav class="nav" aria-label="Hauptnavigation">${items.map(([v,l,i,n])=>`<button data-go="${v}" aria-current="${cur===v}">${ico(i)}<span>${l}</span>${n?`<span class="count">${n}</span>`:""}</button>`).join("")}</nav>
@@ -620,12 +621,13 @@ function vStartS(){const{over,bald,fb}=dashS();const h=NOW.getHours();
  <section class="panel"><header><h2>Zuletzt bewertet</h2></header><ul class="list">${meineAufgaben(ME_S.id).filter(a=>a.freigegeben&&getSub(a,ME_S.id).score!==null).sort((a,b)=>b.frist-a.frist).slice(0,4).map(a=>taskRow(a,ME_S.id,{score:true})).join("")||`<li class="empty">Noch keine freigegebenen Bewertungen.</li>`}</ul></section>`}
 function vAufgabenS(){const u=ME_S.id;const f=st.filter;let as=meineAufgaben(u);
  const kurse=[...new Set(as.map(a=>a.kurs))].map(K);
- if(f.status==="offen")as=as.filter(a=>["offen","überfällig"].includes(status(a,u)));
- if(f.status==="nichtvoll")as=as.filter(a=>{const s=getSub(a,u);return a.freigegeben&&s.score!==null&&!isMax(a,s)});
  if(f.kurs)as=as.filter(a=>a.kurs===f.kurs);
+ const F={alle:()=>true,offen:a=>["offen","überfällig"].includes(status(a,u)),nichtvoll:a=>{const s=getSub(a,u);return a.freigegeben&&s.score!==null&&s.score!==""&&!isMax(a,s)}};
+ const anz=Object.fromEntries(Object.keys(F).map(k=>[k,as.filter(F[k]).length]));
+ as=as.filter(F[f.status]||F.alle);
  as.sort((a,b)=>a.frist-b.frist);
- return `<div class="head"><div><h1>Meine Aufgaben</h1><p>Alle Aufgaben aus allen Kursen, nach Frist sortiert.</p></div></div>
- <div class="chips" role="group" aria-label="Filter">${[["alle","Alle"],["offen","Offen"],["nichtvoll","Nicht volle Bewertung"]].map(([v,l])=>`<button class="chip" data-filter="${v}" aria-pressed="${f.status===v}">${l}</button>`).join("")}
+ return `<div class="head"><div><h1>Aufgaben</h1><p>Alle Aufgaben aus allen Kursen, nach Frist sortiert.</p></div></div>
+ <div class="chips" role="group" aria-label="Filter">${[["offen","Offen"],["nichtvoll","Nicht volle Bewertung"],["alle","Alle"]].map(([v,l])=>`<button class="chip" data-filter="${v}" aria-pressed="${f.status===v}">${l} <span class="chipn">${anz[v]}</span></button>`).join("")}
  <select id="fkurs" class="chip" aria-label="Kurs filtern"><option value="">Alle Kurse</option>${kurse.map(k=>`<option value="${k.id}" ${f.kurs===k.id?"selected":""}>${esc(kursKurz(k))}</option>`).join("")}</select></div>
  <section class="panel"><ul class="list">${as.map(a=>{const s=getSub(a,u);return taskRow(a,u,{from:"aufgaben",score:a.freigegeben&&s.score!==null})}).join("")||`<li class="empty">Keine Aufgaben für diesen Filter.</li>`}</ul></section>`}
 function vKurseS(){const ks=db.kurse.filter(k=>k.schueler.includes(ME_S.id)&&!k.archiv);const arch=db.kurse.filter(k=>k.schueler.includes(ME_S.id)&&k.archiv);
@@ -696,6 +698,20 @@ function vStartL(){const{korr,fristen,frei,antw,verb}=dashL();const proA={};korr
  <section class="panel"><header><h2>Verbesserungen eingegangen</h2><span class="pill p-done">${verb.length}</span></header><ul class="list">${verb.map(x=>{const u=U(x.u);return `<li><button class="row click" data-open-task="${x.a.id}" data-fbu="${u.id}">${avatar(u)}<span class="main"><b>${esc(u.vn)} ${esc(u.nn)} · ${esc(x.a.titel)}</b><span class="sub">${esc(kursKurz(x.k))} · nach deinem Feedback abgegeben</span></span><span class="due"><b>${rel(fbZeit(x.s))}</b>${fmtDate(fbZeit(x.s))}</span></button></li>`}).join("")||`<li class="empty">Keine neuen Verbesserungen.</li>`}</ul></section>
  </div>
  <section class="panel"><header><h2>Bewertet, noch nicht freigegeben</h2></header><ul class="list">${frei.map(a=>`<li><button class="row click" data-open-task="${a.id}"><span class="main"><b>${esc(a.titel)}</b><span class="sub">${esc(kursKurz(K(a.kurs)))}</span></span><span class="pill p-warn">nicht freigegeben</span></button></li>`).join("")||`<li class="empty">Alle Bewertungen sind freigegeben.</li>`}</ul></section>`}
+function vAufgabenL(){const f=st.afilter;const ks=meineKurse().filter(k=>!k.archiv);let as=db.aufgaben.filter(a=>ks.some(k=>k.id===a.kurs));
+ if(f.kurs)as=as.filter(a=>a.kurs===f.kurs);
+ const zuKorr=a=>zielgruppe(a).filter(u=>{const s=getSub(a,u);return s.files.length&&(s.score===null||s.score==="")}).length;
+ const bewertet=a=>zielgruppe(a).some(u=>{const s=getSub(a,u);return s.score!==null&&s.score!==""});
+ const F={korr:a=>zuKorr(a)>0,laufend:a=>a.frist>=NOW,frei:a=>!a.freigegeben&&bewertet(a),alle:()=>true};
+ const anz=Object.fromEntries(Object.keys(F).map(k=>[k,as.filter(F[k]).length]));
+ as=as.filter(F[f.status]||F.alle).sort((a,b)=>f.status==="alle"?b.frist-a.frist:a.frist-b.frist);
+ const TXT={korr:"Aufgaben mit Abgaben, die du noch nicht bewertet hast. Älteste Frist zuerst.",laufend:"Aufgaben, deren Frist noch nicht vorbei ist. Nächste Frist zuerst.",frei:"Aufgaben mit Bewertungen, die die Kinder noch nicht sehen.",alle:"Alle Aufgaben aus deinen Kursen, neueste Frist zuerst."};
+ const LEER={korr:"Alles korrigiert.",laufend:"Keine laufenden Aufgaben.",frei:"Alle Bewertungen sind freigegeben.",alle:"Noch keine Aufgaben. Neue Aufgaben legst du im jeweiligen Kurs an."};
+ return `<div class="head"><div><h1>Aufgaben</h1><p>Alle Aufgaben aus deinen Kursen im Schuljahr ${SJ}.</p></div></div>
+ <div class="chips" role="group" aria-label="Filter">${[["korr","Zu korrigieren"],["laufend","Laufend"],["frei","Freigabe fehlt"],["alle","Alle"]].map(([v,l])=>`<button class="chip" data-laf="${v}" aria-pressed="${f.status===v}">${l} <span class="chipn">${anz[v]}</span></button>`).join("")}
+ <select id="lkurs" class="chip" aria-label="Kurs filtern"><option value="">Alle Kurse</option>${ks.map(k=>`<option value="${k.id}" ${f.kurs===k.id?"selected":""}>${esc(kursKurz(k))}</option>`).join("")}</select></div>
+ <p style="color:var(--muted);font-size:.86rem;margin-top:-10px">${TXT[f.status]}</p>
+ <section class="panel"><ul class="list">${as.map(a=>{const{n,t}=abgabeStand(a);const kk=zuKorr(a);return `<li><button class="row click" data-open-task="${a.id}" data-from="aufgaben"><span class="main"><b>${esc(a.titel)}</b><span class="sub">${esc(kursKurz(K(a.kurs)))} · ${fuerText(a)} · ${a.abgabe==="keine"?"keine Abgabe nötig":`${n} von ${t} abgegeben`}</span></span>${kk?`<span class="pill p-done">${kk} zu korrigieren</span>`:""}${a.sichtbar>Date.now()?`<span class="pill p-open">noch nicht sichtbar</span>`:""}${F.frei(a)?`<span class="pill p-warn">nicht freigegeben</span>`:""}<span class="due ${a.frist<NOW&&f.status!=="alle"?"":""}"><b>${rel(a.frist)}</b>${fmtDate(a.frist)}, ${fmtTime(a.frist)}</span></button></li>`}).join("")||`<li class="empty">${LEER[f.status]}</li>`}</ul></section>`}
 function vKurseL(){const ks=meineKurse().filter(k=>!k.archiv);const arch=meineKurse().filter(k=>k.archiv);
  const row=k=>`<li><button class="row click" data-open-kurs="${k.id}"><span class="main"><b>${esc(kursName(k))}</b><span class="sub">${k.art} · ${k.schueler.length} Schüler·innen · ${BEW[k.bew]}${k.lehrer.length>1?" · mit "+k.lehrer.filter(i=>i!==T1.id).map(i=>esc(U(i).vn+" "+U(i).nn)).join(", "):""}</span></span>${k.eigentuemer!==T1.id?`<span class="tag">eingeladen</span>`:""}${k.archiv?`<span class="tag">archiviert</span>`:""}</button></li>`;
  return `<div class="head"><div><h1>Meine Kurse</h1><p>Schuljahr ${SJ}</p></div><button class="btn primary" data-go="kursneu">${ico("plus")}Kurs anlegen</button></div>
@@ -730,7 +746,7 @@ function vKursL(k){const mine=k.eigentuemer===T1.id;const ro=k.archiv;
    ${niveauFach(k.fach)&&k.klassen.every(c=>stufeOf(c)!=="FMS"&&stufeOf(c)>=6)?`<label class="check"><input type="checkbox" id="ke-niv" ${k.niveaus?"checked":""} ${ro?"disabled":""}> Leistungsniveaus Standard und Standard AHS verwenden</label>`:""}
    <p class="hint" style="color:var(--muted);font-size:.85rem">Standardwerte gelten für neue Aufgaben. Bestehende Aufgaben bleiben, wie sie sind.</p>
    ${ro?"":`<div class="actions"><button class="btn primary" type="submit">Einstellungen speichern</button></div>`}</form></div></section>`}
- return `<div class="head"><div><button class="crumb" data-go="kurse">← Meine Kurse</button><h1>${esc(kursName(k))}</h1><p>${k.art} · ${k.schueler.length} Schüler·innen${ro?" · archiviert, nur lesen":""}</p></div></div>
+ return `<div class="head"><div><button class="crumb" data-go="kurse">← Kurse</button><h1>${esc(kursName(k))}</h1><p>${k.art} · ${k.schueler.length} Schüler·innen${ro?" · archiviert, nur lesen":""}</p></div></div>
  <div class="tabs" role="tablist">${tabs.map(([t,l,m])=>`<button role="tab" data-tab="${t}" aria-selected="${st.tab===t}" aria-label="${l}"><span class="d-only">${l}</span><span class="m-only">${m}</span></button>`).join("")}</div>${body}`}
 function sortState(id,def,dir=1){return st.sorts[id]||(st.sorts[id]={key:def,dir})}
 function leer(v){return v===null||v===undefined||v===""}
@@ -750,7 +766,8 @@ function vSchuelerKurs(){const k=K(st.p.kurs);const u=U(st.p.u);const as=db.aufg
  <section class="panel"><header><h2>Alle Aufgaben</h2>${nicht?`<span style="color:var(--muted);font-size:.85rem">${nicht} Aufgabe${nicht>1?"n gelten":" gilt"} nicht für ${esc(u.vn)}</span>`:""}</header><div class="tablewrap"><table><thead><tr>${thS("sk","titel","Aufgabe")}${thS("sk","frist","Frist",{desc:1})}${thS("sk","status","Status")}${thS("sk","abgabe","Abgabe",{desc:1})}${thS("sk","bew","Bewertung",{num:1,desc:1})}${thS("sk","fb","Feedback")}</tr></thead><tbody>${sortBy("sk","frist",[...as],(a,key)=>{const s=getSub(a,u.id);return key==="titel"?a.titel:key==="frist"?a.frist:key==="status"?ST_RANG[status(a,u.id)]:key==="abgabe"?(s.files.length?s.zeit:null):key==="bew"?scoreNorm(a,s):FB_RANG[fbStatusL(s)]},-1).map(a=>{const s=getSub(a,u.id);const nf=msgs(s).filter(m=>!m.sys).length;return `<tr class="clickrow" data-open-task="${a.id}" tabindex="0" style="cursor:pointer"><td><b>${esc(a.titel)}</b>${a.sichtbar>Date.now()?` <span class="pill p-open">noch nicht sichtbar</span>`:""}<br><span style="color:var(--muted);font-size:.84rem">${BEW[a.bew]}${a.bew==="punkte"?" ("+a.max+")":""} · ${a.abgabe==="keine"?"keine Abgabe nötig":a.abgabe==="schule"?"in der Schule":"online"}</span></td><td style="white-space:nowrap">${fmtDate(a.frist)}<br><span style="color:var(--muted);font-size:.84rem">${fmtTime(a.frist)}</span></td><td>${pill(status(a,u.id))}</td><td>${s.files.length?`${s.files.length} Datei${s.files.length>1?"en":""}<br><span style="color:var(--muted);font-size:.84rem">${fmtDate(s.zeit)}, ${fmtTime(s.zeit)}${s.zeit>a.frist?" · verspätet":""}</span>`:"–"}</td><td class="num"><b>${esc(scoreText(a,s))}</b>${s.score!==null&&s.score!==""&&!a.freigegeben?`<br><span style="color:var(--muted);font-size:.8rem">nicht freigegeben</span>`:""}</td><td>${nf?`${nf} Nachricht${nf>1?"en":""} ${fbPill(fbStatusL(s))}`:"–"}</td></tr>`}).join("")||`<tr><td colspan="6" class="empty">Noch keine Aufgaben für ${esc(u.vn)}.</td></tr>`}</tbody></table></div></section>`}
 function vAufgabeL(a){const k=K(a.kurs);const z=zielgruppe(a).map(U).sort((x,y)=>x.nn.localeCompare(y.nn));const{n,t}=abgabeStand(a);const ro=k.archiv;
  const inp=(u,s)=>a.bew==="symbole"?`<select data-score="${u.id}" aria-label="Bewertung ${esc(u.vn)}" ${ro?"disabled":""}><option value="">–</option>${["+","~","–"].map(o=>`<option ${s.score===o?"selected":""}>${o}</option>`).join("")}</select>`:`<input class="score" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="next" value="${s.score===null||s.score===""?"":zahl(s.score)}" data-score="${u.id}" aria-label="Bewertung ${esc(u.vn)}" ${ro?"disabled":""}>${a.bew==="punkte"?` <span style="color:var(--muted)">/ ${a.max}</span>`:" %"}`;
- return `<div class="head"><div><button class="crumb" data-open-kurs="${k.id}">← ${esc(kursKurz(k))}</button><h1>${esc(a.titel)}</h1><p>Frist ${fmtDate(a.frist)}, ${fmtTime(a.frist)} · ${fuerText(a)} · ${BEW[a.bew]}${a.bew==="punkte"?" (max. "+a.max+")":""} · ${a.abgabe==="keine"?"keine Abgabe nötig":a.abgabe==="schule"?"Abgabe in der Schule":`${n} von ${t} abgegeben`}</p></div>
+ const ZURUECK={aufgaben:"Aufgaben",start:"Startseite",feedback:"Feedback"}[st.p.from];
+ return `<div class="head"><div>${ZURUECK?`<button class="crumb" data-go="${st.p.from}">← ${ZURUECK}</button>`:`<button class="crumb" data-open-kurs="${k.id}">← ${esc(kursKurz(k))}</button>`}<h1>${esc(a.titel)}</h1><p>Frist ${fmtDate(a.frist)}, ${fmtTime(a.frist)} · ${fuerText(a)} · ${BEW[a.bew]}${a.bew==="punkte"?" (max. "+a.max+")":""} · ${a.abgabe==="keine"?"keine Abgabe nötig":a.abgabe==="schule"?"Abgabe in der Schule":`${n} von ${t} abgegeben`}</p></div>
  </div>
  ${ro?`<div class="actions"><button class="btn primary" data-act="kopieren" data-a="${a.id}">Aufgabe in einen Kurs kopieren</button></div>`:`<div class="toolbar">
   <div class="tgroup" role="group" aria-labelledby="tg-auf-${a.id}"><span class="tlabel" id="tg-auf-${a.id}">Aufgabe</span><div class="actions"><button class="btn" data-act="a-edit" data-a="${a.id}" aria-label="Aufgabe bearbeiten"><span class="m-only">${ico("edit")}</span><span class="d-only">Aufgabe bearbeiten</span><span class="m-only">Bearbeiten</span></button><button class="btn" data-act="kopieren" data-a="${a.id}" aria-label="Aufgabe kopieren"><span class="m-only">${ico("copy")}</span><span class="d-only">Aufgabe kopieren</span><span class="m-only">Kopieren</span></button><button class="btn danger" data-act="a-del" data-a="${a.id}" aria-label="Aufgabe löschen"><span class="m-only">${ico("trash")}</span><span class="d-only">Aufgabe löschen</span><span class="m-only">Löschen</span></button></div></div>
@@ -775,7 +792,7 @@ function vKursNeu(){const fs=faecherFuer(kf.art,kf.klassen);if(!fs.find(f=>f.n==
  const schuelerListe=db.users.filter(u=>u.rolle==="s"&&kf.klassen.includes(u.klasse)).sort((a,b)=>a.klasse.localeCompare(b.klasse)||a.nn.localeCompare(b.nn));
  const name=kf.fach?`${multi?"":kf.klassen.join(", ")+" "}${kf.fach}${kf.zusatz?" "+kf.zusatz:""} ${kf.sj}`:"";
  const sjs=[SJ,SJ_PREV];
- return `<div class="head"><div><button class="crumb" data-go="kurse">← Meine Kurse</button><h1>Kurs anlegen</h1><p>Der Kursname entsteht automatisch.</p></div></div>
+ return `<div class="head"><div><button class="crumb" data-go="kurse">← Kurse</button><h1>Kurs anlegen</h1><p>Der Kursname entsteht automatisch.</p></div></div>
  <section class="panel"><div class="body"><form class="f" id="kursform">
  <div class="field"><span class="lbl">1. Kursart</span><div class="chips">${KURSARTEN.map(a=>`<button type="button" class="chip" data-kf-art="${a}" aria-pressed="${kf.art===a}">${a}</button>`).join("")}</div></div>
  <div class="field"><span class="lbl">2. Schulklasse${multi?"n":""}</span><div class="chips">${klassenListe.map(c=>`<button type="button" class="chip" data-kf-kl="${c}" aria-pressed="${kf.klassen.includes(c)}">${c}</button>`).join("")}</div><span class="hint">${multi?"Mehrere möglich, z. B. 4A und 4B für ein Modul.":"Eine Schulklasse."}${kf.art!=="Unterrichtsfach"?" Für die FMS gibt es keine Förderkurse, Module und UÜ.":""}</span></div>
@@ -865,7 +882,7 @@ function vWechselA(){const auf=db.klassen.filter(c=>c!=="FMS"&&+c[0]<4);const ab
 
 /* ---------- Render ---------- */
 let rendering=false,renderAgain=false;
-const FKEYS=["id","data-score","data-abw","data-niveau","data-mfb","data-af-s","data-kf-s","data-kf-art","data-kf-kl","data-kl","data-sk","data-open-task","data-open-kurs","data-go","data-tab","data-filter","data-ff","data-lf","data-fart","data-verantw","data-admin"];
+const FKEYS=["id","data-score","data-abw","data-niveau","data-mfb","data-af-s","data-kf-s","data-kf-art","data-kf-kl","data-kl","data-sk","data-open-task","data-open-kurs","data-go","data-tab","data-filter","data-laf","data-ff","data-lf","data-fart","data-verantw","data-admin"];
 function focusKey(el){if(!el||el===document.body||!document.getElementById("main").contains(el)&&!document.getElementById("side").contains(el)&&!document.getElementById("bottom").contains(el))return null;
  if(el.dataset&&el.dataset.sort)return `[data-sort="${el.dataset.sort}"][data-st="${el.dataset.st}"]`;
  if(el.dataset&&el.dataset.act)return `[data-act="${el.dataset.act}"]`+(el.dataset.u?`[data-u="${el.dataset.u}"]`:"")+(el.dataset.a?`[data-a="${el.dataset.a}"]`:"")+(el.dataset.i!==undefined?`[data-i="${el.dataset.i}"]`:"");
@@ -878,7 +895,7 @@ function renderSoon(){setTimeout(render,0)}
 function renderInner(){renderChrome();let h="";const v=st.view,r=st.role;
  if(v==="recht")h=vRecht();
  else if(r==="schueler")h=v==="start"?vStartS():v==="aufgaben"?vAufgabenS():v==="feedback"?vFeedbackS():v==="kurse"?vKurseS():v==="kurs"?vKursS(K(st.p.id)):v==="aufgabe"?vAufgabeS(A(st.p.id)):vProfil();
- else if(r==="lehrkraft")h=v==="start"?vStartL():v==="sk"?vSchuelerKurs():v==="feedback"?vFeedbackL():v==="kurse"?vKurseL():v==="kurs"?vKursL(K(st.p.id)):v==="aufgabe"?vAufgabeL(A(st.p.id)):v==="kursneu"?vKursNeu():v==="neu"?vAufgabeNeu():vProfil();
+ else if(r==="lehrkraft")h=v==="start"?vStartL():v==="sk"?vSchuelerKurs():v==="feedback"?vFeedbackL():v==="aufgaben"?vAufgabenL():v==="kurse"?vKurseL():v==="kurs"?vKursL(K(st.p.id)):v==="aufgabe"?vAufgabeL(A(st.p.id)):v==="kursneu"?vKursNeu():v==="neu"?vAufgabeNeu():vProfil();
  else h=v==="kurse"?vKurseA():v==="klassen"?vKlassenA():v==="schueler"?vSchuelerA():v==="lehrer"?vLehrerA():v==="faecher"?vFaecherA():v==="wechsel"?vWechselA():vStartA();
  $("#main").innerHTML=`<div class="wrap">${h}<footer class="legal">${rechtLinks()}</footer></div>`}
 function toast(t){document.querySelectorAll(".toast").forEach(x=>x.remove());const el=document.createElement("div");el.className="toast";el.setAttribute("role","status");el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),3800)}
@@ -901,6 +918,7 @@ document.addEventListener("click",e=>{const t=e.target.closest("button,[data-clo
  if(d.ff){st.ffilter.status=d.ff;render();return}
  if(d.lf){st.lfilter=d.lf;render();return}
  if(d.filter){st.filter.status=d.filter;render();return}
+ if(d.laf){st.afilter.status=d.laf;render();return}
  if(d.toast){toast(d.toast);return}
  if(d.fart!==undefined){st.p.art=d.fart;render();return}
  if(d.kl){const i=db.klassen.indexOf(d.kl);if(i>=0&&!klasseLeer(d.kl))return;if(i>=0)db.klassen.splice(i,1);else db.klassen.push(d.kl);db.klassen.sort((a,b)=>a==="FMS"?1:b==="FMS"?-1:a.localeCompare(b));render();return}
@@ -1008,6 +1026,7 @@ document.addEventListener("change",async e=>{const t=e.target;const d=t.dataset;
  if(t.id==="lsort"){st.lsort=t.value;render();return}
  if(t.id==="ffkurs"){st.ffilter.kurs=t.value;render();return}
  if(t.id==="fkurs"){st.filter.kurs=t.value;render();return}
+ if(t.id==="lkurs"){st.afilter.kurs=t.value;render();return}
  if(t.id==="skl"){st.p.kl=t.value;render();return}
  if(d.niveau!==undefined){const k=K(st.p.id);db.niveaus[`${d.niveau}|${k.fach}|${k.sj}`]=t.value;toast("Leistungsniveau gespeichert.");return}
  if(d.score!==undefined){const a=A(st.p.id);const s=getSub(a,d.score);let v=t.value;if(a.bew!=="symbole"){const r=pruefeScore(a,v);if(!r.ok){toast(r.msg);t.setAttribute("aria-invalid","true");t.value=s.score===null?"":zahl(s.score);return}t.removeAttribute("aria-invalid");v=r.val===null?"":r.val}s.score=v===""?null:v;s.verbesserung=false;if(s.score!==null)s.abwesend=false;renderSoon();return}
