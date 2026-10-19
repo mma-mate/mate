@@ -442,7 +442,7 @@ const al=addA(kAlt,{titel:"My family – Steckbrief",frist:at(-300),freigegeben:
 const al2=addA(kAlt,{titel:"Numbers and colours – Quiz",frist:at(-280),freigegeben:true,beschreibung:"Kurzes Quiz zu Zahlen und Farben."});
 addT(kE,{art:"schularbeit",titel:"1. Schularbeit Englisch",datum:schultag(9),von:2,bis:3,beschreibung:"Unit 1–3\nVokabeln Unit 1–3\nGrammatik: Present Simple und Present Progressive\nReading und Writing (80–100 Wörter)",anhaenge:[{n:"Uebungsblatt_Schularbeit_1.pdf",kb:184}]});
 addT(kM,{art:"test",titel:"Test Bruchrechnen",datum:schultag(3),von:4,beschreibung:"Erweitern, Kürzen, Addieren und Subtrahieren von Brüchen"});
-addT(kGW,{art:"wh",titel:"Wiederholung Klimazonen",datum:schultag(5),von:1,beschreibung:"Die Klimazonen der Erde, Arbeitsblatt Klimazonen"});
+addT(kGW,{art:"wh",titel:"Wiederholung Klimazonen",datum:schultag(2),von:1,beschreibung:"Die Klimazonen der Erde, Arbeitsblatt Klimazonen"});
 addT(kE,{art:"referat",titel:"Book presentation",datum:schultag(12),von:1,fuer:"auswahl",auswahl:[ME_S.id,kids2A[2].id],beschreibung:"3 Minuten: Stelle dein Lieblingsbuch auf Englisch vor."});
 addT(kR,{art:"lehrausgang",titel:"Lehrausgang Technisches Museum",datum:schultag(16),von:5,bis:7,beschreibung:"Treffpunkt Schuleingang. Öffi-Ticket mitnehmen."});
 addT(kE,{art:"test",titel:"Vocabulary Test Unit 2",datum:(()=>{const d=new Date(NOW);d.setHours(0,0,0,0);d.setDate(d.getDate()-6);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1);return d.getTime()})(),von:3,beschreibung:"Vokabeln Unit 2"});
@@ -524,13 +524,13 @@ function terminRow(t,from){const k=K(t.kurs);const d=new Date(t.datum);
 function vTermine(){const f=st.tfilter;let ts=meineTermine();const heute=tagesStart(Date.now());const lk=st.role==="lehrkraft";
  const kurse=lk?meineKurse().filter(k=>!k.archiv):[...new Set(ts.map(t=>t.kurs))].map(K);
  if(f.kurs)ts=ts.filter(t=>t.kurs===f.kurs);
- const kommend=ts.filter(t=>t.datum>=heute).sort((a,b)=>terminBeginn(a)-terminBeginn(b)),vergangen=ts.filter(t=>t.datum<heute).sort((a,b)=>terminBeginn(b)-terminBeginn(a));
+ const kommend=ts.filter(t=>t.datum>=heute).sort((a,b)=>terminBeginn(a)-terminBeginn(b)),woche=kommend.filter(t=>t.datum<heute+7*864e5),vergangen=ts.filter(t=>t.datum<heute).sort((a,b)=>terminBeginn(b)-terminBeginn(a));
  const kopf=`<div class="head"><div><h1>Termine</h1><p>${lk?"Schularbeiten, Tests und andere Termine deiner Kurse.":"Schularbeiten, Tests und andere Termine aus deinen Kursen."} Abgabefristen stehen bei den Aufgaben.</p></div>${lk?`<button class="btn primary" data-act="termin-neu">${ico("plus")}Termin anlegen</button>`:""}</div>
- <div class="chips" role="group" aria-label="Ansicht"><button class="chip" data-tz="kommend" aria-pressed="${f.zeit==="kommend"}">Kommende <span class="chipn">${kommend.length}</span></button><button class="chip" data-tz="vergangen" aria-pressed="${f.zeit==="vergangen"}">Vergangene <span class="chipn">${vergangen.length}</span></button><button class="chip" data-tz="monat" aria-pressed="${f.zeit==="monat"}">Monat</button>
+ <div class="chips" role="group" aria-label="Ansicht"><button class="chip" data-tz="woche" aria-pressed="${f.zeit==="woche"}">Nächste 7 Tage <span class="chipn">${woche.length}</span></button><button class="chip" data-tz="kommend" aria-pressed="${f.zeit==="kommend"}">Kommende <span class="chipn">${kommend.length}</span></button><button class="chip" data-tz="vergangen" aria-pressed="${f.zeit==="vergangen"}">Vergangene <span class="chipn">${vergangen.length}</span></button><button class="chip" data-tz="monat" aria-pressed="${f.zeit==="monat"}">Monat</button>
  <select id="tkurs" class="chip" aria-label="Kurs filtern"><option value="">Alle Kurse</option>${kurse.map(k=>`<option value="${k.id}" ${f.kurs===k.id?"selected":""}>${esc(kursKurz(k))}</option>`).join("")}</select></div>`;
  if(f.zeit==="monat")return kopf+monatsAnsicht(ts);
- const liste=f.zeit==="vergangen"?vergangen:kommend;
- if(!liste.length)return kopf+`<section class="panel"><ul class="list"><li class="empty">${f.zeit==="vergangen"?"Keine vergangenen Termine.":lk?"Keine kommenden Termine. Lege einen an, z. B. eine Schularbeit.":"Keine kommenden Termine."}</li></ul></section>`;
+ const liste=f.zeit==="vergangen"?vergangen:f.zeit==="woche"?woche:kommend;
+ if(!liste.length)return kopf+`<section class="panel"><ul class="list"><li class="empty">${f.zeit==="vergangen"?"Keine vergangenen Termine.":f.zeit==="woche"?`In den nächsten 7 Tagen stehen keine Termine an.${kommend.length?" Unter „Kommende“ siehst du alle späteren.":""}`:lk?"Keine kommenden Termine. Lege einen an, z. B. eine Schularbeit.":"Keine kommenden Termine."}</li></ul></section>`;
  const gruppen=[];liste.forEach(t=>{const w=wochenStart(t.datum);let g=gruppen.find(x=>x.w===w);if(!g)gruppen.push(g={w,ts:[]});g.ts.push(t)});
  return kopf+gruppen.map(g=>{const ende=new Date(g.w);ende.setDate(ende.getDate()+6);const a=new Date(g.w);const dieseW=wochenStart(Date.now())===g.w;
   return `<section class="panel"><header><h2>${dieseW?"Diese Woche":wochenStart(Date.now())+7*864e5===g.w?"Nächste Woche":"KW "+kw(g.w)}</h2><span style="color:var(--muted);font-size:.85rem">${dieseW||wochenStart(Date.now())+7*864e5===g.w?`KW ${kw(g.w)} · `:""}${a.getDate()}.${a.getMonth()+1}.–${ende.getDate()}.${ende.getMonth()+1}.</span></header><ul class="list">${g.ts.map(t=>terminRow(t,"termine")).join("")}</ul></section>`}).join("")}
@@ -663,7 +663,7 @@ function speicherHinweis(){const el=document.getElementById("demo-speicher");if(
 addEventListener("pagehide",()=>{if(speicherOk){clearTimeout(_saveT);idbPut({v:DEMO_V,db,faecher:FAECHER,zeit:Date.now(),stand:tagesbeginn(Date.now())}).catch(()=>{})}});
 
 /* ---------- Zustand ---------- */
-const st={role:"schueler",view:"start",p:{},tab:"aufgaben",filter:{status:"offen",kurs:""},afilter:{status:"korr",kurs:""},tfilter:{zeit:"kommend",kurs:"",monat:0},ffilter:{status:"offen",kurs:""},lfilter:"dran",reply:[],sorts:{fa:{key:"none",dir:1},lu:{key:"name",dir:1},tn:{key:"name",dir:1},sk:{key:"frist",dir:-1},auf:{key:"name",dir:1},ak:{key:"name",dir:1},as:{key:"klasse",dir:1},al:{key:"name",dir:1}},lsort:"neu"};
+const st={role:"schueler",view:"start",p:{},tab:"aufgaben",filter:{status:"offen",kurs:""},afilter:{status:"korr",kurs:""},tfilter:{zeit:"woche",kurs:"",monat:0},ffilter:{status:"offen",kurs:""},lfilter:"dran",reply:[],sorts:{fa:{key:"none",dir:1},lu:{key:"name",dir:1},tn:{key:"name",dir:1},sk:{key:"frist",dir:-1},auf:{key:"name",dir:1},ak:{key:"name",dir:1},as:{key:"klasse",dir:1},al:{key:"name",dir:1}},lsort:"neu"};
 const ICON={cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
  home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
  tasks:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
@@ -685,8 +685,8 @@ const ICON={cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10
 const ico=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
 function me(){return st.role==="schueler"?ME_S:T1}
 function navItems(){
- if(st.role==="schueler"){const ds=dashS();return[["start","Startseite","home"],["aufgaben","Aufgaben","tasks",meineAufgaben(ME_S.id).filter(x=>["offen","überfällig"].includes(status(x,ME_S.id))).length],["termine","Termine","cal"],["feedback","Feedback","chat",ds.neu],["kurse","Kurse","book"]]}
- if(st.role==="lehrkraft"){const dl=dashL();return[["start","Startseite","home"],["aufgaben","Aufgaben","tasks",new Set(dl.korr.map(x=>x.a.id)).size],["termine","Termine","cal"],["feedback","Feedback","chat",dl.antw.length+dl.verb.length],["kurse","Kurse","book"]]}
+ if(st.role==="schueler"){const ds=dashS();return[["start","Startseite","home"],["aufgaben","Aufgaben","tasks",meineAufgaben(ME_S.id).filter(x=>["offen","überfällig"].includes(status(x,ME_S.id))).length],["termine","Termine","cal",naechsteTermine(7).length],["feedback","Feedback","chat",ds.neu],["kurse","Kurse","book"]]}
+ if(st.role==="lehrkraft"){const dl=dashL();return[["start","Startseite","home"],["aufgaben","Aufgaben","tasks",new Set(dl.korr.map(x=>x.a.id)).size],["termine","Termine","cal",naechsteTermine(7).length],["feedback","Feedback","chat",dl.antw.length+dl.verb.length],["kurse","Kurse","book"]]}
  return[["start","Übersicht","home",db.pending.length],["kurse","Kurse","book"],["klassen","Schulklassen","grid"],["schueler","Schüler·innen","people"],["lehrer","Lehrkräfte","user"],["faecher","Fächerliste","list"],["wechsel","Schuljahreswechsel","cycle"]]}
 function go(view,p={}){if(view!=="recht"&&/^#(impressum|datenschutz|nutzung)$/.test(location.hash))try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}st.view=view;st.p=p;st.reply=[];if(view!=="kurs")st.tab="aufgaben";render();window.scrollTo(0,0)}
 
