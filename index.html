@@ -126,10 +126,10 @@ main{min-width:0;padding-block:28px 96px;padding-left:max(16px,env(safe-area-ins
 .ferr{color:var(--red);font-size:.9rem;font-weight:600;margin:6px 0 0}[aria-invalid="true"]{border-color:var(--red)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--red) 22%,transparent)}.hat-fehler>.chips,.picklist.hat-fehler{outline:2px solid var(--red);outline-offset:3px;border-radius:10px}
 .list li.mehr{padding:8px 16px;text-align:center}
 .chips.kfilter{padding:12px 16px 4px;margin:0}
-.abg-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-6px 0 16px}.abg-nav .btn{min-width:0}.abg-pos{color:var(--muted);font-size:.9rem;white-space:nowrap}
-.abg-titel{display:flex;align-items:center;gap:10px}.abg-score{display:flex;align-items:center;gap:6px;white-space:nowrap}.abg-score input.score,.abg-score select{width:110px;flex:none}.abg-link{font-size:.82rem;margin-top:2px}
+.abg-nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:-6px 0 16px}.abg-nav .btn{min-width:0;max-width:100%}.abg-nav .vor{justify-self:start}.abg-nav .nach{justify-self:end}.abg-nav .btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.abg-pos{color:var(--muted);font-size:.9rem;white-space:nowrap}
+.abg-titel{display:flex;align-items:center;gap:10px}.abg-score{display:flex;align-items:center;gap:6px;white-space:nowrap}.field .abg-score input.score,.field .abg-score select{width:110px;flex:none}.abg-link{font-size:.82rem;margin-top:2px}
 tr.hl>td{animation:hlrow 2.4s ease-out}@keyframes hlrow{0%,40%{background:var(--tint-orange)}100%{background:transparent}}
-label.check{display:flex;gap:8px;align-items:center;margin:8px 0}
+label.check{display:flex;gap:8px;align-items:center;margin:8px 0}.modal:focus{outline:none}
 tr.nichtzug td{color:var(--muted);background:var(--sunk)}
 .tnweg{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}.tnweg h3{margin:0;font-size:1rem}.tnweg p{margin:0}
 .fotopill{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--orange);background:var(--tint-orange);color:var(--orange-ink);border-radius:999px;padding:2px 9px;font:inherit;font-size:.78rem;font-weight:600;cursor:pointer;min-height:28px}.fotopill svg{width:14px;height:14px}.fotopill.nicht{border-color:var(--red,#C2410C);color:var(--red,#C2410C);background:transparent}.fotopill.ok{border-color:var(--line);background:transparent;color:var(--muted);font-weight:500}
@@ -957,7 +957,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 let CODE_AUS_LINK=null;try{const c=new URLSearchParams(location.search).get("code");if(c&&/^[A-Z0-9-]{4,12}$/i.test(c)){CODE_AUS_LINK=c.toUpperCase();history.replaceState(null,"",location.pathname+location.search.replace(/[?&]code=[^&]*/,"").replace(/^&/,"?")+location.hash)}}catch(e){}
 function codeAusLinkAnbieten(){if(!CODE_AUS_LINK||st.role!=="schueler"||!st.angemeldet)return;const c=CODE_AUS_LINK;CODE_AUS_LINK=null;setTimeout(()=>{const b=document.createElement("button");b.dataset.modal="code";document.body.appendChild(b);b.click();b.remove();const i=$("#mc");if(i){i.value=c}},50)}
-const APP_VERSION="202610201854";
+const APP_VERSION="202610201952";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=7,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -1528,7 +1528,7 @@ function renderInner(){let h="";const v=st.view,r=st.role;
  else h=v==="profil"?vProfil():v==="kurse"?vKurseA():v==="klassen"?vKlassenA():v==="schueler"?vSchuelerA():v==="lehrer"?vLehrerA():v==="faecher"?vFaecherA():v==="wechsel"?vWechselA():vStartA();
  renderChrome();$("#main").innerHTML=`<div class="wrap">${h}<footer class="legal">${rechtLinks()}<span class="ver">Version ${versionText()}</span></footer></div>`}
 function toast(t){document.querySelectorAll(".toast").forEach(x=>x.remove());const el=document.createElement("div");el.className="toast";el.setAttribute("role","status");el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),3800)}
-function modal(html,cls=""){$("#layer").innerHTML=`<div class="modal-bg" data-close><div class="modal ${cls}" role="dialog" aria-modal="true">${html}</div></div>`;pflichtMarken($("#layer"));const f=$("#layer input,#layer select,#layer textarea,#layer button");if(f&&!(TOUCH()&&f.matches("select,input[type=date],input[type=time]")))f.focus()}
+function modal(html,cls=""){$("#layer").innerHTML=`<div class="modal-bg" data-close><div class="modal ${cls}" role="dialog" aria-modal="true">${html}</div></div>`;pflichtMarken($("#layer"));const f=$("#layer input,#layer select,#layer textarea,#layer button");if(TOUCH()){const m=$("#layer .modal");if(m){m.setAttribute("tabindex","-1");try{m.focus({preventScroll:true})}catch(e){}}}else if(f)f.focus()}
 function closeModal(){$("#layer").innerHTML=""}
 
 /* ---------- Ereignisse ---------- */
