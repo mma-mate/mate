@@ -149,7 +149,7 @@ main{min-width:0;padding-block:28px 96px;padding-left:max(16px,env(safe-area-ins
 .tabs button{border:0;background:none;padding:10px 14px;cursor:pointer;color:var(--muted);font-weight:700;border-bottom:3px solid transparent;white-space:nowrap}
 .tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--orange)}
 
-.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.sortwahl{align-items:center;margin:0 0 10px}.lbl-inline{font-size:.85rem;color:var(--muted);margin-right:2px}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:.88rem}
 .chip[aria-pressed="true"]{background:var(--tint-blue);border-color:var(--blue);color:var(--blue-ink);font-weight:700}
 
@@ -462,8 +462,13 @@ addT(kE,{art:"test",titel:"Vocabulary Test Unit 2",datum:(()=>{const d=new Date(
 const U=id=>db.users.find(u=>u.id===id);
 const K=id=>db.kurse.find(k=>k.id===id);
 const A=id=>db.aufgaben.find(a=>a.id===id);
-const kursName=k=>`${k.art==="Modul"||k.art==="Unverbindliche Übung"?"":k.klassen.join(", ")+" "}${k.fach}${k.zusatz?" "+k.zusatz:""} ${k.sj}`.trim();
-const kursKurz=k=>`${k.art==="Modul"||k.art==="Unverbindliche Übung"?k.klassen.join("/")+" · ":k.klassen.join(", ")+" "}${k.fach}${k.zusatz?" · "+k.zusatz:""}`;
+const kursName=k=>`${k.klassen.join("/")} ${k.fach}${k.zusatz?" "+k.zusatz:""} ${k.sj}`.trim();
+const kursKurz=k=>`${k.klassen.join("/")} ${k.fach}${k.zusatz?" · "+k.zusatz:""}`;
+/* Sortierung der Kurslisten: nach Klasse (Standard) oder nach Fach; wird pro Gerät gemerkt */
+const KLSORT=c=>c==="FMS"?"9FMS":c;
+function kurseSortieren(ks,id){const so=sortState(id,"klasse");const kl=k=>[...k.klassen].map(KLSORT).sort().join("/"),f=k=>k.fach+(k.zusatz?" "+k.zusatz:"");
+ return [...ks].sort((a,b)=>so.key==="name"?(f(a).localeCompare(f(b),"de")||kl(a).localeCompare(kl(b),"de")):(kl(a).localeCompare(kl(b),"de")||f(a).localeCompare(f(b),"de")))}
+function kurseSortWahl(id){const so=sortState(id,"klasse");return `<div class="chips sortwahl" role="group" aria-label="Kurse sortieren"><span class="lbl-inline">Sortieren:</span>${[["klasse","nach Klasse"],["name","nach Fach"]].map(([v,l])=>`<button type="button" class="chip" data-ksort="${v}" data-st="${id}" aria-pressed="${so.key===v}">${l}</button>`).join("")}</div>`}
 function niveauOf(uId,k){return db.niveaus[`${uId}|${k.fach}|${k.sj}`]||null}
 function zielgruppe(a){const k=K(a.kurs);
   if(a.fuer==="alle")return k.schueler;
@@ -719,7 +724,7 @@ nutzung:{t:"Nutzungsbedingungen",h:()=>`
 <h2>4. Ohne Gewähr</h2>
 <p>Die Testversion kann Fehler haben, sich ändern oder abgeschaltet werden. Eingaben können verloren gehen, zum Beispiel wenn Browserdaten gelöscht werden. Verlass dich für echte Aufgaben und Fristen weiter auf die bisherigen Wege der Schule.</p>
 <h2>5. Ende der Testphase</h2>
-<p>Am Ende der Testphase wird die Testversion abgeschaltet. Was du eingegeben hast, bleibt bis zum Zurücksetzen nur auf deinem Gerät.</p>
+<p>Die Testphase läuft bis zum Ende des Schuljahres 2026/27. Danach wird die Testversion abgeschaltet. Was du eingegeben hast, bleibt bis zum Zurücksetzen nur auf deinem Gerät.</p>
 <p class="stand">Stand: ${RECHT_STAND}. Fragen an ${SCHULE.kontakt}, <a href="mailto:${SCHULE.mail}">${SCHULE.mail}</a>.</p>`}};
 function vRecht(){const key=RECHT[st.p.seite]?st.p.seite:"impressum";const r=RECHT[key];
  return `<div class="head"><div><button class="crumb" data-go="start">← Zurück zu MATE</button><h1>${r.t}</h1></div></div>
@@ -733,7 +738,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("schueler")){sessionStorage.setItem("mate-modus","schueler");localStorage.setItem("mate-modus-app","schueler")}
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
-const APP_VERSION="202610191906";
+const APP_VERSION="202610200555";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=2,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -757,6 +762,9 @@ addEventListener("pagehide",()=>{if(speicherOk){clearTimeout(_saveT);idbPut({v:D
 
 /* ---------- Zustand ---------- */
 const st={role:"schueler",view:"start",p:{},tab:"aufgaben",filter:{status:"offen",kurs:""},afilter:{status:"korr",kurs:""},tfilter:{zeit:"woche",kurs:"",monat:0},ffilter:{status:"offen",kurs:""},lfilter:"dran",reply:[],sorts:{fa:{key:"none",dir:1},lu:{key:"name",dir:1},tn:{key:"name",dir:1},sk:{key:"frist",dir:-1},auf:{key:"name",dir:1},ak:{key:"name",dir:1},as:{key:"klasse",dir:1},al:{key:"name",dir:1}},lsort:"neu"};
+/* Sortierungen (Tabellen, Kurslisten) merkt sich MATE pro Gerät; Filter starten immer beim Standard */
+function sortMerken(){try{localStorage.setItem("mate-sort",JSON.stringify(st.sorts))}catch(e){}}
+try{const g=JSON.parse(localStorage.getItem("mate-sort")||"null");if(g&&typeof g==="object")for(const[k,v]of Object.entries(g))if(v&&typeof v.key==="string"&&(v.dir===1||v.dir===-1))st.sorts[k]={key:v.key,dir:v.dir}}catch(e){}
 const ICON={cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
  home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
  tasks:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
@@ -815,15 +823,16 @@ function taskRow(a,uId,opts={}){const k=K(a.kurs);const s=status(a,uId);const la
  const right=opts.score?`<span class="due"><b>${scoreText(a,getSub(a,uId))}</b>${fmtDate(a.frist)}</span>`:`<span class="due ${late?"late":""}"><b>${rel(a.frist)}</b>${fmtDate(a.frist)}, ${fmtTime(a.frist)}</span>`;
  const fbn=st.role==="schueler"&&getSub(a,uId).sNeu&&!getSub(a,uId).erledigt;
  return `<li><button class="row click" data-open-task="${a.id}" data-from="${opts.from||""}"><span class="main"><b>${esc(a.titel)}${fbn?` <span class="pill p-done" style="vertical-align:2px">neues Feedback</span>`:""}</b><span class="sub">${kursLabel(k)}${a.abgabe==="keine"?" · keine Abgabe nötig":a.abgabe==="schule"?" · Abgabe in der Schule":""}${opts.spaet&&a.spaet?" · verspätete Abgabe noch möglich":""}</span></span>${opts.pill!==false?pill(s):""}${right}</button></li>`}
-function vStartS(){const{over,bald,fb}=dashS();const h=NOW.getHours();
- return `<div class="head"><div><h1>${h<11?"Guten Morgen":h<18?"Hallo":"Guten Abend"}, ${esc(ME_S.vn)}</h1><p>${fmtDate(NOW.getTime())} · ${over.length?`${over.length} Aufgabe${over.length>1?"n":""} überfällig`:"Keine Aufgabe überfällig"} · ${bald.length} in den nächsten 7 Tagen fällig</p></div><button class="btn" data-go="aufgaben">Alle Aufgaben</button></div>
+function gruss(tag){const h=new Date().getHours();return h<11?"Guten Morgen":h<18?tag:"Guten Abend"}
+function vStartS(){const{over,bald,fb}=dashS();
+ return `<div class="head"><div><h1>${gruss("Hallo")}, ${esc(ME_S.vn)}</h1><p>Klasse ${esc(ME_S.klasse)} · ${fmtDate(NOW.getTime())} · ${over.length?`${over.length} Aufgabe${over.length>1?"n":""} überfällig`:"Keine Aufgabe überfällig"} · ${bald.length} in den nächsten 7 Tagen fällig</p></div></div>
  ${terminErinnerung()?`<div class="erinnerungen">${terminErinnerung()}</div>`:""}
  <div class="grid2">
  <section class="panel"><header><h2>Überfällig</h2><span class="pill p-late">${over.length}</span></header><ul class="list">${over.map(a=>taskRow(a,ME_S.id,{pill:false,spaet:true})).join("")||`<li class="empty">Du hast alles rechtzeitig abgegeben.</li>`}</ul></section>
  <section class="panel"><header><h2>Bald fällig</h2><span class="sub" style="color:var(--muted);font-size:.85rem">nächste 7 Tage</span></header><ul class="list">${bald.map(a=>taskRow(a,ME_S.id,{pill:false})).join("")||`<li class="empty">In den nächsten 7 Tagen ist nichts fällig.</li>`}</ul></section>
  </div>
- <section class="panel"><header><h2>Nächste Termine</h2><button class="btn small ghost" data-go="termine">Alle Termine</button></header><ul class="list">${naechsteTermine(14).map(t=>terminRow(t,"start")).join("")||`<li class="empty">In den nächsten zwei Wochen stehen keine Termine an.</li>`}</ul></section>
- <section class="panel"><header><h2>Offenes Feedback</h2><button class="btn small ghost" data-go="feedback">Alle Rückmeldungen</button></header><ul class="list">${fb.map(fbRowS).join("")||`<li class="empty">Kein offenes Feedback.</li>`}</ul></section>
+ <section class="panel"><header><h2>Nächste Termine</h2></header><ul class="list">${naechsteTermine(14).map(t=>terminRow(t,"start")).join("")||`<li class="empty">In den nächsten zwei Wochen stehen keine Termine an.</li>`}</ul></section>
+ <section class="panel"><header><h2>Offenes Feedback</h2></header><ul class="list">${fb.map(fbRowS).join("")||`<li class="empty">Kein offenes Feedback.</li>`}</ul></section>
  <section class="panel"><header><h2>Zuletzt bewertet</h2></header><ul class="list">${meineAufgaben(ME_S.id).filter(a=>a.freigegeben&&getSub(a,ME_S.id).score!==null).sort((a,b)=>b.frist-a.frist).slice(0,4).map(a=>taskRow(a,ME_S.id,{score:true})).join("")||`<li class="empty">Noch keine freigegebenen Bewertungen.</li>`}</ul></section>`}
 function vAufgabenS(){const u=ME_S.id;const f=st.filter;let as=meineAufgaben(u);
  const kurse=[...new Set(as.map(a=>a.kurs))].map(K);
@@ -840,7 +849,7 @@ function vKurseS(){const ks=db.kurse.filter(k=>k.schueler.includes(ME_S.id)&&!k.
  const card=k=>{const offen=meineAufgaben(ME_S.id).filter(a=>a.kurs===k.id&&["offen","überfällig"].includes(status(a,ME_S.id))).length;const n=niveauOf(ME_S.id,k);
   const nu=unterlagen(k).filter(istNeuU).length,bn=beschrNeu(k);return `<li><button class="row click" data-open-kurs="${k.id}">${kursIcon(k,"m")}<span class="main"><b>${esc(kursKurz(k))}</b><span class="sub">${k.art} · ${k.lehrer.map(id=>esc(U(id).vn+" "+U(id).nn)).join(", ")}${n&&k.niveaus?" · "+n:""}</span></span>${nu?`<span class="pill p-done">${nu} neue Unterlage${nu>1?"n":""}</span>`:""}${bn?`<span class="pill p-done">Beschreibung geändert</span>`:""}${offen?`<span class="pill p-open">${offen} Aufgabe${offen>1?"n":""} offen</span>`:""}</button></li>`};
  return `<div class="head"><div><h1>Meine Kurse</h1><p>Schuljahr ${SJ} · Klasse ${ME_S.klasse}</p></div><button class="btn" data-modal="code">${ico("plus")}Kurscode eingeben</button></div>
- <section class="panel"><ul class="list">${ks.map(card).join("")}</ul></section>
+ ${ks.length>1?kurseSortWahl("ks"):""}<section class="panel"><ul class="list">${kurseSortieren(ks,"ks").map(card).join("")}</ul></section>
 `}
 function vKursS(k){const u=ME_S.id;const as=meineAufgaben(u).filter(a=>a.kurs===k.id).sort((a,b)=>b.frist-a.frist);const n=niveauOf(u,k);const aw=auswertung(k,u,true);
  return `<div class="head"><div><button class="crumb" data-go="kurse">← Kurse</button><h1 class="khead">${kursIcon(k,"m")}<span>${esc(kursKurz(k))}</span></h1><p>${k.art} · ${k.lehrer.map(id=>esc(U(id).vn+" "+U(id).nn)).join(", ")}</p></div>${k.niveaus&&n?`<span class="pill p-done" style="font-size:.9rem;padding:5px 12px"><span class="d-only">Leistungsniveau: </span>${n}</span>`:""}</div>
@@ -899,7 +908,7 @@ function vFeedbackL(){const f=st.lfilter;let xs=alleFbL();const woche=at(-7,"00:
  <section class="panel"><ul class="list">${xs.map(fbRowL).join("")||`<li class="empty">${LEER[f]}</li>`}</ul></section>`}
 function abgabeStand(a){const z=zielgruppe(a);const n=z.filter(u=>getSub(a,u).files.length||(getSub(a,u).score!==null&&getSub(a,u).score!=="")).length;return{n,t:z.length}}
 function vStartL(){const{korr,fristen,frei,antw,verb}=dashL();const proA={};korr.forEach(({a})=>proA[a.id]=(proA[a.id]||0)+1);
- return `<div class="head"><div><h1>Guten Tag, ${esc(T1.vn)}</h1><p>${fmtDate(NOW.getTime())} · ${korr.length} Abgabe${korr.length===1?"":"n"} in ${Object.keys(proA).length} Aufgabe${Object.keys(proA).length===1?"":"n"} zu korrigieren</p></div><div class="actions"><button class="btn primary" data-go="kursneu">${ico("plus")}Kurs anlegen</button></div></div>
+ return `<div class="head"><div><h1>${gruss("Guten Tag")}, ${esc(T1.vn)}</h1><p>${fmtDate(NOW.getTime())} · ${korr.length} Abgabe${korr.length===1?"":"n"} in ${Object.keys(proA).length} Aufgabe${Object.keys(proA).length===1?"":"n"} zu korrigieren</p></div></div>
  <div class="grid2">
  <section class="panel"><header><h2>Zu korrigieren</h2><span class="pill p-done" title="${korr.length} Abgaben">${Object.keys(proA).length}</span></header><ul class="list">${Object.entries(proA).map(([id,n])=>{const a=A(id);return `<li><button class="row click" data-open-task="${a.id}"><span class="main"><b>${esc(a.titel)}</b><span class="sub">${kursLabel(K(a.kurs))}</span></span><span class="pill p-done">${n} zu korrigieren</span></button></li>`}).join("")||`<li class="empty">Alles korrigiert.</li>`}</ul></section>
  <section class="panel"><header><h2>Freigabe fehlt</h2><span class="pill p-warn">${frei.length}</span></header><ul class="list">${frei.map(a=>`<li><button class="row click" data-open-task="${a.id}"><span class="main"><b>${esc(a.titel)}</b><span class="sub">${kursLabel(K(a.kurs))}</span></span><span class="pill p-warn">${(()=>{const n=zielgruppe(a).filter(u=>{const x=getSub(a,u);return x.score!==null&&x.score!==""}).length;return n+" bewertet"})()}</span></button></li>`).join("")||`<li class="empty">Alle Bewertungen sind freigegeben, die Kinder sehen sie.</li>`}</ul></section>
@@ -910,7 +919,7 @@ function vStartL(){const{korr,fristen,frei,antw,verb}=dashL();const proA={};korr
  </div>
  <div class="grid2">
  <section class="panel"><header><h2>Bald endende Fristen</h2><span style="color:var(--muted);font-size:.85rem">nächste 7 Tage</span></header><ul class="list">${fristen.map(a=>{const{n,t}=abgabeStand(a);return `<li><button class="row click" data-open-task="${a.id}"><span class="main"><b>${esc(a.titel)}</b><span class="sub">${kursLabel(K(a.kurs))} · ${a.abgabe==="keine"?"keine Abgabe nötig":`${n} von ${t} abgegeben`}</span></span><span class="due"><b>${rel(a.frist)}</b>${fmtDate(a.frist)}, ${fmtTime(a.frist)}</span></button></li>`}).join("")||`<li class="empty">Keine Fristen in den nächsten 7 Tagen.</li>`}</ul></section>
- <section class="panel"><header><h2>Nächste Termine</h2><button class="btn small ghost" data-go="termine">Alle Termine</button></header><ul class="list">${naechsteTermine(14).map(t=>terminRow(t,"start")).join("")||`<li class="empty">Keine Termine in den nächsten zwei Wochen.</li>`}</ul></section>
+ <section class="panel"><header><h2>Nächste Termine</h2></header><ul class="list">${naechsteTermine(14).map(t=>terminRow(t,"start")).join("")||`<li class="empty">Keine Termine in den nächsten zwei Wochen.</li>`}</ul></section>
  </div>`}
 function vAufgabenL(){const f=st.afilter;const ks=meineKurse().filter(k=>!k.archiv);let as=db.aufgaben.filter(a=>ks.some(k=>k.id===a.kurs));
  if(f.kurs)as=as.filter(a=>a.kurs===f.kurs);
@@ -929,8 +938,8 @@ function vAufgabenL(){const f=st.afilter;const ks=meineKurse().filter(k=>!k.arch
 function vKurseL(){const ks=meineKurse().filter(k=>!k.archiv);const arch=meineKurse().filter(k=>k.archiv);
  const row=k=>`<li><button class="row click" data-open-kurs="${k.id}">${kursIcon(k,"m")}<span class="main"><b>${esc(kursName(k))}</b><span class="sub">${k.art} · ${k.schueler.length} Schüler·innen · ${BEW[k.bew]}${k.lehrer.length>1?" · mit "+k.lehrer.filter(i=>i!==T1.id).map(i=>esc(U(i).vn+" "+U(i).nn)).join(", "):""}</span></span>${(()=>{if(k.archiv)return"";const n=db.aufgaben.filter(a=>a.kurs===k.id&&zielgruppe(a).some(u=>{const x=getSub(a,u);return (x.files.length&&(x.score===null||x.score===""))||x.verbesserung})).length;return n?`<span class="pill p-done">${n} Aufgabe${n>1?"n":""} zu korrigieren</span>`:""})()}${k.eigentuemer!==T1.id?`<span class="tag">eingeladen</span>`:""}${k.archiv?`<span class="tag">archiviert</span>`:""}</button></li>`;
  return `<div class="head"><div><h1>Meine Kurse</h1><p>Schuljahr ${SJ}</p></div><button class="btn primary" data-go="kursneu">${ico("plus")}Kurs anlegen</button></div>
- <section class="panel"><ul class="list">${ks.map(row).join("")}</ul></section>
- <section class="panel"><header><h2>Archiv</h2><span class="tag">nur lesen</span></header><ul class="list">${arch.map(row).join("")}</ul></section>`}
+ ${ks.length>1?kurseSortWahl("kl"):""}<section class="panel"><ul class="list">${kurseSortieren(ks,"kl").map(row).join("")}</ul></section>
+ <section class="panel"><header><h2>Archiv</h2><span class="tag">nur lesen</span></header><ul class="list">${kurseSortieren(arch,"kl").map(row).join("")}</ul></section>`}
 function vKursL(k){const mine=k.eigentuemer===T1.id;const ro=k.archiv;
  const tabs=[["aufgaben","Aufgaben","Aufgaben"],["termine","Termine","Termine"],["unterlagen","Unterlagen","Unterlagen"],["uebersicht","Leistungsübersicht","Leistung"],["teil","Teilnehmende","Kinder"],["einst","Einstellungen","Optionen"]].filter(t=>k.beurt||t[0]!=="uebersicht");
  let body="";
@@ -1144,7 +1153,8 @@ document.addEventListener("click",e=>{const kl=e.target.closest&&e.target.closes
  if(d.openKurs){closeModal();if(d.tabTo)st.tab=d.tabTo;let bn=false;if(st.role==="schueler"){const k=K(d.openKurs);bn=beschrNeu(k);k.gesehen=k.gesehen||{};k.gesehen[ME_S.id]=Date.now()}go("kurs",{id:d.openKurs,beschrNeu:bn});return}
  if(t.hasAttribute("data-back")){const a=A(st.p.id);if(st.p.from==="kurs")go("kurs",{id:a.kurs});else go(st.p.from&&st.p.from!=="aufgabe"?st.p.from:"start");return}
  if(d.tab){st.tab=d.tab;render();return}
- if(d.sort){const so=st.sorts[d.st]||(st.sorts[d.st]={key:null,dir:1});if(so.key===d.sort)so.dir=-so.dir;else{so.key=d.sort;so.dir=+d.d}render();return}
+ if(d.sort){const so=st.sorts[d.st]||(st.sorts[d.st]={key:null,dir:1});if(so.key===d.sort)so.dir=-so.dir;else{so.key=d.sort;so.dir=+d.d}sortMerken();render();return}
+ if(d.ksort){st.sorts[d.st]={key:d.ksort,dir:1};sortMerken();render();return}
  if(d.ff){st.ffilter.status=d.ff;render();return}
  if(d.lf){st.lfilter=d.lf;render();return}
  if(d.filter){st.filter.status=d.filter;render();return}
