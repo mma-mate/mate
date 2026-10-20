@@ -125,6 +125,7 @@ main{min-width:0;padding-block:28px 96px;padding-left:max(16px,env(safe-area-ins
 .pf::after{content:" *";color:var(--red);font-weight:700}.pfh{font-size:.85rem;color:var(--muted);margin:4px 0 0}
 .ferr{color:var(--red);font-size:.9rem;font-weight:600;margin:6px 0 0}[aria-invalid="true"]{border-color:var(--red)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--red) 22%,transparent)}.hat-fehler>.chips,.picklist.hat-fehler{outline:2px solid var(--red);outline-offset:3px;border-radius:10px}
 .list li.mehr{padding:8px 16px;text-align:center}
+.chips.kfilter{padding:12px 16px 4px;margin:0}
 tr.nichtzug td{color:var(--muted);background:var(--sunk)}
 .tnweg{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}.tnweg h3{margin:0;font-size:1rem}.tnweg p{margin:0}
 .fotopill{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--orange);background:var(--tint-orange);color:var(--orange-ink);border-radius:999px;padding:2px 9px;font:inherit;font-size:.78rem;font-weight:600;cursor:pointer;min-height:28px}.fotopill svg{width:14px;height:14px}.fotopill.nicht{border-color:var(--red,#C2410C);color:var(--red,#C2410C);background:transparent}.fotopill.ok{border-color:var(--line);background:transparent;color:var(--muted);font-weight:500}
@@ -952,7 +953,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 let CODE_AUS_LINK=null;try{const c=new URLSearchParams(location.search).get("code");if(c&&/^[A-Z0-9-]{4,12}$/i.test(c)){CODE_AUS_LINK=c.toUpperCase();history.replaceState(null,"",location.pathname+location.search.replace(/[?&]code=[^&]*/,"").replace(/^&/,"?")+location.hash)}}catch(e){}
 function codeAusLinkAnbieten(){if(!CODE_AUS_LINK||st.role!=="schueler"||!st.angemeldet)return;const c=CODE_AUS_LINK;CODE_AUS_LINK=null;setTimeout(()=>{const b=document.createElement("button");b.dataset.modal="code";document.body.appendChild(b);b.click();b.remove();const i=$("#mc");if(i){i.value=c}},50)}
-const APP_VERSION="202610201818";
+const APP_VERSION="202610201825";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=7,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -1131,15 +1132,18 @@ function vStartS(){const{over,bald,fb}=dashS();
  ${(()=>{const ms=db.kurse.filter(k=>k.schueler.includes(ME_S.id)&&!k.archiv).flatMap(k=>mitUngelesen(k,ME_S.id).map(m=>({m,k}))).sort((a,b)=>b.m.zeit-a.m.zeit);return ms.length?`<section class="panel"><header><h2>Neue Mitteilungen</h2><span class="pill p-done">${ms.length}</span></header><ul class="list">${kap(ms,3,"s-mit").map(({m,k})=>`<li><button class="row click" data-open-kurs="${k.id}"><span class="main"><b>${esc((m.text||"Mitteilung mit Anhang").split("\n")[0].slice(0,90))}${(m.text||"").length>90?"…":""}</b><span class="sub">${kursLabel(k)} · ${esc(U(m.von).vn)} ${esc(U(m.von).nn)}</span></span><span class="due"><b>${rel(m.zeit)}</b>${fmtDate(m.zeit)}</span></button></li>`).join("")+mehr(ms,3,"s-mit")}</ul></section>`:""})()}
  ${(()=>{const ts=naechsteTermine(14);return `<section class="panel"><header><h2>Nächste Termine</h2>${ts.length?`<span class="sub" style="color:var(--muted);font-size:.85rem">nächste 2 Wochen</span>`:""}</header><ul class="list">${kap(ts,4,"s-ter").map(t=>terminRow(t,"start")).join("")+mehr(ts,4,"s-ter")||`<li class="empty">In den nächsten zwei Wochen stehen keine Termine an.</li>`}</ul></section>`})()}
  <section class="panel"><header><h2>Zuletzt bewertet</h2></header><ul class="list">${meineAufgaben(ME_S.id).filter(a=>a.freigegeben&&getSub(a,ME_S.id).score!==null).sort((a,b)=>b.frist-a.frist).slice(0,3).map(a=>taskRow(a,ME_S.id,{score:true})).join("")||`<li class="empty">Noch keine freigegebenen Bewertungen.</li>`}</ul></section>`}
+/* Aufgabenfilter für Kinder: in der Aufgabenübersicht und auf der Kursseite gleich */
+function filterS(u){return {alle:()=>true,offen:a=>["offen","überfällig"].includes(status(a,u)),nichtvoll:a=>{const s=getSub(a,u);return a.freigegeben&&s.score!==null&&s.score!==""&&!isMax(a,s)}}}
+const FILTER_S=[["offen","Offen"],["nichtvoll","Nicht volle Bewertung"],["alle","Alle"]];
 function vAufgabenS(){const u=ME_S.id;const f=st.filter;let as=meineAufgaben(u);
  const kurse=[...new Set(as.map(a=>a.kurs))].map(K);
  if(f.kurs)as=as.filter(a=>a.kurs===f.kurs);
- const F={alle:()=>true,offen:a=>["offen","überfällig"].includes(status(a,u)),nichtvoll:a=>{const s=getSub(a,u);return a.freigegeben&&s.score!==null&&s.score!==""&&!isMax(a,s)}};
+ const F=filterS(u);
  const anz=Object.fromEntries(Object.keys(F).map(k=>[k,as.filter(F[k]).length]));
  as=as.filter(F[f.status]||F.alle);
  as.sort((a,b)=>fr(a,u)-fr(b,u));
  return `<div class="head"><div><h1>Aufgaben</h1><p>Alle Aufgaben aus allen Kursen, nach Frist sortiert.</p></div></div>
- <div class="chips" role="group" aria-label="Filter">${[["offen","Offen"],["nichtvoll","Nicht volle Bewertung"],["alle","Alle"]].map(([v,l])=>`<button class="chip" data-filter="${v}" aria-pressed="${f.status===v}">${l} <span class="chipn">${anz[v]}</span></button>`).join("")}
+ <div class="chips" role="group" aria-label="Filter">${FILTER_S.map(([v,l])=>`<button class="chip" data-filter="${v}" aria-pressed="${f.status===v}">${l} <span class="chipn">${anz[v]}</span></button>`).join("")}
  <select id="fkurs" class="chip" aria-label="Kurs filtern"><option value="">Alle Kurse</option>${kurse.map(k=>`<option value="${k.id}" ${f.kurs===k.id?"selected":""}>${esc(kursKurz(k))}</option>`).join("")}</select></div>
  <section class="panel"><ul class="list">${as.map(a=>{const s=getSub(a,u);return taskRow(a,u,{from:"aufgaben",score:a.freigegeben&&s.score!==null})}).join("")||`<li class="empty">Keine Aufgaben für diesen Filter.</li>`}</ul></section>`}
 function vKurseS(){const ks=db.kurse.filter(k=>k.schueler.includes(ME_S.id)&&!k.archiv);const arch=db.kurse.filter(k=>k.schueler.includes(ME_S.id)&&k.archiv);
@@ -1148,11 +1152,12 @@ function vKurseS(){const ks=db.kurse.filter(k=>k.schueler.includes(ME_S.id)&&!k.
  return `<div class="head"><div><h1>Meine Kurse</h1><p>Schuljahr ${SJ} · Klasse ${ME_S.klasse}</p></div><button class="btn" data-modal="code">${ico("plus")}Kurscode eingeben</button></div>
  ${ks.length>1?kurseSortWahl("ks"):""}<section class="panel"><ul class="list">${kurseSortieren(ks,"ks").map(card).join("")}</ul></section>
 `}
-function vKursS(k){const u=ME_S.id;const as=meineAufgaben(u).filter(a=>a.kurs===k.id).sort((a,b)=>fr(b,u)-fr(a,u));const n=niveauOf(u,k);const aw=auswertung(k,u,true);
+function vKursS(k){const u=ME_S.id;const alleA=meineAufgaben(u).filter(a=>a.kurs===k.id);const F=filterS(u);const fk=F[st.kfS]?st.kfS:"alle";const anzK=Object.fromEntries(Object.keys(F).map(x=>[x,alleA.filter(F[x]).length]));
+ const as=alleA.filter(F[fk]).sort((a,b)=>fk==="offen"?fr(a,u)-fr(b,u):fr(b,u)-fr(a,u));const n=niveauOf(u,k);const aw=auswertung(k,u,true);
  return `<div class="head"><div><button class="crumb" data-go="kurse">← Kurse</button><h1 class="khead">${kursIcon(k,"m")}<span>${esc(kursKurz(k))}</span></h1><p>${k.art} · ${k.lehrer.map(id=>esc(U(id).vn+" "+U(id).nn)).join(", ")}</p></div>${k.niveaus&&n?`<span class="pill p-done" style="font-size:.9rem;padding:5px 12px"><span class="d-only">Leistungsniveau: </span>${n}</span>`:""}</div>
  ${(()=>{const ms=mitFuer(k,u);if(!ms.length)return"";const neu=ms.filter(m=>!(m.gelesen&&m.gelesen[u])).length;const h=`<section class="panel mit-panel"><header><h2>Mitteilungen</h2>${neu?`<span class="pill p-done">${neu} neu</span>`:""}</header><div class="body mit-liste">${ms.slice(0,st.p.alleMit?99:3).map(m=>mitAnzeige(m,k,"s")).join("")}${ms.length>3&&!st.p.alleMit?`<button class="btn small" data-act="mit-alle">Alle ${ms.length} Mitteilungen anzeigen</button>`:""}</div></section>`;if(!k.archiv)ms.forEach(m=>{m.gelesen=m.gelesen||{};if(!m.gelesen[u])m.gelesen[u]=Date.now()});return h})()}
  ${k.beurt&&k.standZeigen!==false?`<div class="grid3">${aw.punkte?`<div class="panel stat"><small>Punkte</small><span class="big">${aw.punkte.p} %</span><small>${aw.punkte.txt}${aw.punkte.fehlt?`, davon ${aw.punkte.fehlt} nicht abgegeben (0 Punkte)`:""}</small></div>`:""}${aw.prozent?`<div class="panel stat"><small>Prozent-Aufgaben</small><span class="big">${aw.prozent.p} %</span><small>Mittelwert aus ${aw.prozent.n}</small></div>`:""}${aw.sym?`<div class="panel stat"><small>Symbole</small>${distBar(aw.sym)}</div>`:""}${!aw.punkte&&!aw.prozent&&!aw.sym?`<div class="panel stat"><small>Übersicht</small><span>Noch keine freigegebenen Bewertungen.</span></div>`:""}</div>`:""}
- <section class="panel"><header><h2>Aufgaben</h2></header><ul class="list">${as.map(a=>{const s=getSub(a,u);return taskRow(a,u,{score:a.freigegeben&&s.score!==null})}).join("")||`<li class="empty">Noch keine Aufgaben.</li>`}</ul></section>
+ <section class="panel"><header><h2>Aufgaben</h2></header>${alleA.length?`<div class="chips kfilter" role="group" aria-label="Aufgaben filtern">${FILTER_S.map(([v,l])=>`<button class="chip" data-kfilter="${v}" aria-pressed="${fk===v}">${l} <span class="chipn">${anzK[v]}</span></button>`).join("")}</div>`:""}<ul class="list">${as.map(a=>{const s=getSub(a,u);return taskRow(a,u,{score:a.freigegeben&&s.score!==null})}).join("")||`<li class="empty">${!alleA.length?"Noch keine Aufgaben.":fk==="offen"?"Keine offenen Aufgaben in diesem Kurs.":"Keine Aufgaben für diesen Filter."}</li>`}</ul></section>
  ${(()=>{const ts=db.termine.filter(t=>t.kurs===k.id&&sichtbarFuer(t,u)&&t.datum>=tagesStart(Date.now())).sort((a,b)=>terminBeginn(a)-terminBeginn(b));return ts.length?`<section class="panel"><header><h2>Kommende Termine</h2></header><ul class="list">${ts.map(t=>terminRow(t,"kurs")).join("")}</ul></section>`:""})()}
  ${kursseiteKind(k)}`}
 function vAufgabeS(a){const u=ME_S.id;const k=K(a.kurs);const s=getSub(a,u);const stt=status(a,u);const offenUpload=a.abgabe!=="schule"&&a.abgabe!=="keine"&&(NOW<fr(a,ME_S.id)||a.spaet)&&!(s.score!==null&&s.score!=="");
@@ -1533,7 +1538,7 @@ document.addEventListener("click",e=>{const kl=e.target.closest&&e.target.closes
  if(d.ksort){st.sorts[d.st]={key:d.ksort,dir:1};sortMerken();render();return}
  if(d.ff){st.ffilter.status=d.ff;render();return}
  if(d.lf){st.lfilter=d.lf;render();return}
- if(d.filter){st.filter.status=d.filter;render();return}
+ if(d.filter){st.filter.status=d.filter;render();return}if(d.kfilter){st.kfS=d.kfilter;render();return}
  if(d.laf){st.afilter.status=d.laf;render();return}
  if(d.toast){toast(d.toast);return}
  if(d.fart!==undefined){st.p.art=d.fart;render();return}
