@@ -952,7 +952,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 let CODE_AUS_LINK=null;try{const c=new URLSearchParams(location.search).get("code");if(c&&/^[A-Z0-9-]{4,12}$/i.test(c)){CODE_AUS_LINK=c.toUpperCase();history.replaceState(null,"",location.pathname+location.search.replace(/[?&]code=[^&]*/,"").replace(/^&/,"?")+location.hash)}}catch(e){}
 function codeAusLinkAnbieten(){if(!CODE_AUS_LINK||st.role!=="schueler"||!st.angemeldet)return;const c=CODE_AUS_LINK;CODE_AUS_LINK=null;setTimeout(()=>{const b=document.createElement("button");b.dataset.modal="code";document.body.appendChild(b);b.click();b.remove();const i=$("#mc");if(i){i.value=c}},50)}
-const APP_VERSION="202610201809";
+const APP_VERSION="202610201813";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=7,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -1467,7 +1467,9 @@ function feldFehlerWeg(){document.querySelectorAll(".ferr").forEach(x=>x.remove(
 ["input","change"].forEach(ev=>document.addEventListener(ev,e=>{const t=e.target;if(t&&t.closest&&t.closest(".hat-fehler"))feldFehlerWeg()},true));
 /* Pflichtfelder mit Sternchen kennzeichnen */
 const PFLICHT=["af-titel","af-datum","tf-datum","kf-fach","pn-v","pn-n","pn-m","ev","en","em","fa-n","abs-t","vg-mail","pa-alt","pa-neu","pa-neu2","el-start","el-pw","el-pw2","kl-url","dfb","mc","nt-d"];
-function pflichtMarken(root){(root||document).querySelectorAll("label[for]").forEach(l=>{if(PFLICHT.includes(l.htmlFor))l.classList.add("pf")});(root||document).querySelectorAll("form.f").forEach(f=>{if(f.querySelector(".pf")&&!f.querySelector(".pfh")){const a=f.querySelector(".actions");const p=document.createElement("p");p.className="pfh";p.textContent="* Pflichtfeld";a?a.before(p):f.append(p)}})}
+function linkKnoepfe(root){(root||document).querySelectorAll("details.linkadd").forEach(d=>{const box=d.closest(".field,.anhbox,section,form");const sm=d.querySelector("summary");if(!box||!sm)return;const hat=box.querySelector("a.linkanh");const t=hat?"Weiteren Link hinzufügen":"Link hinzufügen";const tn=[...sm.childNodes].reverse().find(n=>n.nodeType===3);if(tn&&tn.textContent!==t)tn.textContent=t})}
+let _lkRaf=0;try{new MutationObserver(()=>{if(_lkRaf)return;_lkRaf=requestAnimationFrame(()=>{_lkRaf=0;linkKnoepfe()})}).observe(document.documentElement,{childList:true,subtree:true})}catch(e){}
+function pflichtMarken(root){linkKnoepfe(root);(root||document).querySelectorAll("label[for]").forEach(l=>{if(PFLICHT.includes(l.htmlFor))l.classList.add("pf")});(root||document).querySelectorAll("form.f").forEach(f=>{if(f.querySelector(".pf")&&!f.querySelector(".pfh")){const a=f.querySelector(".actions");const p=document.createElement("p");p.className="pfh";p.textContent="* Pflichtfeld";a?a.before(p):f.append(p)}})}
 function render(){if(rendering){renderAgain=true;return}rendering=true;const fk=focusKey(document.activeElement);const inSide=fk&&document.getElementById("side").contains(document.activeElement);const sel=document.activeElement&&document.activeElement.selectionStart;
  try{renderInner()}finally{rendering=false}
  pflichtMarken();
@@ -1680,7 +1682,7 @@ document.addEventListener("click",e=>{const kl=e.target.closest&&e.target.closes
  if(act==="mit-abbrechen"){st.mit=null;ANH.mit=[];render();return}
  if(act==="mit-weg"){const k=K(d.kurs);const m=mitteilungen(k).find(x=>x.id===d.m);if(mitGelesenAnzahl(m)){toast("Schon gelesen, deshalb nicht mehr löschbar.");return}modal(`<h2>Mitteilung löschen?</h2><p>Sie verschwindet für alle ${m.an.length} Empfänger·innen.</p><div class="actions"><button class="btn danger solid" data-act="mit-weg-ok" data-kurs="${k.id}" data-m="${m.id}">Löschen</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
  if(act==="mit-weg-ok"){const k=K(d.kurs);k.mitteilungen=mitteilungen(k).filter(x=>x.id!==d.m);closeModal();toast("Mitteilung gelöscht.");render();return}
- if(act==="link-ok"){const box=t.closest(".linkadd");const url=linkPruefen(box.querySelector("[data-link-url]").value);if(!url){toast("Das ist keine gültige Internetadresse.");box.querySelector("[data-link-url]").focus();return}const l=linkAnh(url,box.querySelector("[data-link-titel]").value);const z=d.ziel;
+ if(act==="link-ok"){const box=t.closest(".linkadd");const url=linkPruefen(box.querySelector("[data-link-url]").value);if(!url){fehlt(box.querySelector("[data-link-url]"),"Das ist keine gültige Internetadresse.");return}const l=linkAnh(url,box.querySelector("[data-link-titel]").value);const z=d.ziel;
   if(z==="abgabe"){const a=A(st.p.id);const s=getSub(a,ME_S.id);if(s.files.length>=10){toast("Höchstens 10 Dateien und Links pro Abgabe.");return}abgabeErgaenzen(s,[l]);toast("Link abgegeben. Deine Lehrkraft sieht ihn jetzt.");render();return}
   if(z==="reply"){if(st.reply.length>=10){toast("Höchstens 10 Anhänge pro Antwort.");return}st.reply.text=$("#antwort")?.value||st.reply.text;st.reply.push(l);render();return}
   if(z==="af"&&af){syncAf();if(af.anhaenge.length>=10){toast("Höchstens 10 Anhänge.");return}af.anhaenge.push(l);render();return}
