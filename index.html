@@ -810,6 +810,7 @@ const T_=id=>db.termine.find(t=>t.id===id);
 /* Plausibilität von Datumsangaben: nicht in der Vergangenheit, nicht nach dem Schuljahresende des Kurses */
 function sjAnfang(sj){const y=parseInt(String(sj||SJ).slice(0,4),10);return new Date(y,7,1).getTime()}
 function sjEnde(sj){const y=parseInt(String(sj||SJ).slice(0,4),10);return new Date(y+1,7,31,23,59,59).getTime()}
+function isoTag(t){const d=new Date(t);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function heuteISO(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function heute0(){return tagesStart(Date.now())}
 function tagesStart(t){const d=new Date(t);d.setHours(0,0,0,0);return d.getTime()}
@@ -951,7 +952,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 let CODE_AUS_LINK=null;try{const c=new URLSearchParams(location.search).get("code");if(c&&/^[A-Z0-9-]{4,12}$/i.test(c)){CODE_AUS_LINK=c.toUpperCase();history.replaceState(null,"",location.pathname+location.search.replace(/[?&]code=[^&]*/,"").replace(/^&/,"?")+location.hash)}}catch(e){}
 function codeAusLinkAnbieten(){if(!CODE_AUS_LINK||st.role!=="schueler"||!st.angemeldet)return;const c=CODE_AUS_LINK;CODE_AUS_LINK=null;setTimeout(()=>{const b=document.createElement("button");b.dataset.modal="code";document.body.appendChild(b);b.click();b.remove();const i=$("#mc");if(i){i.value=c}},50)}
-const APP_VERSION="202610201806";
+const APP_VERSION="202610201809";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=7,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -1260,7 +1261,7 @@ function umstufVorschau(k,uId,neu,ab){const alt=niveauAm(uId,k,ab-1);const as=db
  const dazu=as.filter(a=>a.fuer==="niveau:"+neu&&a.frist>=ab);const vorher=as.filter(a=>a.fuer==="niveau:"+neu&&a.frist<ab&&a.frist>=Date.now()-60*864e5&&!hatAktivitaet(a,uId));return{alt,weg,bleibt,dazu,vorher}}
 function umstufDialog(k,uId,neu,ab){const u=U(uId);st.umst={k:k.id,u:uId,neu,ab};const v=umstufVorschau(k,uId,neu,ab);const pad=n=>String(n).padStart(2,"0");const d=new Date(ab);const lst=as=>as.map(a=>`<li>${esc(a.titel)} <small style="color:var(--muted)">Frist ${fmtDate(a.frist)}</small></li>`).join("");
  modal(`<h2>${esc(u.vn)} ${esc(u.nn)}: ${esc(v.alt)} → ${esc(neu)}</h2>
- <div class="field"><label for="us-ab">Gilt ab</label><input type="date" id="us-ab" value="${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}"><span class="hint">Aufgaben mit Frist ab diesem Tag richten sich nach dem neuen Niveau. Was ${esc(u.vn)} schon abgegeben hat oder was bewertet ist, bleibt.</span></div>
+ <div class="field"><label for="us-ab">Gilt ab</label><input type="date" id="us-ab" value="${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}" min="${isoTag(sjAnfang(k.sj))}" max="${isoTag(sjEnde(k.sj))}"><span class="hint">Aufgaben mit Frist ab diesem Tag richten sich nach dem neuen Niveau. Was ${esc(u.vn)} schon abgegeben hat oder was bewertet ist, bleibt.</span></div>
  <div class="umst">${v.weg.length?`<p><b>Fällt weg</b> (noch nicht abgegeben):</p><ul>${lst(v.weg)}</ul>`:""}${v.bleibt.length?`<p><b>Bleibt</b> (schon abgegeben oder bewertet):</p><ul>${lst(v.bleibt)}</ul>`:""}${v.dazu.length?`<p><b>Kommt dazu:</b></p><ul>${lst(v.dazu)}</ul>`:""}${!v.weg.length&&!v.bleibt.length&&!v.dazu.length?`<p style="color:var(--muted)">Keine offenen Niveau-Aufgaben betroffen.</p>`:""}${v.vorher.length?`<p class="hint" style="color:var(--muted)">${v.vorher.length} ${v.vorher.length===1?"Aufgabe":"Aufgaben"} für ${esc(neu)} war${v.vorher.length===1?"":"en"} schon vorher fällig. Die kannst du bei der Aufgabe mit eigener Frist zuteilen.</p>`:""}</div>
  <div class="actions"><button class="btn primary" data-act="umst-ok">Umstufen</button><button class="btn ghost" data-act="umst-ab">Abbrechen</button></div>`)}
 function vKursL(k){const mine=k.eigentuemer===T1.id;const ro=k.archiv;
@@ -1658,7 +1659,7 @@ document.addEventListener("click",e=>{const kl=e.target.closest&&e.target.closes
  if(act==="fb-erledigt"){getSub(A(st.p.id),ME_S.id).erledigt=true;toast("Als erledigt markiert. Du findest es weiter unter Feedback.");render();return}
  if(act==="fb-offen"){getSub(A(st.p.id),ME_S.id).erledigt=false;render();return}
  if(act==="bild"){const m=msgs(getSub(A(d.a),d.u))[+d.m];const inner=`<h2>Korrektur</h2><img src="${m.bild}" alt="Korrigierte Abgabe" style="width:100%;border-radius:8px;border:1px solid var(--line);background:#fff"><div class="actions"><button class="btn ghost" data-close-btn>Schließen</button></div>`;modal(inner);return}
- if(act==="umst-ok"){const x=st.umst;const k=K(x.k);const ab=x.ab;if(ab<sjAnfang(k.sj)||ab>sjEnde(k.sj)){fehlt("#us-ab",`Wähle einen Tag im Schuljahr ${k.sj}.`);return}niveauSetzen(x.u,k,x.neu,ab);st.umst=null;closeModal();toast(`${U(x.u).vn} ist ${ab>Date.now()?"ab "+fmtDate(ab):"jetzt"} in ${x.neu}.`);render();return}
+ if(act==="umst-ok"){const x=st.umst;const k=K(x.k);const ab=x.ab;if(ab>sjEnde(k.sj)){fehlt("#us-ab",`Der Tag liegt im nächsten Schuljahr. Eine Umstufung für das neue Schuljahr trägst du erst im neuen Schuljahr ein.`);return}if(ab<sjAnfang(k.sj)){fehlt("#us-ab",`Wähle einen Tag im Schuljahr ${k.sj}.`);return}niveauSetzen(x.u,k,x.neu,ab);st.umst=null;closeModal();toast(`${U(x.u).vn} ist ${ab>Date.now()?"ab "+fmtDate(ab):"jetzt"} in ${x.neu}.`);render();return}
  if(act==="umst-ab"){st.umst=null;closeModal();render();return}
  if(act==="mehr"){st.mehr=st.mehr||{};st.mehr[d.k]=!st.mehr[d.k];render();return}
  if(act==="mit-alle"){st.p.alleMit=true;render();return}
