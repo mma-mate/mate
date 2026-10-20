@@ -319,7 +319,7 @@ body.login main{padding:0 0 40px}body.login .wrap{max-width:none;gap:0}body.logi
 .linkanh:hover{background:var(--sunk)}.linkanh svg{width:18px;height:18px;flex:none;color:var(--blue-ink)}
 .linkanh span{display:flex;flex-direction:column;min-width:0}.linkanh b{font-weight:600;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.linkanh small{color:var(--muted);font-size:.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .anh-knoepfe{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
-.linkadd{flex:1 1 220px;min-width:0}.linkadd>summary{list-style:none;display:inline-flex;align-items:center;gap:6px}.linkadd>summary::-webkit-details-marker{display:none}.linkadd>summary svg{width:16px;height:16px}
+.linkadd{flex:0 0 auto;min-width:0}.anh-knoepfe>.linkadd{flex:1 1 220px}.linkadd>summary{list-style:none;display:inline-flex;align-items:center;gap:6px}.linkadd>summary::-webkit-details-marker{display:none}.linkadd>summary svg{width:16px;height:16px}
 .linkadd[open]>summary{margin-bottom:8px}.linkadd-f{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--surface)}
 .linkadd-f label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:.88rem}.linkadd-f input{font-weight:400}
 .stand{display:block;font-size:.84rem;color:var(--fg);margin-top:3px}.row .main .stand b,.stand b{color:var(--green-ink);display:inline}
@@ -952,7 +952,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 let CODE_AUS_LINK=null;try{const c=new URLSearchParams(location.search).get("code");if(c&&/^[A-Z0-9-]{4,12}$/i.test(c)){CODE_AUS_LINK=c.toUpperCase();history.replaceState(null,"",location.pathname+location.search.replace(/[?&]code=[^&]*/,"").replace(/^&/,"?")+location.hash)}}catch(e){}
 function codeAusLinkAnbieten(){if(!CODE_AUS_LINK||st.role!=="schueler"||!st.angemeldet)return;const c=CODE_AUS_LINK;CODE_AUS_LINK=null;setTimeout(()=>{const b=document.createElement("button");b.dataset.modal="code";document.body.appendChild(b);b.click();b.remove();const i=$("#mc");if(i){i.value=c}},50)}
-const APP_VERSION="202610201813";
+const APP_VERSION="202610201818";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=7,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
