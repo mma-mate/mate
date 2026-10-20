@@ -953,7 +953,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 let CODE_AUS_LINK=null;try{const c=new URLSearchParams(location.search).get("code");if(c&&/^[A-Z0-9-]{4,12}$/i.test(c)){CODE_AUS_LINK=c.toUpperCase();history.replaceState(null,"",location.pathname+location.search.replace(/[?&]code=[^&]*/,"").replace(/^&/,"?")+location.hash)}}catch(e){}
 function codeAusLinkAnbieten(){if(!CODE_AUS_LINK||st.role!=="schueler"||!st.angemeldet)return;const c=CODE_AUS_LINK;CODE_AUS_LINK=null;setTimeout(()=>{const b=document.createElement("button");b.dataset.modal="code";document.body.appendChild(b);b.click();b.remove();const i=$("#mc");if(i){i.value=c}},50)}
-const APP_VERSION="202610201825";
+const APP_VERSION="202610201837";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=7,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -1152,7 +1152,7 @@ function vKurseS(){const ks=db.kurse.filter(k=>k.schueler.includes(ME_S.id)&&!k.
  return `<div class="head"><div><h1>Meine Kurse</h1><p>Schuljahr ${SJ} · Klasse ${ME_S.klasse}</p></div><button class="btn" data-modal="code">${ico("plus")}Kurscode eingeben</button></div>
  ${ks.length>1?kurseSortWahl("ks"):""}<section class="panel"><ul class="list">${kurseSortieren(ks,"ks").map(card).join("")}</ul></section>
 `}
-function vKursS(k){const u=ME_S.id;const alleA=meineAufgaben(u).filter(a=>a.kurs===k.id);const F=filterS(u);const fk=F[st.kfS]?st.kfS:"alle";const anzK=Object.fromEntries(Object.keys(F).map(x=>[x,alleA.filter(F[x]).length]));
+function vKursS(k){const u=ME_S.id;const alleA=meineAufgaben(u).filter(a=>a.kurs===k.id);const F=filterS(u);const fk=F[st.kfS]?st.kfS:"offen";const anzK=Object.fromEntries(Object.keys(F).map(x=>[x,alleA.filter(F[x]).length]));
  const as=alleA.filter(F[fk]).sort((a,b)=>fk==="offen"?fr(a,u)-fr(b,u):fr(b,u)-fr(a,u));const n=niveauOf(u,k);const aw=auswertung(k,u,true);
  return `<div class="head"><div><button class="crumb" data-go="kurse">← Kurse</button><h1 class="khead">${kursIcon(k,"m")}<span>${esc(kursKurz(k))}</span></h1><p>${k.art} · ${k.lehrer.map(id=>esc(U(id).vn+" "+U(id).nn)).join(", ")}</p></div>${k.niveaus&&n?`<span class="pill p-done" style="font-size:.9rem;padding:5px 12px"><span class="d-only">Leistungsniveau: </span>${n}</span>`:""}</div>
  ${(()=>{const ms=mitFuer(k,u);if(!ms.length)return"";const neu=ms.filter(m=>!(m.gelesen&&m.gelesen[u])).length;const h=`<section class="panel mit-panel"><header><h2>Mitteilungen</h2>${neu?`<span class="pill p-done">${neu} neu</span>`:""}</header><div class="body mit-liste">${ms.slice(0,st.p.alleMit?99:3).map(m=>mitAnzeige(m,k,"s")).join("")}${ms.length>3&&!st.p.alleMit?`<button class="btn small" data-act="mit-alle">Alle ${ms.length} Mitteilungen anzeigen</button>`:""}</div></section>`;if(!k.archiv)ms.forEach(m=>{m.gelesen=m.gelesen||{};if(!m.gelesen[u])m.gelesen[u]=Date.now()});return h})()}
