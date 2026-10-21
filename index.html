@@ -917,7 +917,7 @@ impressum:{t:"Impressum",h:()=>`
 <h2>Offenlegung gemäß § 25 Mediengesetz</h2>
 <p><b>Medieninhaberin:</b> ${SCHULE.name}, ${SCHULE.adr}<br>Telefon ${SCHULE.tel}<br>vertreten durch Schulleiterin ${SCHULE.leitung}</p>
 <p><b>Ansprechperson für MATE:</b> ${SCHULE.kontakt}, <a href="mailto:${SCHULE.mail}">${SCHULE.mail}</a></p>
-<p><b>Grundlegende Richtung:</b> Testversion von MATE, der Aufgaben- und Terminorganisation der ${SCHULE.name}. Lehrkräfte, Schüler·innen und Eltern können damit eine geplante Schul-App ausprobieren und Rückmeldungen geben. Alle Namen, Kurse, Aufgaben und Bewertungen in der Testversion sind erfunden.</p>
+<p><b>Grundlegende Richtung:</b> Testversion von MATE („MMA Aufgaben, Termine, Erledigungen“), der Schul-App der ${SCHULE.name}. Lehrkräfte, Schüler·innen und Eltern können damit eine geplante Schul-App ausprobieren und Rückmeldungen geben. Alle Namen, Kurse, Aufgaben und Bewertungen in der Testversion sind erfunden.</p>
 <h2>Haftung</h2>
 <p>MATE ist eine Testversion. Funktionen können sich ändern, fehlerhaft sein oder wegfallen, und Eingaben können verloren gehen. Für Inhalte verlinkter fremder Seiten sind deren Betreiber verantwortlich.</p>
 <h2>Entstehung</h2>
@@ -970,7 +970,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 let CODE_AUS_LINK=null;try{const c=new URLSearchParams(location.search).get("code");if(c&&/^[A-Z0-9-]{4,12}$/i.test(c)){CODE_AUS_LINK=c.toUpperCase();history.replaceState(null,"",location.pathname+location.search.replace(/[?&]code=[^&]*/,"").replace(/^&/,"?")+location.hash)}}catch(e){}
 function codeAusLinkAnbieten(){if(!CODE_AUS_LINK||st.role!=="schueler"||!st.angemeldet)return;const c=CODE_AUS_LINK;CODE_AUS_LINK=null;setTimeout(()=>{const b=document.createElement("button");b.dataset.modal="code";document.body.appendChild(b);b.click();b.remove();const i=$("#mc");if(i){i.value=c}},50)}
-const APP_VERSION="202610202015";
+const APP_VERSION="202610210529";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=7,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
