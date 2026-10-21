@@ -183,6 +183,7 @@ form.f{display:flex;flex-direction:column;gap:18px}
 .note.flex{display:flex;gap:8px}
 .note.info{background:var(--tint-blue);color:var(--blue-ink)}
 .note.warn{background:var(--tint-orange);color:var(--orange-ink)}
+.pruefhinweis ul{margin:6px 0;padding-left:20px}.pruefhinweis li{margin:3px 0}.pruefhinweis small{opacity:.85}
 .check{display:flex;gap:8px;align-items:center;cursor:pointer}
 .picklist{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:2px 12px}
 .picklist label{display:flex;gap:8px;align-items:center;padding:4px 0}
@@ -573,11 +574,13 @@ addT(kR,{art:"lehrausgang",titel:"Lehrausgang Technisches Museum",datum:schultag
    [D(2027,6,23),"konferenz","Notenkonferenz – Unterrichtsschluss 11:55",{zeit:"uhrzeit",uvon:"11:55"}],[D(2027,7,2),"geaendert","Ausgabe des Jahreszeugnisses"],[D(2027,7,5),"ferien","Sommerferien",{datumBis:D(2027,9,3)}]
   ].forEach(([datum,art,titel,o])=>add({datum,art,titel,zeit:o&&o.datumBis?"mehrtag":"ganztag",...(o||{})}))}
  else ferienWien(SJ).forEach(x=>add({...x,quelle:"ferienordnung"}));
- const mo=new Date(wochenStart(schultag(21)));const pw={id:uid("t"),ebene:"klasse",kurs:null,klassen:["2A"],stufen:[],art:"geaendert",titel:"Projektwoche „Wasser“",datum:mo.getTime(),datumBis:mo.getTime()+4*864e5,zeit:"mehrtag",von:null,bis:null,beschreibung:"Täglich 8:00–12:50 in der Schule. Mitbringen: Jause, Trinkflasche, wetterfeste Kleidung. Am Donnerstag Exkursion zur Donauinsel.",anhaenge:[],fuer:"alle",auswahl:[],sichtbar:at(-2),autor:T1.id,sj:SJ};db.termine.push(pw)})();
+ const mo=new Date((()=>{let w=wochenStart(schultag(21));for(let i=0;i<20;i++){let ok=true;for(let j=0;j<5;j++){const t=w+j*864e5;if(db.termine.some(f=>["ferien","frei"].includes(f.art)&&tagesStart(f.datum)<=t&&t<=tagesStart(f.datumBis&&f.datumBis>f.datum?f.datumBis:f.datum)))ok=false}if(ok)return w;w+=7*864e5}return w})());const pw={id:uid("t"),ebene:"klasse",kurs:null,klassen:["2A"],stufen:[],art:"geaendert",titel:"Projektwoche „Wasser“",datum:mo.getTime(),datumBis:mo.getTime()+4*864e5,zeit:"mehrtag",von:null,bis:null,beschreibung:"Täglich 8:00–12:50 in der Schule. Mitbringen: Jause, Trinkflasche, wetterfeste Kleidung. Am Donnerstag Exkursion zur Donauinsel.",anhaenge:[],fuer:"alle",auswahl:[],sichtbar:at(-2),autor:T1.id,sj:SJ};db.termine.push(pw)})();
 /* Demo: Kurstermine und Fristen, die auf schulfreie Tage fallen, auf den nächsten Schultag legen (läuft nach den Konstanten) */
 function demoTermineSchieben(){
- const schieb=(t,kl)=>{let d=t;let n=0;while(n<60&&(freiAm(d,kl)||[0,6].includes(new Date(d).getDay()))){d+=864e5;n++}return d};
+ const schieb=(t,kl)=>{let d=t;let n=0;while(n<120&&(freiAm(d,kl)||[0,6].includes(new Date(d).getDay()))){d+=864e5;n++}return d};
  db.termine.filter(t=>tEbene(t)==="kurs"&&t.datum>Date.now()).forEach(t=>{const k=K(t.kurs);if(k)t.datum=schieb(t.datum,k.klassen)});
+ /* Demo-Prüfungen so legen, dass sie die LBVO-Regeln einhalten (Ankündigungsfrist zählt hier nicht) */
+ for(let runde=0;runde<6;runde++){let bewegt=false;db.termine.filter(t=>tEbene(t)==="kurs"&&t.art==="pruefung"&&t.datum>Date.now()&&pruefTyp(t.titel)).sort((a,b)=>a.datum-b.datum).forEach(t=>{const k=K(t.kurs);if(!k)return;if(pruefTyp(t.titel)==="sa"&&t.von!=null&&t.von>=5){t.von=2;t.bis=t.bis!=null?3:null}let n=0;while(n<30&&pruefHinweise({kurs:t.kurs,titel:t.titel,datum:t.datum,zeit:t.zeit||"einheit",von:t.von,bis:t.bis,uvon:t.uvon,edit:t.id,datumAlt:t.datum}).length){t.datum=schieb(t.datum+864e5,k.klassen);n++;bewegt=true}});if(!bewegt)break}
  db.aufgaben.filter(a=>a.frist>Date.now()).forEach(a=>{const k=K(a.kurs);if(!k)return;const tag=tagesStart(a.frist);const neu=schieb(tag,k.klassen);if(neu!==tag)a.frist+=neu-tag})}
 addT(kE,{art:"test",titel:"Vocabulary Test Unit 2",datum:(()=>{const d=new Date(NOW);d.setHours(0,0,0,0);d.setDate(d.getDate()-6);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1);return d.getTime()})(),von:3,beschreibung:"Vokabeln Unit 2"});
 
@@ -882,6 +885,35 @@ function terminGesehen(ts){if(st.role!=="schueler")return;ts.forEach(t=>{if(tEbe
 function freiAm(tag,klassen){return db.termine.find(t=>FREI_ARTEN.includes(t.art)&&tLaeuft(t,tag)&&(tEbene(t)==="schule"?(!(t.stufen&&t.stufen.length)||klassen.some(c=>t.stufen.includes(String(stufeOf(c))))):tKlassen(t).some(c=>klassen.includes(c))))}
 function freiHinweis(iso,klassen,was){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||""))return"";const tag=new Date(iso+"T00:00").getTime();const f=freiAm(tag,klassen);const we=[0,6].includes(new Date(tag).getDay());
  return f?`<div class="note warn" style="margin-top:6px">Hinweis: ${was} fällt ${tEnde(f)>f.datum?"in":"auf"} „${esc(f.titel)}“ (schulfrei).</div>`:we?`<div class="note info" style="margin-top:6px">Hinweis: ${was} fällt auf ein Wochenende.</div>`:""}
+/* Hinweise nach LBVO §§ 7, 8 beim Anlegen einer Prüfung (nur Hinweise, speichern bleibt möglich) */
+function pruefTyp(titel){const x=String(titel||"").toLowerCase();return /schularbeit/.test(x)?"sa":/\btest/.test(x)?"test":null}
+function istSchultag(tag,kl){return !freiAm(tag,kl)&&![0,6].includes(new Date(tag).getDay())}
+function pruefHinweise(o){/* o: {kurs,titel,datum(ms),zeit,von,bis,uvon,edit,datumAlt} */
+ const k=K(o.kurs);if(!k||!o.datum||isNaN(o.datum))return[];const typ=pruefTyp(o.titel);if(!typ)return[];const kl=k.klassen;const d=tagesStart(o.datum);const name=typ==="sa"?"Schularbeit":"Test";const H=[];const T=864e5;
+ if(!istSchultag(d,kl))return[];
+ /* 1: Tag nach mind. 3 schulfreien Tagen oder nach mehrtägiger Veranstaltung außer Haus */
+ let n=0,x=d-T;while(n<60&&!istSchultag(x,kl)){n++;x-=T}
+ if(n>=3){const f=freiAm(d-T,kl)||freiAm(x+T,kl);H.push(`Am ersten Schultag nach ${n} schulfreien Tagen${f?` (${esc(f.titel)})`:""} ist laut LBVO ${typ==="sa"?"keine Schularbeit erlaubt (§ 7 Abs. 7), außer die Schulleitung genehmigt es aus besonderen Gründen":"kein Test erlaubt (§ 8 Abs. 6)"}.`)}
+ else{const vor=x;const ev=db.termine.find(t=>t.art==="aussen"&&tEnde(t)>t.datum&&tagesStart(t.datum)<tagesStart(tEnde(t))&&tagesStart(tEnde(t))>=vor&&tagesStart(tEnde(t))<d&&tKlassen(t).some(c=>kl.includes(c)));
+  if(ev)H.push(`Am Tag nach der mehrtägigen Veranstaltung „${esc(ev.titel)}“ ist laut LBVO ${typ==="sa"?"keine Schularbeit erlaubt (§ 7 Abs. 7), außer die Schulleitung genehmigt es aus besonderen Gründen":"kein Test erlaubt (§ 8 Abs. 6)"}.`)}
+ /* 2: am selben Tag schon Schularbeit oder Test in der Klasse */
+ const andere=db.termine.filter(t=>t.id!==o.edit&&tEbene(t)==="kurs"&&t.art==="pruefung"&&pruefTyp(t.titel)&&K(t.kurs)&&!K(t.kurs).archiv);
+ const gleich=andere.filter(t=>tagesStart(t.datum)===d&&K(t.kurs).klassen.some(c=>kl.includes(c)));
+ if(gleich.length){const t=gleich[0];const ks=K(t.kurs).klassen.filter(c=>kl.includes(c));const tt=pruefTyp(t.titel);
+  H.push(`In ${ks.length>1?"den Klassen":"der"} ${esc(ks.join(", "))} ist an diesem Tag schon ${tt==="sa"?"eine Schularbeit":"ein Test"}: „${esc(t.titel)}“ (${esc(kursKurz(K(t.kurs)))}). ${typ==="sa"&&tt==="sa"?"Pro Tag ist höchstens eine Schularbeit erlaubt (§ 7 Abs. 7)":"An einem Tag mit Schularbeit oder Test ist kein weiterer Test erlaubt (§ 8 Abs. 7)"}.`)}
+ /* 3: dritte Schularbeit in der Woche */
+ if(typ==="sa"){const w=wochenStart(d);for(const c of kl){const sa=andere.filter(t=>pruefTyp(t.titel)==="sa"&&wochenStart(t.datum)===w&&K(t.kurs).klassen.includes(c));if(sa.length>=2){H.push(`Das wäre in der ${esc(c)} die dritte Schularbeit in dieser Woche (schon: ${sa.map(t=>`„${esc(t.titel)}“`).join(", ")}). Erlaubt sind höchstens zwei pro Woche (§ 7 Abs. 7).`);break}}}
+ /* 4: Schularbeit ab der 5. Einheit */
+ if(typ==="sa"){const spaet=o.zeit==="einheit"?((o.von!=null&&o.von>=5)||(o.bis!=null&&o.bis>=5)):o.zeit==="uhrzeit"&&o.uvon?o.uvon>=EINHEITEN[5][0]:false;if(spaet)H.push(`Ab der 5. Unterrichtsstunde darf keine Schularbeit stattfinden (§ 7 Abs. 7).`)}
+ /* 5: Vorlaufzeit */
+ if(!(o.datumAlt&&tagesStart(o.datumAlt)===d)){const h=heute0();
+  if(typ==="sa"&&d-h<7*T)H.push(`Der Stoff einer Schularbeit muss mindestens eine Woche vorher bekannt gegeben werden (§ 7 Abs. 5). Bis zu diesem Termin ist es weniger als eine Woche.`);
+  if(typ==="test"){let st0=0;for(let y=h;y<d&&st0<3;y+=T){if(istSchultag(y,kl))st0++}if(st0<2)H.push(`Ein Test muss mindestens zwei Schultage vorher angekündigt werden (§ 8 Abs. 2).`)}}
+ return H}
+function pruefHinweisHTML(){if(!tf||(tf.ebene||"kurs")!=="kurs"||tf.art!=="pruefung")return"";const k=K(tf.kurs);const titel=tf.titel.trim()||(k?`Schularbeit ${k.fach}`:"");const dat=/^\d{4}-\d{2}-\d{2}$/.test(tf.datum||"")?new Date(tf.datum+"T00:00").getTime():NaN;const alt=tf.edit&&T_(tf.edit);
+ const H=pruefHinweise({kurs:tf.kurs,titel,datum:dat,zeit:tf.zeit,von:tf.von,bis:tf.bis,uvon:tf.uvon,edit:tf.edit,datumAlt:alt?alt.datum:null});
+ return H.length?`<div class="note warn pruefhinweis" style="margin-top:6px"><b>Hinweis zur Leistungsbeurteilungsverordnung:</b><ul>${H.map(x=>`<li>${x}</li>`).join("")}</ul><small>Du kannst den Termin trotzdem speichern.</small></div>`:""}
+function pruefHinweisAkt(){const b=$("#tf-pruef");if(!b||!tf)return;syncTf();b.innerHTML=pruefHinweisHTML()}
 /* Wiener Ferienordnung als Vorschlag für ein Schuljahr (Admin bestätigt) */
 function ostern(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=(h+l-7*m+114)%31+1;return new Date(y,mo-1,da)}
 function ferienWien(sj){const y=parseInt(String(sj).slice(0,4),10),z=y+1;const D=(yy,mm,dd)=>new Date(yy,mm-1,dd).getTime();const plus=(t,n)=>{const d=new Date(t);d.setDate(d.getDate()+n);return d.getTime()};const L=[];
@@ -988,6 +1020,7 @@ function vTerminForm(){if(!tf)return vTermine();const ks=meineKurse().filter(k=>
  ${zeitFelder||`<div class="frow"><div class="field"><label for="tf-datum">Datum</label><input type="date" id="tf-datum" value="${tf.datum}"></div>
  <div class="field"><label for="tf-von">Von</label><select id="tf-von">${opt(tf.von)}</select></div><div class="field"><label for="tf-bis">Bis</label><select id="tf-bis">${opt(tf.bis)}</select><span class="hint">Bei einer Einheit „Bis“ leer lassen.</span></div></div>`}
  ${FREI_ARTEN.includes(tf.art)?"":freiHinweis(tf.datum,e==="kurs"?k.klassen:e==="klasse"?tf.klassen:db.klassen,"Der Termin")}
+ <div id="tf-pruef" aria-live="polite">${pruefHinweisHTML()}</div>
  ${e==="kurs"?`<div class="field"><span class="lbl">Für wen?</span><div class="radio"><label><input type="radio" name="tf-fuer" value="alle" ${tf.fuer==="alle"?"checked":""}>Alle Schüler·innen des Kurses</label><label><input type="radio" name="tf-fuer" value="auswahl" ${tf.fuer==="auswahl"?"checked":""}>Ausgewählte Schüler·innen</label>${k.niveaus?`<label><input type="radio" name="tf-fuer" value="niveau:Standard" ${tf.fuer==="niveau:Standard"?"checked":""}>Nur Standard</label><label><input type="radio" name="tf-fuer" value="niveau:Standard AHS" ${tf.fuer==="niveau:Standard AHS"?"checked":""}>Nur Standard AHS</label>`:""}</div>
  ${tf.fuer==="auswahl"?`<div class="picklist">${k.schueler.map(U).sort((a,b)=>a.nn.localeCompare(b.nn)).map(u=>`<label><input type="checkbox" data-tf-s="${u.id}" ${tf.auswahl.includes(u.id)?"checked":""}>${esc(u.nn)} ${esc(u.vn)}</label>`).join("")}</div>`:""}</div>`:""}
  <div class="field"><label for="tf-beschr">${e==="kurs"?"Stoff oder Beschreibung":"Beschreibung"}</label><textarea id="tf-beschr" rows="4" placeholder="${e==="kurs"?"z. B. Unit 1–3, Vokabeln Unit 3, Grammatik: Present Progressive":"z. B. Treffpunkt, Uhrzeiten, was mitzubringen ist"}">${esc(tf.beschreibung)}</textarea></div>
@@ -1008,7 +1041,8 @@ function terminSpeichern(){syncTf();const e=tf.ebene||"kurs";const k=e==="kurs"?
  const datum=new Date(tf.datum+"T00:00").getTime();const titel=tf.titel.trim()||(e==="kurs"?(tf.art==="pruefung"?`Schularbeit ${k.fach}`:tf.art==="aussen"?`Lehrausgang ${k.fach}`:k.fach):TART[tf.art].l);
  const ein=tf.zeit==="einheit";const felder={ebene:e,kurs:e==="kurs"?tf.kurs:null,klassen:e==="klasse"?[...tf.klassen].sort():[],stufen:e==="schule"&&tf.ziel==="teile"?[...tf.stufen]:[],art:tf.art,titel,datum,zeit:tf.zeit,datumBis:tf.zeit==="mehrtag"?new Date(tf.datumBis+"T00:00").getTime():null,uvon:tf.zeit==="uhrzeit"?tf.uvon:"",ubis:tf.zeit==="uhrzeit"?tf.ubis:"",von:ein?tf.von:null,bis:ein?(tf.bis==null||tf.bis===tf.von?null:tf.bis):null,beschreibung:tf.beschreibung.trim(),anhaenge:tf.anhaenge,fuer:e==="kurs"?tf.fuer:"alle",auswahl:e==="kurs"&&tf.fuer==="auswahl"?tf.auswahl:[]};
  const kl=e==="kurs"?k.klassen:e==="klasse"?felder.klassen:db.klassen;const fr=FREI_ARTEN.includes(tf.art)?null:freiAm(datum,kl);
- let t;if(tf.edit){t=T_(tf.edit);Object.assign(t,felder);if(t.gesehen)t.gesehen={};toast(`„${t.titel}“ gespeichert.${fr?` Hinweis: fällt auf „${fr.titel}“ (schulfrei).`:""}`)}else{t=e==="kurs"?addT(k,{...felder,sichtbar:Date.now()-1000}):schulterminAnlegen({...felder,autor:T1.id,sj});toast(`„${t.titel}“ angelegt.${fr?` Hinweis: fällt auf „${fr.titel}“ (schulfrei).`:""}`)}
+ const ph=e==="kurs"&&tf.art==="pruefung"?pruefHinweise({kurs:tf.kurs,titel,datum,zeit:tf.zeit,von:felder.von,bis:felder.bis,uvon:felder.uvon,edit:tf.edit,datumAlt:tf.edit?T_(tf.edit).datum:null}).length:0;
+ let t;if(tf.edit){t=T_(tf.edit);Object.assign(t,felder);if(t.gesehen)t.gesehen={};toast(`„${t.titel}“ gespeichert.${fr?` Hinweis: fällt auf „${fr.titel}“ (schulfrei).`:""}${ph?" Bitte die Hinweise zur LBVO beachten.":""}`)}else{t=e==="kurs"?addT(k,{...felder,sichtbar:Date.now()-1000}):schulterminAnlegen({...felder,autor:T1.id,sj});toast(`„${t.titel}“ angelegt.${fr?` Hinweis: fällt auf „${fr.titel}“ (schulfrei).`:""}${ph?" Bitte die Hinweise zur LBVO beachten.":""}`)}
  const from=tf.from;tf=null;go("termin",{id:t.id,from:from==="kurs"?"kurs":"termine"})}
 function naechsteTermine(tage){const h=tagesStart(Date.now()),e=h+tage*864e5;return meineTermine().filter(t=>{if(FREI_ARTEN.includes(t.art))return tEnde(t)>=h&&t.datum<h+7*864e5;return tEnde(t)>=h&&t.datum<e}).sort((a,b)=>terminBeginn(a)-terminBeginn(b))}
 function terminErinnerung(){const h=tagesStart(Date.now());const ts=naechsteTermine(8).filter(t=>tEbene(t)==="kurs"&&t.art==="pruefung");if(!ts.length)return"";
@@ -1075,7 +1109,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 let CODE_AUS_LINK=null;try{const c=new URLSearchParams(location.search).get("code");if(c&&/^[A-Z0-9-]{4,12}$/i.test(c)){CODE_AUS_LINK=c.toUpperCase();history.replaceState(null,"",location.pathname+location.search.replace(/[?&]code=[^&]*/,"").replace(/^&/,"?")+location.hash)}}catch(e){}
 function codeAusLinkAnbieten(){if(!CODE_AUS_LINK||st.role!=="schueler"||!st.angemeldet)return;const c=CODE_AUS_LINK;CODE_AUS_LINK=null;setTimeout(()=>{const b=document.createElement("button");b.dataset.modal="code";document.body.appendChild(b);b.click();b.remove();const i=$("#mc");if(i){i.value=c}},50)}
-const APP_VERSION="202610211510";
+const APP_VERSION="202610211548";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -1977,6 +2011,7 @@ document.addEventListener("change",async e=>{const t=e.target;const d=t.dataset;
  if(t.id==="ffkurs"){st.ffilter.kurs=t.value;render();return}
  if(t.id==="fkurs"){st.filter.kurs=t.value;render();return}
  if(t.id==="tkurs"){st.tfilter.kurs=t.value;render();return}
+ if(tf&&st.view==="terminneu"&&["tf-von","tf-bis","tf-uvon","tf-titel"].includes(t.id)){pruefHinweisAkt();return}
  if(tf&&st.view==="terminneu"&&(t.id==="tf-kurs"||t.name==="tf-fuer"||t.name==="tf-art"||t.name==="tf-ebene"||t.name==="tf-zeit"||t.name==="tf-ziel"||t.id==="tf-datum")){syncTf();if(t.id==="tf-kurs")tf.auswahl=[];render();return}
  if(t.id==="lkurs"){st.afilter.kurs=t.value;render();return}
  if(t.id==="skl"){st.p.kl=t.value;render();return}
@@ -2014,7 +2049,7 @@ document.addEventListener("change",async e=>{const t=e.target;const d=t.dataset;
  if(t.id==="foto"){const f=t.files[0];if(!f)return;try{me().foto=await quadrat(f);render();toast("Profilbild gespeichert.")}catch(err){toast("Das Bild ließ sich nicht lesen. Versuch ein JPG oder PNG.")}return}
 });
 document.addEventListener("focusin",e=>{const t=e.target;if(t.matches&&t.matches("input.score,#korr-score")&&t.value!==""){const v0=t.value;setTimeout(()=>{if(t.value===v0&&document.activeElement===t)try{t.select()}catch(x){}},0)}});
-document.addEventListener("input",e=>{const t=e.target;if(t.id==="fb"&&st.view==="abgabe"){st.p.entwurf=t.value;return}if(t.id==="kf-beschr"){kf.beschreibung=t.value;return}if(t.id==="kf-zusatz"){kf.zusatz=t.value;const pos=t.selectionStart;render();const n=$("#kf-zusatz");n.focus();n.setSelectionRange(pos,pos)}
+document.addEventListener("input",e=>{const t=e.target;if(tf&&st.view==="terminneu"&&t.id==="tf-titel"){clearTimeout(window._phT);window._phT=setTimeout(pruefHinweisAkt,250)}if(t.id==="fb"&&st.view==="abgabe"){st.p.entwurf=t.value;return}if(t.id==="kf-beschr"){kf.beschreibung=t.value;return}if(t.id==="kf-zusatz"){kf.zusatz=t.value;const pos=t.selectionStart;render();const n=$("#kf-zusatz");n.focus();n.setSelectionRange(pos,pos)}
  if(t.id==="sq"){st.p.q=t.value;const pos=t.selectionStart;render();const n=$("#sq");n.focus();n.setSelectionRange(pos,pos)}});
 function syncAf(){if(!af)return;const g=id=>$(id);if(g("#af-titel"))af.titel=g("#af-titel").value;if(g("#af-beschr"))af.beschreibung=g("#af-beschr").value;if(g("#af-max")){af.maxTxt=g("#af-max").value;af.max=Math.max(1,parseInt(af.maxTxt,10)||10)}if(g("#af-datum"))af.datum=g("#af-datum").value;if(g("#af-zeit"))af.zeit=g("#af-zeit").value;if(g("#af-sicht"))af.sicht=g("#af-sicht").value;if(g("#af-sd"))af.sichtDatum=g("#af-sd").value;if(g("#af-sz"))af.sichtZeit=g("#af-sz").value;if(g("#af-spaet"))af.spaet=g("#af-spaet").checked;if(g("#af-gruppe"))af.gruppe=g("#af-gruppe").checked}
 document.addEventListener("submit",e=>{e.preventDefault();const f=e.target;
