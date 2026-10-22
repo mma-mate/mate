@@ -1014,9 +1014,22 @@ function vTermine(){const f=st.tfilter;let ts=meineTermine();const heute=tagesSt
  st._neuVor=neuVor;if(f.zeit==="monat")return kopf+monatsAnsicht(ts);
  const liste=f.zeit==="vergangen"?vergangen:f.zeit==="woche"?woche:kommend;setTimeout(()=>terminGesehen(liste),0);
  if(!liste.length)return kopf+`<section class="panel"><ul class="list"><li class="empty">${f.zeit==="vergangen"?"Keine vergangenen Termine.":f.zeit==="woche"?`In den nächsten 7 Tagen stehen keine Termine an.${kommend.length?" Unter „Kommende“ siehst du alle späteren.":""}`:lk?"Keine kommenden Termine. Lege einen an, z. B. eine Schularbeit.":"Keine kommenden Termine."}</li></ul></section>`;
- const gruppen=[];liste.forEach(t=>{const w=wochenStart(t.datum);let g=gruppen.find(x=>x.w===w);if(!g)gruppen.push(g={w,ts:[]});g.ts.push(t)});
- return kopf+gruppen.map(g=>{const ende=new Date(g.w);ende.setDate(ende.getDate()+6);const a=new Date(g.w);const dieseW=wochenStart(Date.now())===g.w;
-  return `<section class="panel"><header><h2>${dieseW?"Diese Woche":wochenStart(Date.now())+7*864e5===g.w?"Nächste Woche":"KW "+kw(g.w)}</h2><span style="color:var(--muted);font-size:.85rem">${dieseW||wochenStart(Date.now())+7*864e5===g.w?`KW ${kw(g.w)} · `:""}${a.getDate()}.${a.getMonth()+1}.–${ende.getDate()}.${ende.getMonth()+1}.</span></header><ul class="list">${g.ts.map(t=>terminRow(t,"termine")).join("")}</ul></section>`}).join("")}
+ const W7=7*864e5,dieseWoche=wochenStart(Date.now());
+ /* Wochengruppen: mehrwöchige Termine erscheinen in jeder Woche, die sie berühren (ab der laufenden Woche); Wochen, in denen nur ein schon laufender Termin weitergeht, werden mit der Vorwoche zusammengefasst (z. B. Sommerferien: KW 27–35) */
+ const gruppen=[];const gr=w=>{let g=gruppen.find(x=>x.w===w);if(!g)gruppen.push(g={w,bis:w,ts:[]});return g};
+ if(f.zeit==="vergangen")liste.forEach(t=>gr(wochenStart(t.datum)).ts.push({t,weiter:false}));
+ else{const grenze=f.zeit==="woche"?wochenStart(heute+6*864e5):Infinity;
+  liste.forEach(t=>{const w0=Math.max(wochenStart(t.datum),dieseWoche),w1=Math.min(wochenStart(tEnde(t)),grenze);
+   for(let w=w0;w<=w1;w=wochenStart(w+W7+3*36e5))gr(w).ts.push({t,weiter:w>w0})});
+  gruppen.sort((a,b)=>a.w-b.w);gruppen.forEach(g=>g.ts.sort((a,b)=>(b.weiter-a.weiter)||(terminBeginn(a.t)-terminBeginn(b.t))));
+  for(let i=gruppen.length-1;i>0;i--){const g=gruppen[i],v=gruppen[i-1];if(g.ts.every(x=>x.weiter)&&g.ts.every(x=>v.ts.some(y=>y.t===x.t))){v.bis=Math.max(v.bis,g.bis);gruppen.splice(i,1)}}}
+ const wTxt=x=>{const d=new Date(x);return `${d.getDate()}.${d.getMonth()+1}.`};
+ return kopf+gruppen.map(g=>{const ende=new Date(g.bis);ende.setDate(ende.getDate()+6);const mehr=g.bis>g.w;const dieseW=!mehr&&dieseWoche===g.w,naechsteW=!mehr&&wochenStart(dieseWoche+W7+3*36e5)===g.w;
+  const kwT=mehr?`KW ${kw(g.w)}–${kw(g.bis)}`:`KW ${kw(g.w)}`;
+  return `<section class="panel"><header><h2>${dieseW?"Diese Woche":naechsteW?"Nächste Woche":kwT}</h2><span style="color:var(--muted);font-size:.85rem">${dieseW||naechsteW?`${kwT} · `:""}${wTxt(g.w)}–${wTxt(ende)}</span></header><ul class="list">${g.ts.map(x=>x.weiter?terminRowWeiter(x.t,"termine"):terminRow(x.t,"termine")).join("")}</ul></section>`}).join("")}
+/* Zeile für einen mehrwöchigen Termin, der in einer früheren Woche begonnen hat und in dieser Woche weiterläuft */
+function terminRowWeiter(t,from){const d=new Date(t.datum);
+ return `<li><button class="row click${FREI_ARTEN.includes(t.art)?" frei":""}" data-open-termin="${t.id}" data-from="${from||""}"><span class="tdat"><small>seit</small><b>${d.getDate()}.${d.getMonth()+1}.</b></span><span class="main"><b>${esc(t.titel)}</b><span class="sub">${terminWer(t)} · läuft weiter</span></span>${terminePill(t)}<span class="due"><b>bis ${datumKurzWD(tEnde(t))}</b></span></button></li>`}
 function monatsAnsicht(ts){const b=new Date(NOW);b.setDate(1);b.setHours(0,0,0,0);b.setMonth(b.getMonth()+st.tfilter.monat);const m=b.getMonth(),y=b.getFullYear();
  const MON=["Jänner","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
  const start=new Date(b);start.setDate(1-(b.getDay()+6)%7);const zellen=[];const heute=tagesStart(Date.now());
@@ -1156,7 +1169,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 let CODE_AUS_LINK=null;try{const c=new URLSearchParams(location.search).get("code");if(c&&/^[A-Z0-9-]{4,12}$/i.test(c)){CODE_AUS_LINK=c.toUpperCase();history.replaceState(null,"",location.pathname+location.search.replace(/[?&]code=[^&]*/,"").replace(/^&/,"?")+location.hash)}}catch(e){}
 function codeAusLinkAnbieten(){if(!CODE_AUS_LINK||st.role!=="schueler"||!st.angemeldet)return;const c=CODE_AUS_LINK;CODE_AUS_LINK=null;setTimeout(()=>{const b=document.createElement("button");b.dataset.modal="code";document.body.appendChild(b);b.click();b.remove();const i=$("#mc");if(i){i.value=c}},50)}
-const APP_VERSION="202610221440";
+const APP_VERSION="202610221524";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
