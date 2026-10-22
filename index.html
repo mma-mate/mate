@@ -366,7 +366,10 @@ body.login main{padding:0 0 40px}body.login .wrap{max-width:none;gap:0}body.logi
 
 <script>
 /* Kleiner QR-Code-Erzeuger (Byte-Modus, Fehlerkorrektur M, Version 1–10), ohne fremde Bibliothek */
-function qrSvg(text){
+function qrSvg(text){const mods=qrMatrix(text),size=mods.length;
+ let d="";for(let y=0;y<size;y++)for(let x=0;x<size;x++)if(mods[y][x])d+=`M${x+2},${y+2}h1v1h-1z`;
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size+4} ${size+4}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`}
+function qrMatrix(text){
  const ECC=[0,10,16,26,18,24,16,18,22,22,26],BLK=[0,1,1,1,2,2,4,4,4,5,5];
  const bytes=[...new TextEncoder().encode(text)];
  const raw=v=>{let r=(16*v+128)*v+64;if(v>=2){const n=Math.floor(v/7)+2;r-=(25*n-10)*n-55;if(v>=7)r-=36}return r};
@@ -405,9 +408,36 @@ function qrSvg(text){
   for(let y=0;y<size-1;y++)for(let x=0;x<size-1;x++){const c=mods[y][x];if(c==mods[y][x+1]&&c==mods[y+1][x]&&c==mods[y+1][x+1])p+=3}
   mods.forEach(r=>r.forEach(c=>dark+=c));p+=Math.floor(Math.abs(dark*20-size*size*10)/(size*size))*10;return p};
  let best=0,bp=1e9;for(let m=0;m<8;m++){apply(m);fmt(m);const p=pen();if(p<bp){bp=p;best=m}apply(m)}
- apply(best);fmt(best);
- let d="";for(let y=0;y<size;y++)for(let x=0;x<size;x++)if(mods[y][x])d+=`M${x+2},${y+2}h1v1h-1z`;
- return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size+4} ${size+4}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`}
+ apply(best);fmt(best);return mods}
+/* Zugangskärtchen als PDF (ohne Bibliothek): für installierte App am iPhone, wo der Browser nicht drucken kann */
+function pdfTxt(s){return String(s??"").replace(/[–—]/g,"-").replace(/[„“”]/g,'"').replace(/[‚‘’]/g,"'").normalize("NFC").split("").map(c=>c.charCodeAt(0)<256?c:(c.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/ı/g,"i")||"?")).join("").replace(/[^\x20-\xff]/g,"?").replace(/([\\()])/g,"\\$1")}
+function pdfBreite(t,sz,mono){return mono?t.length*sz*0.6:[...t].reduce((a,c)=>a+("iljtf.,:;!'| ".includes(c)?0.28:"mwMW@".includes(c)?0.83:/[A-Z]/.test(c)?0.67:0.53),0)*sz}
+function kartenPdf(us){const W=595.28,H=841.89,M=28,G=14,cw=(W-2*M-G)/2,ch=176,proS=8;const pages=[];const qr=qrMatrix(SCHULE.web);const url=SCHULE.web.replace("https://","");
+ const f=n=>(Math.round(n*100)/100).toString();
+ const txt=(c,x,y,font,sz,t,col)=>c.push(`BT /${font} ${f(sz)} Tf ${col||"0.23 0.28 0.3 rg"} ${f(x)} ${f(y)} Td (${pdfTxt(t)}) Tj ET`);
+ for(let i=0;i<us.length;i+=proS){const c=[];us.slice(i,i+proS).forEach((u,j)=>{const x=M+(j%2)*(cw+G),top=H-M-Math.floor(j/2)*(ch+12);
+  c.push(`0.6 0.6 0.6 RG 0.8 w [3 3] 0 d ${f(x)} ${f(top-ch)} ${f(cw)} ${f(ch)} re S [] 0 d`);
+  const qs=66,frei=cw-24-qs-10;const lx=x+12,ly=top-12,ls=18,k=ls/100;[["0.969 0.565 0.039",4],["0.659 0.776 0.078",27],["0.118 0.608 0.871",50],["0.369 0.137 0.588",73]].forEach(([col,a])=>c.push(`${col} rg ${f(lx+a*k)} ${f(ly-30*k)} ${f(23*k+(a===73?0:0.3))} ${f(26*k)} re f`));
+  c.push(`0.23 0.28 0.3 RG ${f(8*k)} w ${f(lx+4*k)} ${f(ly-96*k)} ${f(92*k)} ${f(92*k)} re S ${f(10*k)} w 1 J 1 j ${f(lx+28*k)} ${f(ly-62*k)} m ${f(lx+44*k)} ${f(ly-77*k)} l ${f(lx+73*k)} ${f(ly-46*k)} l S 0 J 0 j`);
+  txt(c,x+36,top-26,"F2",12,"MATE");const rechts=u.rolle==="s"?"Klasse "+u.klasse:"Lehrkraft";txt(c,x+cw-12-pdfBreite(rechts,9),top-25,"F1",9,rechts,"0.33 0.39 0.42 rg");
+  const name=u.vn+" "+u.nn;let ns=13;while(pdfBreite(name,ns)>frei&&ns>8)ns-=0.5;txt(c,x+12,top-50,"F2",ns,name);
+  txt(c,x+12,top-67,"F1",7.5,"E-Mail","0.4 0.44 0.44 rg");let ms=9.5;while(pdfBreite(u.mail,ms)>frei&&ms>6)ms-=0.25;txt(c,x+12,top-79,"F1",ms,u.mail);
+  txt(c,x+12,top-97,"F1",7.5,"Startpasswort","0.4 0.44 0.44 rg");if(u.startPw)txt(c,x+12,top-114,"F3",14,u.startPw);else{txt(c,x+12,top-109,"F1",8.5,"hat ein eigenes Passwort;");txt(c,x+12,top-120,"F1",8.5,"bei Bedarf zurücksetzen")}
+  const fuss=!u.startPw?"Passwort vergessen? Melde das auf der Anmeldeseite, dann bekommst du ein neues Startpasswort. Gib dein Passwort niemandem weiter.":`${u.rolle==="l"||pwStatus(u)==="reset"?"Bei der ersten Anmeldung legst du ein eigenes Passwort fest.":"Bei der ersten Anmeldung kannst du ein eigenes Passwort festlegen."} Mindestens 10 Zeichen. Gib dein Passwort niemandem weiter.`;
+  const zeilen=[];let z="";fuss.split(" ").forEach(w0=>{const t=z?z+" "+w0:w0;if(pdfBreite(t,7.5)>cw-24){zeilen.push(z);z=w0}else z=t});if(z)zeilen.push(z);zeilen.slice(0,3).forEach((t,n)=>txt(c,x+12,top-134-n*10,"F1",7.5,t,"0.4 0.44 0.44 rg"));
+  const qx=x+cw-12-qs,qy=top-38,m=qs/(qr.length+2);let r="0 0 0 rg";qr.forEach((row,yy)=>row.forEach((on,xx)=>{if(on)r+=` ${f(qx+(xx+1)*m)} ${f(qy-(yy+2)*m)} ${f(m+0.05)} ${f(m+0.05)} re`}));c.push(r+" f");
+  txt(c,x+cw-12-pdfBreite(url,6.5),qy-qs-8,"F1",6.5,url,"0.4 0.44 0.44 rg")});pages.push(c.join("\n"))}
+ const objs=[];const add=o=>{objs.push(o);return objs.length};
+ const cat=add(""),pg=add(""),f1=add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"),f2=add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>"),f3=add("<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold /Encoding /WinAnsiEncoding >>");
+ const kids=pages.map(cs=>{const st0=add(`<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`);return add(`<< /Type /Page /Parent ${pg} 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${f1} 0 R /F2 ${f2} 0 R /F3 ${f3} 0 R >> >> /Contents ${st0} 0 R >>`)});
+ objs[cat-1]=`<< /Type /Catalog /Pages ${pg} 0 R >>`;objs[pg-1]=`<< /Type /Pages /Kids [${kids.map(k=>k+" 0 R").join(" ")}] /Count ${kids.length} >>`;
+ let out="%PDF-1.4\n%\xe2\xe3\xcf\xd3\n";const off=[];objs.forEach((o,i)=>{off.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`});
+ const xr=out.length;out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n${off.map(o=>String(o).padStart(10,"0")+" 00000 n \n").join("")}trailer\n<< /Size ${objs.length+1} /Root ${cat} 0 R >>\nstartxref\n${xr}\n%%EOF`;
+ const b=new Uint8Array(out.length);for(let i=0;i<out.length;i++)b[i]=out.charCodeAt(i)&255;return new Blob([b],{type:"application/pdf"})}
+function iosApp(){return navigator.standalone===true}
+async function kartenPdfTeilen(us){const blob=kartenPdf(us);const name=`MATE-Zugangskaertchen${us.length===1?"-"+slug(us[0].vn+"-"+us[0].nn):""}.pdf`;const file=new File([blob],name,{type:"application/pdf"});
+ try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"MATE Zugangskärtchen"});return}}catch(e){if(e&&e.name==="AbortError")return}
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast("PDF erstellt. Du findest es bei deinen Downloads.")}
 /* ---------- Hilfen ---------- */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1126,7 +1156,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 let CODE_AUS_LINK=null;try{const c=new URLSearchParams(location.search).get("code");if(c&&/^[A-Z0-9-]{4,12}$/i.test(c)){CODE_AUS_LINK=c.toUpperCase();history.replaceState(null,"",location.pathname+location.search.replace(/[?&]code=[^&]*/,"").replace(/^&/,"?")+location.hash)}}catch(e){}
 function codeAusLinkAnbieten(){if(!CODE_AUS_LINK||st.role!=="schueler"||!st.angemeldet)return;const c=CODE_AUS_LINK;CODE_AUS_LINK=null;setTimeout(()=>{const b=document.createElement("button");b.dataset.modal="code";document.body.appendChild(b);b.click();b.remove();const i=$("#mc");if(i){i.value=c}},50)}
-const APP_VERSION="202610221411";
+const APP_VERSION="202610221440";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -1233,7 +1263,7 @@ function kontoImportAnlegen(){const im=st.kimp;const ok=im.zeilen.filter(r=>!r.f
  modal(`<h2>${us.length} ${us.length===1?"Konto":"Konten"} angelegt</h2><p>Jede Person hat ein Startpasswort. Drucke die Zugangskärtchen und gib sie persönlich aus.${im.rolle==="s"?" Die Kinder sind schon in den Klassenkursen ihrer Klasse.":""}</p><div class="actions"><button class="btn primary" data-act="karten" data-ids="${us.map(u=>u.id).join(",")}">Zugangskärtchen drucken</button><button class="btn ghost" data-close-btn>Später</button></div>`);render()}
 /* ---------- Zugangskärtchen (Druckansicht) ---------- */
 function vKarten(){const us=(st.p.ids||[]).map(U).filter(Boolean);const zur=st.role==="admin"?(st.p.zur||(us.length===1?"person":us[0]&&us[0].rolle==="l"?"lehrer":"schueler")):"kurse";
- return `<div class="head karten-kopf"><div>${zur==="person"&&us[0]?`<button class="crumb" data-person="${us[0].id}">← Zurück</button>`:zur.startsWith("klasse:")?`<button class="crumb" data-klasse="${esc(zur.slice(7))}">← Zurück</button>`:`<button class="crumb" data-go="${zur}">← Zurück</button>`}<h1>Zugangskärtchen</h1><p>${us.length} Kärtchen. Zum Ausschneiden drucken oder als PDF speichern. Gib jedes Kärtchen nur der Person, deren Name draufsteht.</p></div><button class="btn primary" data-act="drucken">Drucken oder als PDF speichern</button></div>
+ return `<div class="head karten-kopf"><div>${zur==="person"&&us[0]?`<button class="crumb" data-person="${us[0].id}">← Zurück</button>`:zur.startsWith("klasse:")?`<button class="crumb" data-klasse="${esc(zur.slice(7))}">← Zurück</button>`:`<button class="crumb" data-go="${zur}">← Zurück</button>`}<h1>Zugangskärtchen</h1><p>${us.length} Kärtchen. Zum Ausschneiden drucken oder als PDF speichern. Gib jedes Kärtchen nur der Person, deren Name draufsteht.</p></div><div class="actions" style="margin:0">${iosApp()?"":`<button class="btn primary" data-act="drucken">Drucken</button>`}<button class="btn${iosApp()?" primary":""}" data-act="karten-pdf">${iosApp()?"Als PDF teilen oder drucken":"Als PDF speichern"}</button></div></div>${iosApp()?`<p class="hint" style="color:var(--muted);margin-top:-8px">In der installierten App am iPhone öffnet sich das Teilen-Menü. Dort findest du „Drucken“ und „In Dateien sichern“.</p>`:""}
  <div class="karten">${us.map(u=>`<div class="karte"><div class="karte-kopf"><svg class="karte-logo" viewBox="0 0 100 100" aria-hidden="true"><path fill="#F7900A" d="M4 30V24A20 20 0 0 1 24 4H27V30Z"/><path fill="#A8C614" d="M27 4H50V30H27Z"/><path fill="#1E9BDE" d="M50 4H73V30H50Z"/><path fill="#5E2396" d="M73 4H76A20 20 0 0 1 96 24V30H73Z"/><path d="M24 4H76A20 20 0 0 1 96 24V76A20 20 0 0 1 76 96H24A20 20 0 0 1 4 76V24A20 20 0 0 1 24 4Z" fill="none" stroke="currentColor" stroke-width="8"/><path d="M28 62L44 77L73 46" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg><b>MATE</b><span>${u.rolle==="s"?"Klasse "+esc(u.klasse):"Lehrkraft"}</span></div>
  <div class="karte-inhalt"><div><p class="karte-name">${esc(u.vn)} ${esc(u.nn)}</p><p><small>E-Mail</small><br><span class="karte-wert">${esc(u.mail)}</span></p><p><small>Startpasswort</small><br>${u.startPw?`<span class="karte-pw">${esc(u.startPw)}</span>`:`<span class="karte-wert">hat ein eigenes Passwort; bei Bedarf zurücksetzen</span>`}</p></div><div class="karte-qr">${qrSvg(SCHULE.web)}<small>${esc(SCHULE.web.replace("https://",""))}</small></div></div>
  <p class="karte-text">${!u.startPw?"Passwort vergessen? Melde das auf der Anmeldeseite, dann bekommst du ein neues Startpasswort. Gib dein Passwort niemandem weiter.":`${u.rolle==="l"||pwStatus(u)==="reset"?"Bei der ersten Anmeldung legst du ein eigenes Passwort fest.":"Bei der ersten Anmeldung kannst du ein eigenes Passwort festlegen."} Mindestens 10 Zeichen. Gib dein Passwort niemandem weiter.`}</p></div>`).join("")||`<p class="empty">Keine Kärtchen ausgewählt.</p>`}</div>`}
@@ -1812,6 +1842,7 @@ document.addEventListener("click",e=>{const kl=e.target.closest&&e.target.closes
  if(d.erst){const u=U(d.erst);go("erstlogin",{u:u.id,schritt:1,rolle:u.rolle==="s"?"schueler":"lehrkraft"});return}
  if(d.act==="erst-spaeter"){const u=U(st.p.u);u.angemeldet=true;anmeldenAls(u,st.p.rolle);toast(`Angemeldet als ${u.vn} ${u.nn}. Ein eigenes Passwort legst du im Profil fest.`);return}
  if(d.act==="drucken"){window.print();return}
+ if(d.act==="karten-pdf"){const us=(st.p.ids||[]).map(U).filter(Boolean);if(us.length)kartenPdfTeilen(us);return}
  if(d.act==="pw-reset"){const u=U(d.u);const darf=st.role==="admin"||(st.role==="lehrkraft"&&u.rolle==="s"&&binKA(T1,u.klasse));if(!darf){toast("Das dürfen nur der Admin und die Klassenadmins der Klasse.");return}
   modal(`<h2>Passwort von ${esc(u.vn)} ${esc(u.nn)} zurücksetzen?</h2><p>${esc(u.vn)} bekommt ein neues Startpasswort und legt damit bei der nächsten Anmeldung ein eigenes fest. Das bisherige Passwort gilt dann nicht mehr.</p><div class="actions"><button class="btn primary" data-act="pw-reset-ok" data-u="${u.id}">Zurücksetzen</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
  if(d.act==="pw-reset-ok"){const u=U(d.u);const pw=kontoStart(u,"reset");u.angemeldet=false;meldungen().filter(m=>m.typ==="pw"&&m.u===u.id&&!m.erledigt).forEach(m=>{m.erledigt=Date.now()});
