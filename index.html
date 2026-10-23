@@ -188,6 +188,7 @@ form.f{display:flex;flex-direction:column;gap:18px}
 @media(max-width:520px){.dl{grid-template-columns:1fr;gap:0}.dl dd{margin-bottom:8px}}
 button.panel.stat.click{text-align:left;cursor:pointer;font:inherit;color:inherit;width:100%}button.panel.stat.click:hover{border-color:var(--blue)}
 .mb-bereich{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:5px 12px;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;margin-left:auto;margin-right:8px}
+.uplist{display:grid;gap:6px;margin-bottom:10px}.upitem{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:.88rem}.upitem .upn{overflow-wrap:anywhere}.upitem .ups{color:var(--muted);white-space:nowrap}.upitem.ok .ups{color:var(--green-ink)}.upitem.fehler .ups,.upitem.wartet .ups{color:var(--orange-ink)}.upitem progress{grid-column:1/-1;width:100%;height:6px}
 .nf-zeile{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}.pruefhinweis ul{margin:6px 0;padding-left:20px}.pruefhinweis li{margin:3px 0}.pruefhinweis small{opacity:.85}
 .check{display:flex;gap:8px;align-items:center;cursor:pointer}
 .picklist{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:2px 12px}
@@ -1156,7 +1157,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 let CODE_AUS_LINK=null;try{const c=new URLSearchParams(location.search).get("code");if(c&&/^[A-Z0-9-]{4,12}$/i.test(c)){CODE_AUS_LINK=c.toUpperCase();history.replaceState(null,"",location.pathname+location.search.replace(/[?&]code=[^&]*/,"").replace(/^&/,"?")+location.hash)}}catch(e){}
 function codeAusLinkAnbieten(){if(!CODE_AUS_LINK||st.role!=="schueler"||!st.angemeldet)return;const c=CODE_AUS_LINK;CODE_AUS_LINK=null;setTimeout(()=>{const b=document.createElement("button");b.dataset.modal="code";document.body.appendChild(b);b.click();b.remove();const i=$("#mc");if(i){i.value=c}},50)}
-const APP_VERSION="202610231824";
+const APP_VERSION="202610231844";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -1218,7 +1219,7 @@ function adminItems(){return[["start","Übersicht","home",meldungen().filter(m=>
 function lehrItems(){const dl=dashL();return[["start","Startseite","home"],["aufgaben","Aufgaben","tasks",new Set(dl.korr.map(x=>x.a.id)).size],["termine","Termine","cal",naechsteTermine(7).length],["feedback","Feedback","chat",dl.antw.length+dl.verb.length],["kurse","Kurse","book"]]}
 /* Admin-Bereiche: mehrere Ansichten gehören zu einem Menüpunkt */
 function aBereich(v){return ["schueler","lehrer","archiv","person","benutzer"].includes(v)?"benutzer":["klassen","klasse","kurse","faecher","schule"].includes(v)?"schule":["wechsel","schuljahr"].includes(v)?"schuljahr":v==="karten"?"benutzer":["termin","terminneu"].includes(v)?"termine":v==="profil"?"":v}
-function go(view,p={}){if(view!=="recht"&&/^#(impressum|datenschutz|nutzung)$/.test(location.hash))try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}st.view=view;st.p=p;st.reply=[];st.mehr={};if(view!=="kurs")st.tab="aufgaben";if(view==="termine"&&st.role==="admin"&&st.tfilter&&st.tfilter.kurs&&!["","schule","klasse"].includes(st.tfilter.kurs))st.tfilter.kurs="";render();window.scrollTo(0,0)}
+function go(view,p={}){if(st.up&&st.up.fertig)st.up=null;if(view!=="recht"&&/^#(impressum|datenschutz|nutzung)$/.test(location.hash))try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}st.view=view;st.p=p;st.reply=[];st.mehr={};if(view!=="kurs")st.tab="aufgaben";if(view==="termine"&&st.role==="admin"&&st.tfilter&&st.tfilter.kurs&&!["","schule","klasse"].includes(st.tfilter.kurs))st.tfilter.kurs="";render();window.scrollTo(0,0)}
 
 /* ---------- Rahmen ---------- */
 function renderChrome(){
@@ -1393,6 +1394,7 @@ function vAufgabeS(a){const u=ME_S.id;const k=K(a.kurs);const s=getSub(a,u);cons
  </div></section>
  <section class="panel"><header><h2>Deine Abgabe</h2></header><div class="body">
   ${s.files.length?`<div class="files">${s.files.map((f,i)=>istLink(f)?`<div class="file">${linkKnopf(f,'style="flex:1;min-width:0"')}${offenUpload&&NOW<fr(a,ME_S.id)?`<button class="btn small ghost" data-act="datei-weg" data-i="${i}">Entfernen</button>`:""}</div>`:`<div class="file">${f.img?`<img src="${f.img}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:6px;flex:none">`:`<span class="tag">${esc((f.n.split(".").pop()||"").toUpperCase())}</span>`}<button class="main" style="border:0;background:none;text-align:left;cursor:pointer;padding:0;color:var(--blue-ink);text-decoration:underline" data-act="vorschau" data-i="${i}">${esc(f.n)}</button><span class="tag">${f.kb} KB</span>${offenUpload&&NOW<fr(a,ME_S.id)?`<button class="btn small ghost" data-act="datei-weg" data-i="${i}">Entfernen</button>`:""}</div>${f.info?`<span class="sub" style="color:var(--muted);font-size:.8rem;padding-left:4px">${esc(f.info)}</span>`:""}`).join("")}</div><p class="sub" style="color:var(--muted)">Abgegeben ${fmtDate(s.zeit)}, ${fmtTime(s.zeit)}${s.zeit>fr(a,ME_S.id)?" · verspätet":""} · Tippe auf eine Datei für die Vorschau oder einen Link zum Öffnen.</p>`:a.abgabe==="online"||a.abgabe==="beides"?`<p style="color:var(--muted)">Noch nichts abgegeben.</p>`:""}
+  <div id="upbox">${upListe()}</div>
   ${offenUpload?`<label class="drop" for="upl"><b>Fotos oder Dateien hochladen</b><span style="color:var(--muted);font-size:.88rem">Höchstens 10 Dateien, je bis 10 MB. Fotos werden automatisch verkleinert.</span><span class="btn">Dateien wählen</span></label><input type="file" id="upl" multiple accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" class="vh">${linkEingabe("abgabe","Zum Beispiel Canva, Padlet oder OneDrive. Prüfe, ob deine Lehrkraft den Link öffnen kann (freigegeben für alle mit dem Link).")}${NOW>fr(a,ME_S.id)?`<div class="note warn">Die Frist ist vorbei. Deine Abgabe wird als verspätet markiert. Abgeben kannst du noch bis ${fmtDate(nfEnde(a,ME_S.id))}, ${fmtTime(nfEnde(a,ME_S.id))}.</div>`:""}`:""}
   ${stt==="verpasst"?`<div class="note info">Abgabetermin verpasst: Seit ${fmtDate(nfEnde(a,ME_S.id))} ist keine Abgabe mehr möglich. Wenn du einen Grund hast, schreib deiner Lehrkraft unten eine Frage.</div>`:""}
   ${s.abwesend&&(s.score===null||s.score==="")?`<div class="note info">Als abwesend vermerkt. Die Aufgabe zählt nicht zu deiner Übersicht, außer du holst sie nach.</div>`:""}
@@ -1842,6 +1844,7 @@ document.addEventListener("click",e=>{const kl=e.target.closest&&e.target.closes
  if(d.erst){const u=U(d.erst);go("erstlogin",{u:u.id,schritt:1,rolle:u.rolle==="s"?"schueler":"lehrkraft"});return}
  if(d.act==="erst-spaeter"){const u=U(st.p.u);u.angemeldet=true;anmeldenAls(u,st.p.rolle);toast(`Angemeldet als ${u.vn} ${u.nn}. Ein eigenes Passwort legst du im Profil fest.`);return}
  if(d.act==="drucken"){window.print();return}
+ if(d.act==="up-weiter"){if(st.up){st.up.items.forEach(x=>{if(x.st==="wartet")x.st="senden"});uploadWeiter();if(!navigator.onLine)toast("Noch keine Internetverbindung.")}return}
  if(d.act==="karten-pdf"){const us=(st.p.ids||[]).map(U).filter(Boolean);if(us.length)kartenPdfTeilen(us);return}
  if(d.act==="pw-reset"){const u=U(d.u);const darf=st.role==="admin"||(st.role==="lehrkraft"&&u.rolle==="s"&&binKA(T1,u.klasse));if(!darf){toast("Das dürfen nur der Admin und die Klassenadmins der Klasse.");return}
   modal(`<h2>Passwort von ${esc(u.vn)} ${esc(u.nn)} zurücksetzen?</h2><p>${esc(u.vn)} bekommt ein neues Startpasswort und legt damit bei der nächsten Anmeldung ein eigenes fest. Das bisherige Passwort gilt dann nicht mehr.</p><div class="actions"><button class="btn primary" data-act="pw-reset-ok" data-u="${u.id}">Zurücksetzen</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
@@ -2083,11 +2086,11 @@ function dateiname(a,u,f){const s=getSub(a,u.id);if(typeof f==="string")f=s.file
  let teil;const L=verbSendungen(s);const i=L.findIndex(x=>x.files.includes(f));if(i>=0)teil=`${i+2}-Verbesserung-${i+1}`;else teil=((f.zeit||s.zeit)>fr(a,u.id))?"1-Abgabe-verspaetet":"1-Abgabe";
  const orig=f.n||"Datei";const dot=orig.lastIndexOf(".");const base=dot>0?orig.slice(0,dot):orig,ext=dot>0?orig.slice(dot):"";return slug(`${u.nn}_${u.vn}_${teil}_${base}`)+ext}
 function zipDateien(a,u,mitVerb){const s=getSub(a,u.id);const ab=s.files.filter(f=>!f.verb);const vb=mitVerb?verbSendungen(s).flatMap(x=>x.files):[];return [...ab,...vb]}
-function zipModal(a){const mit=!!st.zipVerb;const z=zielgruppe(a).map(U).filter(u=>zipDateien(a,u,mit).length).sort((x,y)=>x.nn.localeCompare(y.nn,"de"));
+function zipModal(a){const mit=!!st.zipVerb&&zielgruppe(a).some(u=>verbSendungen(getSub(a,u)).length);const z=zielgruppe(a).map(U).filter(u=>zipDateien(a,u,mit).length).sort((x,y)=>x.nn.localeCompare(y.nn,"de"));
  const dat=u=>zipDateien(a,u,mit).filter(f=>!istLink(f));const nLinks=z.reduce((x,u)=>x+zipDateien(a,u,mit).filter(istLink).length,0);const nVerb=zielgruppe(a).reduce((x,u)=>x+verbSendungen(getSub(a,u)).length,0);
  const nSp=z.reduce((x,u)=>x+dat(u).filter(f=>dateiname(a,u,f).includes("_1-Abgabe-verspaetet_")).length,0);
  modal(`<h2>Alle Abgaben als ZIP</h2><p>${z.length} ${z.length===1?"Kind":"Kinder"}, nach Nachnamen sortiert${nSp?`, ${nSp} ${nSp===1?"Datei":"Dateien"} verspätet abgegeben`:""}.</p>
- <label class="check" style="margin-top:0"><input type="checkbox" id="zip-verb" ${mit?"checked":""} ${nVerb?"":"disabled"}> Verbesserungen aus dem Feedback mitladen${nVerb?` (${nVerb})`:" (noch keine)"}</label>
+ ${nVerb?`<label class="check" style="margin-top:0"><input type="checkbox" id="zip-verb" ${mit?"checked":""}> Verbesserungen aus dem Feedback mitladen (${nVerb})</label>`:""}
  <p style="color:var(--muted);font-size:.88rem;margin:4px 0 8px">So heißen die Dateien:</p><div class="files">${z.slice(0,6).map(u=>dat(u).map(f=>`<div class="file"><span class="main" style="font-family:ui-monospace,Menlo,monospace;font-size:.85rem;overflow-wrap:anywhere">${esc(dateiname(a,u,f))}</span></div>`).join("")).join("")}${nLinks?`<div class="file"><span class="main" style="font-family:ui-monospace,Menlo,monospace;font-size:.85rem">Links.txt</span><span class="tag">${nLinks} Link${nLinks===1?"":"s"} mit Namen</span></div>`:""}${z.length>6?`<span style="color:var(--muted)">… und ${z.length-6} weitere</span>`:""}</div>
  <div class="note info">Im Prototyp wird nichts heruntergeladen.</div><div class="actions"><button class="btn ghost" data-close-btn>Schließen</button></div>`);$("#layer .modal").dataset.zipA=a.id}
 const demoCache={};
@@ -2310,12 +2313,27 @@ async function prozessDatei0(f){
  return{datei:{n:f.name,kb:Math.max(1,Math.round(f.size/1024))}}}
 async function pruefeAlle(list){const ok=[],fehler=[];for(const f of list){const r=await prozessDatei(f);if(r.datei)ok.push(r.datei);else fehler.push(r.fehler)}return{ok,fehler}}
 function meldung(ok,fehler,okText){if(fehler.length&&ok.length)toast(`${ok.length} ${ok.length>1?"Dateien":"Datei"} gespeichert. Nicht übernommen: ${fehler.join(" ")}`);else if(fehler.length)toast(fehler.join(" "));else if(ok.length)toast(okText)}
-function abgabeErgaenzen(s,ok){if(ok.length){const jetzt=Date.now();const vb=hatFb(s);ok.forEach(f=>{f.zeit=jetzt;if(vb)f.verb=true});s.files.push(...ok);if(vb){sendS(s,"Verbesserung abgegeben",jetzt,true);s.verbesserung=true;s.erledigt=true}else s.zeit=jetzt}}
+function abgabeErgaenzen(s,ok,zeit){if(ok.length){const jetzt=zeit||Date.now();const vb=hatFb(s);ok.forEach(f=>{f.zeit=jetzt;if(vb)f.verb=true});s.files.push(...ok);if(vb){if(!msgs(s).some(m=>m.sys&&m.zeit===jetzt))sendS(s,"Verbesserung abgegeben",jetzt,true);s.verbesserung=true;s.erledigt=true}else s.zeit=jetzt}}
+/* Hochladen mit Fortschritt und neuem Versuch: Zählt der Zeitpunkt, an dem das Kind auf „Hochladen“ tippt (fair bei schlechtem WLAN). Im Prototyp ist das Senden simuliert. */
 async function upload(files){const a=A(st.p.id);const s=getSub(a,ME_S.id);const list=[...files];if(!list.length)return;if(!nfMoeglich(a,ME_S.id)){toast("Abgabetermin verpasst: Eine Abgabe ist nicht mehr möglich.");render();return}
+ if(st.up&&st.up.a===a.id&&st.up.items.some(x=>!["ok","fehler"].includes(x.st))){toast("Warte, bis die laufende Abgabe gespeichert ist.");return}
  if(s.files.length+list.length>10){toast(`Höchstens 10 Dateien pro Abgabe. Du kannst noch ${10-s.files.length} hinzufügen.`);return}
- const{ok,fehler}=await pruefeAlle(list);
- abgabeErgaenzen(s,ok)
- meldung(ok,fehler,"Abgabe gespeichert. Deine Lehrkraft sieht sie jetzt.");render()}
+ st.up={a:a.id,zeit:Date.now(),items:list.map(f=>({n:f.name,st:"verkleinern",p:0}))};upAnzeigen();
+ for(let i=0;i<list.length;i++){const it=st.up.items[i];const r=await prozessDatei(list[i]);if(r.datei){it.datei=r.datei;it.st="senden"}else{it.st="fehler";it.err=r.fehler}upAnzeigen()}
+ await uploadWeiter()}
+const SENDEN_MS=30;
+async function sendeDatei(it){for(let p=0;p<=100;p+=20){if(!navigator.onLine||(window.__netz&&window.__netz.aus)){it.st="wartet";upAnzeigen();throw new Error("offline")}it.p=p;it.st="senden";upAnzeigen();await new Promise(r=>setTimeout(r,SENDEN_MS))}}
+async function uploadWeiter(){const u=st.up;if(!u||u.laeuft)return;u.laeuft=true;const a=A(u.a);const s=getSub(a,ME_S.id);const neu=[];
+ for(const it of u.items){if(it.st!=="senden"&&it.st!=="wartet")continue;try{await sendeDatei(it);it.st="ok";it.p=100;neu.push(it.datei);abgabeErgaenzen(s,[it.datei],u.zeit);demoSpeichern()}catch(e){u.items.forEach(x=>{if(x.st==="senden")x.st="wartet"});break}}
+ u.laeuft=false;const offen=u.items.filter(x=>x.st==="wartet"||x.st==="senden").length;const fehler=u.items.filter(x=>x.st==="fehler").map(x=>x.err);
+ if(!offen){u.fertig=Date.now();if(fehler.length)toast(fehler.join(" "));else if(neu.length||u.items.some(x=>x.st==="ok"))toast("Abgabe gespeichert. Deine Lehrkraft sieht sie jetzt.")}
+ if(st.view==="aufgabe"&&st.p.id===u.a)render();else upAnzeigen()}
+function upListe(){const u=st.up;if(!u||st.view!=="aufgabe"||st.p.id!==u.a)return"";const T={verkleinern:"wird vorbereitet …",senden:"wird hochgeladen",wartet:"wartet auf Internet",ok:"gespeichert",fehler:"nicht übernommen"};const warten=u.items.some(x=>x.st==="wartet");const laeuft=u.items.some(x=>["verkleinern","senden"].includes(x.st));
+ return `<div class="uplist" aria-live="polite">${u.items.map(x=>`<div class="upitem ${x.st}"><span class="upn">${esc(x.n)}</span><span class="ups">${x.st==="senden"?`${T.senden} ${x.p} %`:x.st==="fehler"?`${T.fehler}${x.err?": "+esc(x.err):""}`:T[x.st]}</span>${["senden","wartet"].includes(x.st)?`<progress max="100" value="${x.p||0}"></progress>`:""}</div>`).join("")}
+ ${warten?`<div class="note warn flex" style="align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px"><span>Keine Internetverbindung. Deine Dateien sind vorbereitet und werden automatisch hochgeladen, sobald du wieder online bist. Bitte lass diese Seite offen.</span><button class="btn small" data-act="up-weiter">Erneut versuchen</button></div>`:laeuft?`<p class="hint" style="color:var(--muted);margin:4px 0 0">Bitte lass diese Seite offen, bis alles gespeichert ist. Für die Frist zählt ${fmtTime(u.zeit)} Uhr, der Moment, in dem du auf Hochladen getippt hast.</p>`:u.fertig?`<p class="hint" style="color:var(--green-ink);margin:4px 0 0">Gespeichert um ${fmtTime(u.fertig)} Uhr.</p>`:""}</div>`}
+function upAnzeigen(){const b=$("#upbox");if(b)b.innerHTML=upListe()}
+window.addEventListener("online",()=>{if(st.up&&st.up.items.some(x=>x.st==="wartet"))uploadWeiter()});
+window.addEventListener("beforeunload",e=>{if(st.up&&st.up.items.some(x=>["verkleinern","senden","wartet"].includes(x.st))){e.preventDefault();e.returnValue=""}});
 async function anhaengen(files){const list=[...files];if(!list.length)return;if(st.reply.length+list.length>10){toast(`Höchstens 10 Dateien pro Antwort. Du kannst noch ${10-st.reply.length} anhängen.`);return}
  st.reply.text=($("#antwort")?.value)||st.reply.text;const{ok,fehler}=await pruefeAlle(list);st.reply.push(...ok);if(fehler.length)toast(fehler.join(" "));render()}
 
