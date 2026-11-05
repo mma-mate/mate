@@ -437,7 +437,9 @@ function kartenPdf(us){const W=595.28,H=841.89,M=28,G=14,cw=(W-2*M-G)/2,ch=176,p
  const b=new Uint8Array(out.length);for(let i=0;i<out.length;i++)b[i]=out.charCodeAt(i)&255;return new Blob([b],{type:"application/pdf"})}
 function iosApp(){return navigator.standalone===true}
 async function kartenPdfTeilen(us){const blob=kartenPdf(us);const name=`MATE-Zugangskaertchen${us.length===1?"-"+slug(us[0].vn+"-"+us[0].nn):""}.pdf`;const file=new File([blob],name,{type:"application/pdf"});
- try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"MATE Zugangskärtchen"});return}}catch(e){if(e&&e.name==="AbortError")return}
+ /* Teilen-Menü nur am Handy/Tablet; am PC/Laptop direkt herunterladen (Windows zeigt sonst nur „Freigeben“) */
+ const mobil=(navigator.userAgentData&&navigator.userAgentData.mobile)||/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+ try{if(mobil&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"MATE Zugangskärtchen"});return}}catch(e){if(e&&e.name==="AbortError")return}
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast("PDF erstellt. Du findest es bei deinen Downloads.")}
 /* ---------- Hilfen ---------- */
 const $=s=>document.querySelector(s);
@@ -1179,7 +1181,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611052000";
+const APP_VERSION="202611052030";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
