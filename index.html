@@ -1179,7 +1179,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611051830";
+const APP_VERSION="202611052000";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -2380,7 +2380,9 @@ async function anhaengen(files){const list=[...files];if(!list.length)return;if(
 
 SEED.forEach(f=>f());
 {const h=(location.hash||"").slice(1);if(RECHT[h]){st.view="recht";st.p={seite:h}}else if(h==="hilfe"){st.view="hilfe";st.p={}}}
-async function updatePruefen(){if(!/^\d{12}$/.test(APP_VERSION)||!location.protocol.startsWith("http"))return;try{const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)return;const j=await r.json();if(j.v&&j.v>APP_VERSION&&!document.querySelector(".update-hinweis")){const b=document.createElement("button");b.className="update-hinweis";b.type="button";b.textContent="Neue Version laden";b.title="Es gibt eine neuere Version von MATE. Tippen zum Laden.";b.onclick=()=>location.reload();document.querySelector(".demo-act")?.prepend(b)}}catch(e){}}
+async function neueVersionLaden(b,v){b.disabled=true;b.textContent="Lädt …";try{const rs=navigator.serviceWorker?await navigator.serviceWorker.getRegistrations():[];await Promise.all(rs.map(r=>r.unregister()));const ks=await caches.keys();await Promise.all(ks.filter(k=>k.startsWith("mate-")).map(k=>caches.delete(k)))}catch(e){}const u=new URL(location.href);u.searchParams.set("neu",v||Date.now());location.replace(u.href)}
+try{const u=new URL(location.href);if(u.searchParams.has("neu")){u.searchParams.delete("neu");history.replaceState(history.state,"",u.pathname+u.search+u.hash)}}catch(e){}
+async function updatePruefen(){if(!/^\d{12}$/.test(APP_VERSION)||!location.protocol.startsWith("http"))return;try{const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)return;const j=await r.json();if(j.v&&j.v>APP_VERSION&&!document.querySelector(".update-hinweis")){const b=document.createElement("button");b.className="update-hinweis";b.type="button";b.textContent="Neue Version laden";b.title="Es gibt eine neuere Version von MATE. Tippen zum Laden.";b.onclick=()=>neueVersionLaden(b,j.v);document.querySelector(".demo-act")?.prepend(b)}}catch(e){}}
 addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")updatePruefen()});setTimeout(updatePruefen,1500);
 function introZeigen(){let gesehen=false;try{gesehen=localStorage.getItem("mate-intro")==="1"}catch(e){}if(gesehen||st.view==="recht"||$("#layer").innerHTML)return;
  modal(`<h2>Willkommen bei der Testversion von MATE</h2><ul class="intro"><li>Alle Namen, Kurse und Bewertungen sind <b>erfunden</b>. Bitte gib keine echten Namen, Noten oder Fotos von Personen ein.</li><li>Oben wechselst du zwischen den Ansichten <b>Schüler·in</b>${NUR_SCHUELER?" und <b>Lehrkraft</b>":", <b>Lehrkraft</b> und <b>Admin</b>"}.</li><li>Deine Eingaben bleiben <b>nur auf diesem Gerät</b>. „Zurücksetzen“ stellt die Beispieldaten wieder her.</li><li>Über „Feedback“ schickst du uns, was dir auffällt.</li></ul><p class="intro-links">Mehr dazu: <button type="button" class="linkbtn" data-recht="nutzung">Nutzungsbedingungen</button> · <button type="button" class="linkbtn" data-recht="datenschutz">Datenschutz</button></p><div class="actions"><button class="btn primary" data-act="intro-ok">Verstanden</button></div>`)}
