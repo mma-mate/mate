@@ -113,7 +113,7 @@ main{min-width:0;padding-block:28px 96px;padding-left:max(16px,env(safe-area-ins
 .row.click:hover,tr.clickrow:hover{background:var(--sunk)}
 .row .main{min-width:0;flex:1}
 .row .main b{display:block;overflow-wrap:anywhere}
-.row .sub{color:var(--muted);font-size:.86rem}
+.row .sub{color:var(--muted);font-size:.86rem}.row .sub.tsub{display:flex;flex-wrap:wrap;align-items:center;column-gap:.3em;row-gap:2px}.tsub .klabel{vertical-align:baseline}
 .empty{padding:22px 18px;color:var(--muted)}
 
 .pill{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
@@ -1021,7 +1021,7 @@ function klassenTermine(c){return db.termine.filter(t=>{const e=tEbene(t);if(e==
 function kw(t){const d=new Date(t);d.setHours(0,0,0,0);d.setDate(d.getDate()+3-(d.getDay()+6)%7);const w1=new Date(d.getFullYear(),0,4);return 1+Math.round(((d-w1)/864e5-3+(w1.getDay()+6)%7)/7)}
 function wochenStart(t){const d=new Date(t);d.setHours(0,0,0,0);d.setDate(d.getDate()-(d.getDay()+6)%7);return d.getTime()}
 function terminRow(t,from){const d=new Date(t.datum);const laeuft=tEnde(t)>t.datum&&tLaeuft(t,Date.now())&&tagesStart(t.datum)<tagesStart(Date.now());
- return `<li><button class="row click${FREI_ARTEN.includes(t.art)?" frei":""}" data-open-termin="${t.id}" data-from="${from||""}"><span class="tdat"><small>${WD[d.getDay()]}</small><b>${d.getDate()}.${d.getMonth()+1}.</b></span><span class="main"><b>${esc(t.titel)}${terminNeu(t)?` <span class="pill p-done" style="vertical-align:2px">neu</span>`:""}</b><span class="sub">${terminWer(t)} · ${zeitText(t,true)}${st.role==="lehrkraft"&&tEbene(t)==="kurs"&&t.fuer!=="alle"?" · "+fuerText(t):""}${st.role==="lehrkraft"&&tEbene(t)==="kurs"&&t.autor&&t.autor!==T1.id&&U(t.autor)?` · eingetragen von ${esc(U(t.autor).vn)} ${esc(U(t.autor).nn)}`:""}</span></span>${terminePill(t)}<span class="due"><b>${laeuft?`noch bis ${WD[new Date(tEnde(t)).getDay()]}`:rel(t.datum)}</b></span></button></li>`}
+ return `<li><button class="row click${FREI_ARTEN.includes(t.art)?" frei":""}" data-open-termin="${t.id}" data-from="${from||""}"><span class="tdat"><small>${WD[d.getDay()]}</small><b>${d.getDate()}.${d.getMonth()+1}.</b></span><span class="main"><b>${esc(t.titel)}${terminNeu(t)?` <span class="pill p-done" style="vertical-align:2px">neu</span>`:""}</b><span class="sub tsub">${terminWer(t)}<span>· ${zeitText(t,true)}</span>${st.role==="lehrkraft"&&tEbene(t)==="kurs"&&t.fuer!=="alle"?"<span>· "+fuerText(t)+"</span>":""}${st.role==="lehrkraft"&&tEbene(t)==="kurs"&&t.autor&&t.autor!==T1.id&&U(t.autor)?`<span>· eingetragen von ${esc(U(t.autor).vn)} ${esc(U(t.autor).nn)}</span>`:""}</span></span>${terminePill(t)}<span class="due"><b>${laeuft?`noch bis ${WD[new Date(tEnde(t)).getDay()]}`:rel(t.datum)}</b></span></button></li>`}
 function ferienPanel(){const heute=Date.now();const sjs=[SJ];const y=parseInt(SJ.slice(0,4),10);if(new Date(heute).getMonth()>=4&&new Date(heute).getMonth()<=7)sjs.push(`${y+1}/${String(y+2).slice(2)}`);
  return sjs.filter(sj=>!db.termine.some(t=>t.art==="frei"&&tEnde(t)>t.datum&&(t.sj===sj||(tagesStart(t.datum)>=sjAnfang(sj)&&tagesStart(t.datum)<=sjEnde(sj))))).map(sj=>{const L=ferienWien(sj);return `<section class="panel" style="border-color:var(--blue)"><header><h2>Ferien ${sj} vorbereiten</h2></header><div class="body"><p style="margin-top:0">MATE hat die Ferien und schulfreien Tage nach der Wiener Ferienordnung berechnet. Prüfe sie und übernimm sie mit einem Klick. Schulautonome Tage und den Elternsprechtag trägst du danach selbst ein.</p><ul class="ferienliste">${L.map(x=>`<li><b>${esc(x.titel)}</b> ${datumKurzWD(x.datum)}${x.datumBis?" – "+datumKurzWD(x.datumBis):""}</li>`).join("")}</ul><div class="actions"><button class="btn primary" data-act="ferien-uebernehmen" data-sj="${sj}">Übernehmen</button></div></div></section>`}).join("")}
 function vTermine(){const f=st.tfilter;let ts=meineTermine();const heute=tagesStart(Date.now());const lk=st.role==="lehrkraft",ad=st.role==="admin";
@@ -1188,7 +1188,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611061000";
+const APP_VERSION="202611061030";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
