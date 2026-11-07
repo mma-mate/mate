@@ -1,0 +1,34 @@
+[
+[
+"function hilfeGruppe(){const g=st.p&&st.p.gruppe;if(g===\"schueler\"||g===\"lehrkraft\")return g;return st.angemeldet&&st.role!==\"schueler\"?\"lehrkraft\":\"schueler\"}",
+"/* Hilfe nur mit Anmeldung; SuS sehen nur ihren Bereich, LK und Admins können zwischen beiden wechseln */\nfunction hilfeGruppe(){if(st.role===\"schueler\")return\"schueler\";const g=st.p&&st.p.gruppe;return g===\"schueler\"?\"schueler\":\"lehrkraft\"}"
+],
+[
+"<button class=\"crumb\" data-go=\"start\">${st.angemeldet?\"← Zurück zu MATE\":\"← Zur Anmeldung\"}</button><h1>Hilfe</h1>",
+"<button class=\"crumb\" data-go=\"start\">← Zurück zu MATE</button><h1>Hilfe</h1>"
+],
+[
+" <div class=\"chips\" role=\"group\" aria-label=\"Hilfe für\"><button",
+"${st.role===\"schueler\"?\"\":`<div class=\"chips\" role=\"group\" aria-label=\"Hilfe für\"><button"
+],
+[
+"aria-pressed=\"${g===\"lehrkraft\"}\">Für Lehrkräfte</button></div>",
+"aria-pressed=\"${g===\"lehrkraft\"}\">Für Lehrkräfte</button></div>`}"
+],
+[
+"function rechtLinks(){return `<button type=\"button\" data-hilfe=\"\">Hilfe</button><span aria-hidden=\"true\">·</span>`+",
+"function rechtLinks(){return (st.angemeldet?`<button type=\"button\" data-hilfe=\"\">Hilfe</button><span aria-hidden=\"true\">·</span>`:\"\")+"
+],
+[
+"<button type=\"button\" class=\"linkbtn\" data-go=\"vergessen\">Passwort vergessen?</button> · <button type=\"button\" class=\"linkbtn\" data-hilfe=\"\">Hilfe</button> · Konten",
+"<button type=\"button\" class=\"linkbtn\" data-go=\"vergessen\">Passwort vergessen?</button> · Konten"
+],
+[
+" else if(v===\"hilfe\")h=vHilfe();",
+" else if(v===\"hilfe\"&&st.angemeldet)h=vHilfe();"
+],
+[
+"const APP_VERSION=\"202611071300\";",
+"const APP_VERSION=\"202611071450\";"
+]
+]
