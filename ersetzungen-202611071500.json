@@ -1,0 +1,94 @@
+[
+[
+"  if(s.abwesend)return\"abwesend\";\n  if(s.files.length)return s.zeit>fr(a,uId)?\"verspätet\":\"abgegeben\";",
+"  if(s.files.length)return s.zeit>fr(a,uId)?(s.abwesend?\"nachgereicht\":\"verspätet\"):\"abgegeben\";\n  if(s.abwesend)return\"abwesend\";"
+],
+[
+"const PILL={\"bewertet\":\"p-graded\",\"abgegeben\":\"p-done\",\"verspätet\":\"p-warn\",",
+"const PILL={\"bewertet\":\"p-graded\",\"abgegeben\":\"p-done\",\"nachgereicht\":\"p-done\",\"verspätet\":\"p-warn\","
+],
+[
+"const pill=st=>`<span class=\"pill ${PILL[st]}\">${st}</span>`;",
+"const pill=st=>`<span class=\"pill ${PILL[st]}\">${st}</span>`;\n/* Als abwesend vermerkt, aber abgegeben und noch nicht bewertet: leicht zu übersehen, daher eigener Hinweis für LK */\nfunction abwAbg(s){return !!(s&&s.abwesend&&s.files&&s.files.length&&(s.score===null||s.score===\"\"))}\nconst ABW_ABG_PILL=`<span class=\"pill p-warn\" title=\"Als abwesend vermerkt, hat aber abgegeben\">als abwesend vermerkt</span>`;\n/* Noch nicht bewertete Abgaben in einer Aufgabe, deren Bewertungen schon freigegeben sind */\nfunction nachFreigabe(a){return a.freigegeben?zielgruppe(a).filter(u=>{const s=getSub(a,u);return s.files.length&&(s.score===null||s.score===\"\")}).length:0}"
+],
+[
+"function bewStand(a){const z=zielgruppe(a);let bew=0,abw=0;z.forEach(u=>{const s=getSub(a,u);if(s.score!==null&&s.score!==\"\")bew++;else if(s.abwesend)abw++});return{gesamt:z.length,bew,abw,offen:z.length-bew-abw}}",
+"function bewStand(a){const z=zielgruppe(a);let bew=0,abw=0;const aa=[];z.forEach(u=>{const s=getSub(a,u);if(s.score!==null&&s.score!==\"\")bew++;else if(abwAbg(s))aa.push(u);else if(s.abwesend)abw++});return{gesamt:z.length,bew,abw,offen:z.length-bew-abw,abwAbg:aa}}"
+],
+[
+"![\"bewertet\",\"abgegeben\",\"verspätet\",\"abwesend\",\"verpasst\"].includes(s)",
+"![\"bewertet\",\"abgegeben\",\"nachgereicht\",\"verspätet\",\"abwesend\",\"verpasst\"].includes(s)"
+],
+[
+"const ST_RANG={\"abgegeben\":1,\"verspätet\":2,",
+"const ST_RANG={\"abgegeben\":1,\"nachgereicht\":1.5,\"verspätet\":2,"
+],
+[
+"return [\"abgegeben\",\"verspätet\",\"bewertet\"].includes(st0)}",
+"return [\"abgegeben\",\"nachgereicht\",\"verspätet\",\"bewertet\"].includes(st0)}"
+],
+[
+"const hat=[\"abgegeben\",\"verspätet\",\"bewertet\"].includes(c.dataset.st)",
+"const hat=[\"abgegeben\",\"nachgereicht\",\"verspätet\",\"bewertet\"].includes(c.dataset.st)"
+],
+[
+"const hat=c=>[\"abgegeben\",\"verspätet\",\"bewertet\"].includes(c.dataset.st)",
+"const hat=c=>[\"abgegeben\",\"nachgereicht\",\"verspätet\",\"bewertet\"].includes(c.dataset.st)"
+],
+[
+"<td>${pill(status(a,u.id))}${!ro&&[\"verpasst\",",
+"<td>${pill(status(a,u.id))}${abwAbg(s)?\" \"+ABW_ABG_PILL:\"\"}${!ro&&[\"verpasst\","
+],
+[
+"</div>${pill(status(a,uId))}</div>",
+"</div><span style=\"display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end\">${pill(status(a,uId))}${abwAbg(s)?ABW_ABG_PILL:\"\"}</span></div>"
+],
+[
+"<span class=\"due ${s.zeit>fr(a,uId)?\"late\":\"\"}\"><b>${fmtDate(s.zeit)}, ${fmtTime(s.zeit)}</b>${s.zeit>fr(a,uId)?\"verspätet\":\"rechtzeitig\"}</span>",
+"<span class=\"due ${s.zeit>fr(a,uId)&&!s.abwesend?\"late\":\"\"}\"><b>${fmtDate(s.zeit)}, ${fmtTime(s.zeit)}</b>${s.zeit>fr(a,uId)?(s.abwesend?\"nachgereicht\":\"verspätet\"):\"rechtzeitig\"}</span>"
+],
+[
+"<label class=\"check\"><input type=\"checkbox\" data-abw=\"${uId}\" ${s.abwesend?\"checked\":\"\"} ${ro?\"disabled\":\"\"}> Abwesend (zählt nicht in die Übersicht)</label>",
+"<label class=\"check\"><input type=\"checkbox\" data-abw=\"${uId}\" ${s.abwesend?\"checked\":\"\"} ${ro?\"disabled\":\"\"}> Abwesend (zählt nicht in die Übersicht)</label>\n  ${abwAbg(s)?`<div class=\"note warn\"><b>${esc(u.vn)} hat abgegeben</b> (${fmtDate(s.zeit)}, ${s.zeit>fr(a,uId)?\"nachgereicht\":\"rechtzeitig\"}), ist aber als abwesend vermerkt. Trägst du eine Bewertung ein, ist „abwesend“ automatisch weg.${ro?\"\":`<div class=\"actions\"><button class=\"btn small\" data-act=\"abw-weg\" data-a=\"${a.id}\" data-u=\"${uId}\">Abwesend aufheben</button></div>`}</div>`:\"\"}"
+],
+[
+"Für <b>${b.offen}</b> ${b.offen===1?\"Kind fehlt\":\"Kinder fehlt\"} die Bewertung noch.</p>",
+"Für <b>${b.offen}</b> ${b.offen===1?\"Kind fehlt\":\"Kinder fehlt\"} die Bewertung noch.</p>${b.abwAbg.length?`<div class=\"note warn\">${b.abwAbg.length===1?\"Ein Kind ist\":`${b.abwAbg.length} Kinder sind`} als abwesend vermerkt, ${b.abwAbg.length===1?\"hat\":\"haben\"} aber abgegeben: <b>${b.abwAbg.map(x=>esc(U(x).vn+\" \"+U(x).nn)).join(\", \")}</b>. ${b.abwAbg.length===1?\"Diese Abgabe ist\":\"Diese Abgaben sind\"} noch nicht bewertet.</div>`:\"\"}"
+],
+[
+"if(act===\"freigabe-ok\"){",
+"if(act===\"abw-weg\"){getSub(A(d.a),d.u).abwesend=false;toast(\"„Abwesend“ aufgehoben.\");render();return}\nif(act===\"abw-ok\"){const s=getSub(A(d.a),d.u);s.abwesend=true;s.score=null;closeModal();toast(\"Als abwesend vermerkt, die Bewertung ist gelöscht.\");render();return}\nif(act===\"freigabe-ok\"){"
+],
+[
+"if(d.abw!==undefined){const s=getSub(A(st.p.id),d.abw);s.abwesend=t.checked;if(t.checked)s.score=null;renderSoon();return}",
+"if(d.abw!==undefined){const a=A(st.p.id);const s=getSub(a,d.abw);if(t.checked&&s.score!==null&&s.score!==\"\"){t.checked=false;const u=U(d.abw);modal(`<h2>Als abwesend vermerken?</h2><p>Für ${esc(u.vn)} ist schon eine Bewertung eingetragen: <b>${esc(scoreText(a,s))}</b>. Wenn du „abwesend“ setzt, wird sie gelöscht.</p><div class=\"actions\"><button class=\"btn primary\" data-act=\"abw-ok\" data-a=\"${a.id}\" data-u=\"${u.id}\">Bewertung löschen</button><button class=\"btn ghost\" data-close-btn>Abbrechen</button></div>`);return}s.abwesend=t.checked;if(t.checked)s.score=null;renderSoon();return}"
+],
+[
+"${fmtTime(s.zeit)}${s.zeit>fr(a,ME_S.id)?\" · verspätet\":\"\"} · Tippe auf eine Datei",
+"${fmtTime(s.zeit)}${s.zeit>fr(a,ME_S.id)?(s.abwesend?\" · nachgereicht\":\" · verspätet\"):\"\"} · Tippe auf eine Datei"
+],
+[
+"${s.abwesend&&(s.score===null||s.score===\"\")?`<div class=\"note info\">Als abwesend vermerkt.",
+"${s.abwesend&&!s.files.length&&(s.score===null||s.score===\"\")?`<div class=\"note info\">Als abwesend vermerkt."
+],
+[
+"<span class=\"pill p-done\">${n} zu korrigieren</span>${(()=>{const f=fotoAuffaellig(a);",
+"<span class=\"pill p-done\">${n} zu korrigieren</span>${nachFreigabe(a)?`<span class=\"pill p-warn\" title=\"Die Bewertungen dieser Aufgabe sind schon freigegeben\">${nachFreigabe(a)} nach Freigabe</span>`:\"\"}${(()=>{const f=fotoAuffaellig(a);"
+],
+[
+"${kk?`<span class=\"pill p-done\">${kk} zu korrigieren</span>`:\"\"}",
+"${kk?`<span class=\"pill p-done\">${kk} zu korrigieren</span>`:\"\"}${nachFreigabe(a)?`<span class=\"pill p-warn\" title=\"Die Bewertungen dieser Aufgabe sind schon freigegeben\">${nachFreigabe(a)} nach Freigabe</span>`:\"\"}"
+],
+[
+"- **verspätet:** nach der Frist abgegeben\\n",
+"- **verspätet:** nach der Frist abgegeben\\n- **nachgereicht:** Du warst nicht da und hast die Aufgabe später abgegeben.\\n"
+],
+[
+"Mit „Freigabe zurücknehmen“ machst du die Freigabe jederzeit rückgängig.\"}",
+"Mit „Freigabe zurücknehmen“ machst du die Freigabe jederzeit rückgängig.\\n## Abwesend\\n- Ein als abwesend vermerktes Kind zählt nicht in die Übersicht. Trägst du eine Bewertung ein, ist „abwesend“ automatisch weg.\\n- **Hat es trotzdem abgegeben**, steht „als abwesend vermerkt“ in Orange dabei, und die Abgabe bleibt bei „Zu korrigieren“. Eine spätere Abgabe heißt **nachgereicht** statt verspätet.\\n- Kommt eine Abgabe erst **nach der Freigabe**, steht bei der Aufgabe „nach Freigabe“.\"}"
+],
+[
+"const APP_VERSION=\"202611071450\";",
+"const APP_VERSION=\"202611071500\";"
+]
+]
