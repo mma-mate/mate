@@ -1,0 +1,114 @@
+[
+[
+"alance;margin:0}\nh1{font-size:",
+"alance;margin:0;overflow-wrap:anywhere} .head>div{min-width:0}\nh1{font-size:"
+],
+[
+"x;font-size:.88rem}.upitem .up",
+"x;font-size:.88rem} .upd{grid-column:1/-1;color:var(--orange-ink);font-size:.82rem}.upitem .up"
+],
+[
+"rgb(0 0 0 / .2)}\n\n.bottom{disp",
+"rgb(0 0 0 / .2);overflow-wrap:anywhere}\n\n.bottom{disp"
+],
+[
+"argin:6px 0 0}\n</style>\n<scrip",
+"argin:6px 0 0}\n/* Größere Tippflächen bei Touch (Affentest 8. 11.), Aussehen bleibt */\n@media (pointer:coarse){.crumb{padding:10px 12px 10px 0;margin:-10px 0 -4px}button.linkbtn{padding:10px 0;margin:-10px 0}th .sortbtn{padding-block:10px;margin-block:-10px}.brand .logolink{padding-block:8px;margin-block:-8px}.btn.small{min-height:40px}}\n</style>\n<scrip"
+],
+[
+"arseFloat(v)*10)/10}\nfunction prue",
+"arseFloat(v)*100)/100}\nfunction prue"
+],
+[
+"ath.round(pe*10)/10)} von ${pm} P",
+"ath.round(pe*100)/100)} von ${pm} P"
+],
+[
+">t.datum<heute+7*864e5),vergang",
+">t.datum<heute+8*864e5),vergang"
+],
+[
+"ahl:[],klassen:[],stufen:[],ziel",
+"ahl:[],klassen:(()=>{if(st.role!==\"lehrkraft\")return[];const ka=(db.klassen||[]).filter(c=>binKV(T1,c));/* eigene KV-Klasse vorauswählen */return ka.length===1?ka:[]})(),stufen:[],ziel"
+],
+[
+"t\" id=\"tf-titel\" autocapitaliz",
+"t\" id=\"tf-titel\" maxlength=\"120\" autocapitaliz"
+],
+[
+"s Schuljahres ${sj}.`);return}}\n if(tf.zeit===\"uhrzeit\"){if(",
+"s Schuljahres ${sj}.`);return}const tage=Math.round((b-a)/864e5)+1;const lk=`${tf.datum}|${tf.datumBis}`;if(tage>=14&&tf.langOk!==lk){modal(`<h2>${tage} Tage?</h2><p>Der Termin dauert <b>${tage} Tage</b> (${fmtDate(a)} bis ${fmtDate(b)}). Stimmt das?</p><div class=\"actions\"><button class=\"btn primary\" type=\"button\" data-act=\"tf-lang-ok\" data-v=\"${lk}\">Ja, speichern</button><button class=\"btn ghost\" type=\"button\" data-close-btn>Ändern</button></div>`);return}}\n if(tf.zeit===\"uhrzeit\"){if("
+],
+[
+"ate.now()),e=h+tage*864e5;return meineTer",
+"ate.now()),e=h+(tage+1)*864e5;/* inkl. Tag „in x Tagen“ */return meineTer"
+],
+[
+"ERSION=\"202611071500\";\nfunction v",
+"ERSION=\"202611081100\";\nfunction v"
+],
+[
+"bgabe wird als verspätet markiert. Abge",
+"bgabe wird als ${getSub(a,ME_S.id).abwesend?\"nachgereicht\":\"verspätet\"} markiert. Abge"
+],
+[
+"n=z.filter(u=>getSub(a,u).files.length||(getSub(a,u).score!==null&&getSub(a,u).score!==\"\")).length;return{n,t:z.length",
+"bw=s=>s.score!==null&&s.score!==\"\";\n /* Online-Aufgaben: nur echte Abgaben zählen, Bewertungen ohne Abgabe extra ausweisen; in der Schule zählt die Bewertung als Abgabe */\n const streng=a.abgabe===\"online\";const n=z.filter(u=>{const s=getSub(a,u);return s.files.length||(!streng&&bw(s))}).length;const b=streng?z.filter(u=>{const s=getSub(a,u);return !s.files.length&&bw(s)}).length:0;\n return{n,t:z.length,b,txt:`${n} von ${z.length} abgegeben${b?` · ${b} ohne Abgabe bewertet`:\"\"}`"
+],
+[
+"=\"keine\"?\"keine Abgabe nötig\":`${n} von ${t} abgegeben`}</span></span><span class=\"du",
+"=\"keine\"?\"keine Abgabe nötig\":abgabeStand(a).txt}</span></span><span class=\"du"
+],
+[
+"=\"keine\"?\"keine Abgabe nötig\":`${n} von ${t} abgegeben`}</span></span>${kk?`<span cla",
+"=\"keine\"?\"keine Abgabe nötig\":abgabeStand(a).txt}</span></span>${kk?`<span cla"
+],
+[
+"\"keine Abgabe\":`${n} von ${t} abgegeben`}</span></span>",
+"\"keine Abgabe\":abgabeStand(a).txt}</span></span>"
+],
+[
+"in der Schule\":`${n} von ${t} abgegeben`}</p></div>\n </",
+"in der Schule\":abgabeStand(a).txt}</p></div>\n </"
+],
+[
+"y\">Feedback an alle</span></butto",
+"y\">Feedback an mehrere</span></butto"
+],
+[
+"const d=new Date(at(7));return d.toISOString().slice(0,10)",
+"let x=at(7,\"12:00\");let n=0;while(n<60&&!istSchultag(x,k.klassen||[])){x+=864e5;n++}const d=new Date(x),p=v=>String(v).padStart(2,\"0\");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`"
+],
+[
+"t\" id=\"af-titel\" autocapitaliz",
+"t\" id=\"af-titel\" maxlength=\"120\" autocapitaliz"
+],
+[
+"f(f)f.focus()}\nfunction closeM",
+"f(f)f.focus()}\ndocument.addEventListener(\"keydown\",e=>{if(e.key!==\"Tab\")return;const m=document.querySelector(\"#layer .modal\");if(!m)return;const f=[...m.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]):not([type=hidden]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex]:not([tabindex=\"-1\"])')].filter(x=>x.offsetParent||x===document.activeElement);if(!f.length)return;const erst=f[0],letzt=f[f.length-1];if(!m.contains(document.activeElement)){e.preventDefault();(e.shiftKey?letzt:erst).focus();return}if(e.shiftKey&&document.activeElement===erst){e.preventDefault();letzt.focus()}else if(!e.shiftKey&&document.activeElement===letzt){e.preventDefault();erst.focus()}});\nfunction closeM"
+],
+[
+"nder();return}\nif(act===\"abw-o",
+"nder();return}\nif(act===\"tf-lang-ok\"){tf.langOk=d.v;closeModal();const fo=document.getElementById(\"terminform\")||$(\"#tf-titel\")?.closest(\"form\");if(fo)fo.requestSubmit();return}\nif(act===\"af-max-ok\"){af.maxOk=d.v;closeModal();const fo=document.getElementById(\"aufgform\");if(fo)fo.requestSubmit();return}\nif(act===\"abw-o"
+],
+[
+"ub(A(d.a),d.u);sendL(s0,t);if(",
+"ub(A(d.a),d.u);const vorh=msgs(s0).filter(m=>!m.sys);const istAntw=!!vorh.length&&vorh[vorh.length-1].von===\"s\";sendL(s0,t);if("
+],
+[
+"eModal();toast(\"Feedback gesen",
+"eModal();toast(istAntw?\"Antwort gesendet.\":\"Feedback gesen"
+],
+[
+"sein.\");return}}if(!af.titel.t",
+"sein.\");return}if(mv&&+mv>100&&af.maxOk!==mv){modal(`<h2>${mv} Punkte?</h2><p>Die Aufgabe hat dann <b>${mv}</b> erreichbare Punkte. Stimmt das?</p><div class=\"actions\"><button class=\"btn primary\" type=\"button\" data-act=\"af-max-ok\" data-v=\"${mv}\">Ja, ${mv} Punkte</button><button class=\"btn ghost\" type=\"button\" data-close-btn>Ändern</button></div>`);return}}if(!af.titel.t"
+],
+[
+"erkleinern\",p:0}))};upAnzeigen",
+"erkleinern\",p:0,doppelt:s.files.some(x=>x.n===f.name)}))};upAnzeigen"
+],
+[
+"x.st]}</span>${[\"senden\",\"wart",
+"x.st]}</span>${x.doppelt&&x.st!==\"fehler\"?`<span class=\"upd\">war schon in deiner Abgabe – ist sie doppelt, entferne eine davon</span>`:\"\"}${[\"senden\",\"wart"
+]
+]
