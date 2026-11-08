@@ -1,5 +1,5 @@
 {
- "beschreibung": "Server-Dateien (nicht im App-Repo): vollständige Löschung ein Jahr statt zwei Jahre nach Schuljahresende (7./8. 11. 2026). Pfade relativ zu /mate-dev bzw. /mate-prod.",
+ "beschreibung": "Server-Dateien (nicht im App-Repo): vollständige Löschung ein Jahr statt zwei Jahre nach Schuljahresende (7./8. 11. 2026). Pfade relativ zu /mate-dev bzw. /mate-prod. Dazu (8. 11. 2026): kein Hilfe-Link auf der Anmeldeseite des Servers (wie Build 202611071450 im Prototyp).",
  "dateien": {
   "cron/taeglich.php": [
    [
@@ -35,6 +35,10 @@
    [
     "Bewertungen und Rückmeldungen bleiben noch zwei weitere Jahre, dann wird das Schuljahr vollständig gelöscht.",
     "Bewertungen und Rückmeldungen bleiben noch ein weiteres Jahr, dann wird das Schuljahr vollständig gelöscht."
+   ],
+   [
+    "<button type=\"button\" class=\"linkbtn\" data-go=\"vergessen\">Passwort vergessen?</button> · <button type=\"button\" class=\"linkbtn\" data-hilfe=\"\">Hilfe</button> · Konten",
+    "<button type=\"button\" class=\"linkbtn\" data-go=\"vergessen\">Passwort vergessen?</button> · Konten"
    ]
   ]
  }
