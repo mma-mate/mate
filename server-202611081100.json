@@ -1,0 +1,11 @@
+{
+"beschreibung": "Server-Dateien (nicht im App-Repo), 8. 11. 2026: Nach der Anmeldung lädt die App neu (Login-Hänger nach abgelaufener Sitzung). Pfade relativ zu /mate-dev bzw. /mate-prod. Am Dev eingespielt am 8. 11. 2026.",
+"dateien": {
+"public/mate-server.js": [
+[
+"    await laden();\n    go(\"start\");\n  }\n\n  function feld(sel)",
+"    // Nach der Anmeldung sauber neu laden: Nach abgelaufener Sitzung blieb sonst „Anmelden“ grau hängen (Affentest 8. 11. 2026)\n    location.reload();\n    await new Promise(() => {});\n  }\n\n  function feld(sel)"
+]
+]
+}
+}
