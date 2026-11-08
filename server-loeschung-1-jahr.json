@@ -1,0 +1,41 @@
+{
+ "beschreibung": "Server-Dateien (nicht im App-Repo): vollständige Löschung ein Jahr statt zwei Jahre nach Schuljahresende (7./8. 11. 2026). Pfade relativ zu /mate-dev bzw. /mate-prod.",
+ "dateien": {
+  "cron/taeglich.php": [
+   [
+    " * 3. Zwei Jahre nach Schuljahresende (am Stichtag) wird ein Schuljahr vollständig gelöscht",
+    " * 3. Ein Jahr nach Schuljahresende (am Stichtag) wird ein Schuljahr vollständig gelöscht"
+   ],
+   [
+    " *    Beispiel 2025/26: Dateien am 30.9.2026, alles am 30.9.2028.",
+    " *    Beispiel 2025/26: Dateien am 30.9.2026, alles am 30.9.2027."
+   ],
+   [
+    "$grenzeNachStichtag = $sjText($y0 - 2);",
+    "$grenzeNachStichtag = $sjText($y0 - 1);"
+   ],
+   [
+    "$grenze = $heute >= $stichtag ? $grenzeNachStichtag : $sjText($y0 - 3);",
+    "$grenze = $heute >= $stichtag ? $grenzeNachStichtag : $sjText($y0 - 2);"
+   ],
+   [
+    "$komplettSj = $sjText($y0 - 3);",
+    "$komplettSj = $sjText($y0 - 2);"
+   ]
+  ],
+  "public/mate-server.js": [
+   [
+    "Am 30. September zwei Jahre nach Schuljahresende wird das Schuljahr vollständig gelöscht",
+    "Am 30. September ein Jahr nach Schuljahresende wird das Schuljahr vollständig gelöscht"
+   ],
+   [
+    "Fotos und Dateien am 30. September 2026, alles andere am 30. September 2028.",
+    "Fotos und Dateien am 30. September 2026, alles andere am 30. September 2027."
+   ],
+   [
+    "Bewertungen und Rückmeldungen bleiben noch zwei weitere Jahre, dann wird das Schuljahr vollständig gelöscht.",
+    "Bewertungen und Rückmeldungen bleiben noch ein weiteres Jahr, dann wird das Schuljahr vollständig gelöscht."
+   ]
+  ]
+ }
+}
