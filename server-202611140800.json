@@ -1,0 +1,72 @@
+[
+[
+"src/auth.php",
+"    ini_set('session.gc_maxlifetime', (string)((int)cfg('session_minuten', 120) * 60));",
+"    // „Angemeldet bleiben“: Sitzungsdateien dürfen bis 90 Tage leben; normale Sitzungen enden weiter nach session_minuten (Prüfung unten, Cronjob räumt auf)\n    ini_set('session.gc_maxlifetime', (string)(BLEIBEN_TAGE * 86400 + 86400));"
+],
+[
+"src/auth.php",
+"    $max = (int)cfg('session_minuten', 120) * 60;\n    if (isset($_SESSION['zuletzt']) && time() - $_SESSION['zuletzt'] > $max) {\n        $_SESSION = [];\n        session_regenerate_id(true);\n    }\n    $_SESSION['zuletzt'] = time();",
+"    $max = !empty($_SESSION['bleiben']) ? BLEIBEN_TAGE * 86400 : (int)cfg('session_minuten', 120) * 60;\n    if (isset($_SESSION['zuletzt']) && time() - $_SESSION['zuletzt'] > $max) {\n        $_SESSION = [];\n        session_regenerate_id(true);\n    }\n    $_SESSION['zuletzt'] = time();\n    sitzung_cookie_verlaengern();"
+],
+[
+"src/auth.php",
+"function csrf_token(): string {",
+"/** „Auf diesem Gerät angemeldet bleiben“: Cookie gilt 90 Tage und verlängert sich bei jeder Nutzung. */\nconst BLEIBEN_TAGE = 90;\nfunction sitzung_cookie_verlaengern(): void\n{\n    if (empty($_SESSION['bleiben']) || headers_sent()) return;\n    $p = session_get_cookie_params();\n    setcookie(session_name(), session_id(), [\n        'expires' => time() + BLEIBEN_TAGE * 86400, 'path' => $p['path'], 'secure' => $p['secure'],\n        'httponly' => true, 'samesite' => 'Strict',\n    ]);\n}\n\nfunction csrf_token(): string {"
+],
+[
+"src/auth.php",
+"function anmelden(string $kennung, string $passwort): array",
+"function anmelden(string $kennung, string $passwort, bool $bleiben = false): array"
+],
+[
+"src/auth.php",
+"    $_SESSION['csrf'] = bin2hex(random_bytes(32));\n    aendern('benutzer', ['letzter_login' => jetzt()], 'id = ?', [$b['id']]);",
+"    $_SESSION['csrf'] = bin2hex(random_bytes(32));\n    if ($bleiben) { $_SESSION['bleiben'] = 1; sitzung_cookie_verlaengern(); }\n    aendern('benutzer', ['letzter_login' => jetzt()], 'id = ?', [$b['id']]);"
+],
+[
+"src/routen/konto.php",
+"$b = anmelden((string)($d['kennung'] ?? ''), (string)($d['passwort'] ?? ''));",
+"$b = anmelden((string)($d['kennung'] ?? ''), (string)($d['passwort'] ?? ''), !empty($d['bleiben']));"
+],
+[
+"cron/taeglich.php",
+"        if (filemtime($f) < time() - (int)cfg('session_minuten', 120) * 60 * 2) @unlink($f);",
+"        // „Angemeldet bleiben“-Sitzungen bis 91 Tage behalten, alle anderen wie bisher nach 2 × session_minuten löschen\n        $alter = time() - filemtime($f);\n        $bleibt = $alter < 91 * 86400 && str_contains((string)@file_get_contents($f), 'bleiben|i:1;');\n        if ($alter > (int)cfg('session_minuten', 120) * 60 * 2 && !$bleibt) @unlink($f);"
+],
+[
+"src/sync.php",
+"    if (!ist_kurs_schueler($row['kurs_id'], $kind)) return false;\n    $sichtbar = $a->sichtbar ?? null;",
+"    if (!ist_kurs_schueler($row['kurs_id'], $kind)) return false;\n    // Ausgeblendete Aufgaben (statt gelöscht, 14. 11. 2026) sehen Kinder gar nicht – auch nicht mit Abgabe\n    if (!empty($a->aus)) return false;\n    $sichtbar = $a->sichtbar ?? null;"
+],
+[
+"src/sync_laden.php",
+"        if ($kind) {\n            $o->schueler = [$ich];",
+"        if ($kind) {\n            $o->schueler = [$ich];\n            unset($o->luecken); // Titel gelöschter Aufgaben nur für Lehrkräfte"
+],
+[
+"public/mate-api.js",
+"async login(kennung, passwort) { const r = await anfrage(\"POST\", \"login\", { kennung, passwort }); csrf = r.csrf; return r; },",
+"async login(kennung, passwort, bleiben) { const r = await anfrage(\"POST\", \"login\", { kennung, passwort, bleiben: !!bleiben }); csrf = r.csrf; return r; },"
+],
+[
+"public/mate-server.js",
+"      <h2 id=\"lp-h\">Anmelden</h2>\n      <form class=\"f\" novalidate id=\"ms-login\">",
+"      <h2 id=\"lp-h\">Anmelden</h2>\n      ${typeof zielDa === \"function\" && zielDa() ? `<div class=\"note info\" style=\"margin-bottom:10px\"><b>Du kommst von einem QR-Code.</b> Melde dich an, danach geht es direkt zur Aufgabe.</div>` : \"\"}\n      <form class=\"f\" novalidate id=\"ms-login\">"
+],
+[
+"public/mate-server.js",
+"<span class=\"hint\">Beim ersten Mal das Startpasswort von deinem Zugangskärtchen.</span></div>\n        <div class=\"actions\"><button class=\"btn primary\" type=\"submit\">Anmelden</button></div>",
+"<span class=\"hint\">Beim ersten Mal das Startpasswort von deinem Zugangskärtchen.</span></div>\n        <div class=\"field\"><label style=\"display:flex;gap:10px;align-items:flex-start;font-weight:400;cursor:pointer\"><input type=\"checkbox\" id=\"ms-bleiben\" style=\"width:20px;height:20px;margin-top:2px;flex:none\"><span><b>Auf diesem Gerät angemeldet bleiben</b><br><small style=\"color:var(--muted)\">Für dein eigenes Handy oder Tablet. Nicht an Schul-PCs oder fremden Geräten.</small></span></label></div>\n        <div class=\"actions\"><button class=\"btn primary\" type=\"submit\">Anmelden</button></div>"
+],
+[
+"public/mate-server.js",
+"        const r = await API.login(mail, pw);",
+"        const r = await API.login(mail, pw, !!(document.querySelector(\"#ms-bleiben\") || {}).checked);"
+],
+[
+"public/mate-server.js",
+"    basisSetzen();\n    Z.letzteLadung = Date.now();",
+"    basisSetzen();\n    Z.letzteLadung = Date.now();\n    if (typeof window.mateDatenBereit === \"function\") window.mateDatenBereit(); // Direktlink (QR-Code) erst jetzt öffnen"
+]
+]
