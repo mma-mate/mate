@@ -488,7 +488,8 @@ function rel(t){const day=86400000;const a=new Date(NOW);a.setHours(0,0,0,0);con
 function schoolYear(d=NOW){const y=d.getFullYear();return d.getMonth()>=7?`${y}/${String(y+1).slice(2)}`:`${y-1}/${String(y).slice(2)}`}
 const SJ=schoolYear(); const SJ_PREV=(()=>{const y=+SJ.slice(0,4)-1;return `${y}/${String(y+1).slice(2)}`})();
 const SJ_NEXT=(()=>{const y=+SJ.slice(0,4)+1;return `${y}/${String(y+1).slice(2)}`})();
-let datenBereit=false;window.mateDatenBereit=()=>{datenBereit=true;render()};
+/* Direktlink erst öffnen, wenn die echten Daten da sind (Server: mate-server.js ruft mateDatenBereit nach dem Laden) */
+let datenBereit=false;window.mateDatenBereit=()=>{datenBereit=true};
 let SEEDING=true,_seed=20261019;function rnd(){if(!SEEDING)return Math.random();_seed=(_seed*1103515245+12345)%2147483648;return _seed/2147483648}
 function uid(p){return p+rnd().toString(36).slice(2,8)}
 const AVC=["#5B2C83","#1A8FC6","#7FA10C","#E8890C","#4F5A5C","#B4467A","#2E7D6B"];
@@ -1326,7 +1327,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611140745";
+const APP_VERSION="202611140800";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -2000,7 +2001,7 @@ const PFLICHT=["af-titel","af-datum","tf-datum","tf-bisdatum","tf-uvon","kf-fach
 function linkKnoepfe(root){(root||document).querySelectorAll("details.linkadd").forEach(d=>{const box=d.closest(".field,.anhbox,section,form");const sm=d.querySelector("summary");if(!box||!sm)return;const hat=box.querySelector("a.linkanh");const t=hat?"Weiteren Link hinzufügen":"Link hinzufügen";const tn=[...sm.childNodes].reverse().find(n=>n.nodeType===3);if(tn&&tn.textContent!==t)tn.textContent=t})}
 let _lkRaf=0;try{new MutationObserver(()=>{if(_lkRaf)return;_lkRaf=requestAnimationFrame(()=>{_lkRaf=0;linkKnoepfe()})}).observe(document.documentElement,{childList:true,subtree:true})}catch(e){}
 function pflichtMarken(root){linkKnoepfe(root);(root||document).querySelectorAll("label[for]").forEach(l=>{if(PFLICHT.includes(l.htmlFor))l.classList.add("pf")});(root||document).querySelectorAll("form.f").forEach(f=>{if(f.querySelector(".pf")&&!f.querySelector(".pfh")){const a=f.querySelector(".actions");const p=document.createElement("p");p.className="pfh";p.textContent="* Pflichtfeld";a?a.before(p):f.append(p)}})}
-function render(){if(rendering){renderAgain=true;return}nrMigration();if(datenBereit&&st.angemeldet&&zielDa()&&zielOeffnen())return;rendering=true;const fk=focusKey(document.activeElement);const inSide=fk&&document.getElementById("side").contains(document.activeElement);const sel=document.activeElement&&document.activeElement.selectionStart;
+function render(){if(rendering){renderAgain=true;return}if(!window.MateApi||st.role==="lehrkraft")nrMigration();if(datenBereit&&st.angemeldet&&zielDa()&&zielOeffnen())return;rendering=true;const fk=focusKey(document.activeElement);const inSide=fk&&document.getElementById("side").contains(document.activeElement);const sel=document.activeElement&&document.activeElement.selectionStart;
  try{renderInner()}finally{rendering=false}
  pflichtMarken();
  if(fk){const scope=inSide?document.getElementById("side"):document.getElementById("main");const el=scope.querySelector(fk)||document.querySelector(fk);if(el&&el!==document.activeElement&&!(TOUCH()&&(el.tagName==="SELECT"||/^(date|time|datetime-local|month|week|color|file)$/.test(el.type)))){el.focus({preventScroll:true});if(typeof sel==="number"&&el.setSelectionRange&&/^(text|search|email)$/.test(el.type))try{el.setSelectionRange(sel,sel)}catch(e){}}}
@@ -2592,7 +2593,7 @@ async function updatePruefen(){if(!/^\d{12}$/.test(APP_VERSION)||!location.proto
 addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")updatePruefen()});setTimeout(updatePruefen,1500);
 function introZeigen(){let gesehen=false;try{gesehen=localStorage.getItem("mate-intro")==="1"}catch(e){}if(gesehen||st.view==="recht"||$("#layer").innerHTML)return;
  modal(`<h2>Willkommen bei der Testversion von MATE</h2><ul class="intro"><li>Alle Namen, Kurse und Bewertungen sind <b>erfunden</b>. Bitte gib keine echten Namen, Noten oder Fotos von Personen ein.</li><li>Oben wechselst du zwischen den Ansichten <b>Schüler·in</b>${NUR_SCHUELER?" und <b>Lehrkraft</b>":", <b>Lehrkraft</b> und <b>Admin</b>"}.</li><li>Deine Eingaben bleiben <b>nur auf diesem Gerät</b>. „Zurücksetzen“ stellt die Beispieldaten wieder her.</li><li>Über „Feedback“ schickst du uns, was dir auffällt.</li></ul><p class="intro-links">Mehr dazu: <button type="button" class="linkbtn" data-recht="nutzung">Nutzungsbedingungen</button> · <button type="button" class="linkbtn" data-recht="datenschutz">Datenschutz</button></p><div class="actions"><button class="btn primary" data-act="intro-ok">Verstanden</button></div>`)}
-(async()=>{try{const g=await idbGet();speicherOk=true;if(g&&!demoAnwenden(g)){await idbDel();if(g.v!==DEMO_V)setTimeout(()=>toast("MATE wurde aktualisiert. Die Beispieldaten wurden neu geladen."),600)}}catch(e){speicherOk=false}datenBereit=true;loeschLauf();identitaetLaden();speicherHinweis();render();if(st.angemeldet){introZeigen()}})();
+(async()=>{try{const g=await idbGet();speicherOk=true;if(g&&!demoAnwenden(g)){await idbDel();if(g.v!==DEMO_V)setTimeout(()=>toast("MATE wurde aktualisiert. Die Beispieldaten wurden neu geladen."),600)}}catch(e){speicherOk=false}if(!window.MateApi)datenBereit=true;loeschLauf();identitaetLaden();speicherHinweis();render();if(st.angemeldet){introZeigen()}})();
 render();
 </script>
 
