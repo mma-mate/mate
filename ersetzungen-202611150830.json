@@ -1,0 +1,1 @@
+[["((a,b)=>fristAuf?frist(a)-frist(b):frist(b)-frist(a)))}", "((a,b)=>(fristAuf?frist(a)-frist(b):frist(b)-frist(a))||(mitKursen?kursKurz(K(a.kurs)).localeCompare(kursKurz(K(b.kurs)),\"de\"):0)||(fristAuf?(a.nr||0)-(b.nr||0):(b.nr||0)-(a.nr||0))))}"], ["const APP_VERSION=\"202611140800\";", "const APP_VERSION=\"202611150830\";"]]
