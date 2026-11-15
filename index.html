@@ -1333,7 +1333,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611151000";
+const APP_VERSION="202611151015";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -1516,8 +1516,8 @@ function dashS(){const u=ME_S.id;const as=meineAufgaben(u);const week=at(7,"23:5
  const fb=as.filter(a=>["neu","gelesen"].includes(fbStatusS(getSub(a,u)))).sort((a,b)=>fbZeit(getSub(b,u))-fbZeit(getSub(a,u)));
  return{over,bald,fb,neu:fb.filter(a=>getSub(a,u).sNeu).length}}
 function alleFbS(){return db.aufgaben.filter(a=>sichtbarFuer(a,ME_S.id)&&hatKontakt(getSub(a,ME_S.id))).sort((a,b)=>fbZeit(getSub(b,ME_S.id))-fbZeit(getSub(a,ME_S.id)))}
-function fbRowS(a){const s=getSub(a,ME_S.id);const m=[...msgs(s)].reverse().find(x=>!x.sys);const t=letzteL(s);
- return `<li><button class="row click" data-open-task="${a.id}" data-from="feedback"><span class="main"><b>${aTitel(a)}</b><span class="sub">${kursLabel(K(a.kurs))} · ${m.von==="s"?"Du: ":""}${m.text?"„"+esc(auszug(m.text))+"“":"Korrektur"}${t&&t.bild&&m===t&&t.text?" · mit Korrektur":""}</span></span>${fbPill(fbStatusS(s))}<span class="due"><b>${rel(fbZeit(s))}</b>${fmtDate(fbZeit(s))}</span></button></li>`}
+function fbRowS(a,art){const s=getSub(a,ME_S.id);const m=[...msgs(s)].reverse().find(x=>!x.sys);const t=letzteL(s);
+ return `<li><button class="row click" data-open-task="${a.id}" data-from="feedback"><span class="main"><b>${aTitel(a)}</b><span class="sub">${kursLabel(K(a.kurs))} · ${art?art+": ":""}${m.von==="s"?"Du: ":""}${m.text?"„"+esc(auszug(m.text))+"“":"Korrektur"}${t&&t.bild&&m===t&&t.text?" · mit Korrektur":""}</span></span>${fbPill(fbStatusS(s))}<span class="due"><b>${rel(fbZeit(s))}</b>${fmtDate(fbZeit(s))}</span></button></li>`}
 function vFeedbackS(){const f=st.ffilter;let as=alleFbS();const kurse=[...new Set(as.map(a=>a.kurs))].map(K);
  if(f.status==="offen")as=as.filter(a=>fbStatusS(getSub(a,ME_S.id))!=="erledigt");if(f.status==="erledigt")as=as.filter(a=>fbStatusS(getSub(a,ME_S.id))==="erledigt");if(f.kurs)as=as.filter(a=>a.kurs===f.kurs);
  return `<div class="head"><div><h1>Feedback</h1><p>Alle Rückmeldungen deiner Lehrkräfte und deine Fragen in diesem Schuljahr.</p></div></div>
@@ -1533,7 +1533,7 @@ function kap(a,n,key){return st.mehr&&st.mehr[key]?a:a.slice(0,n)}
 function mehr(a,n,key){if(a.length<=n)return"";const auf=st.mehr&&st.mehr[key];return `<li class="mehr"><button type="button" class="linkbtn" data-act="mehr" data-k="${key}">${auf?"Weniger anzeigen":`Alle ${a.length} anzeigen`}</button></li>`}
 function vStartS(){const{over,bald,fb}=dashS();const zt=[...over,...bald];
  const ms=db.kurse.filter(k=>k.schueler.includes(ME_S.id)&&!k.archiv).flatMap(k=>mitUngelesen(k,ME_S.id).map(m=>({m,k})));
- const neu=[...fb.map(a=>({z:fbZeit(getSub(a,ME_S.id)),h:fbRowS(a)})),...ms.map(({m,k})=>({z:m.zeit,h:`<li><button class="row click" data-open-kurs="${k.id}"><span class="main"><b>${esc((m.text||"Mitteilung mit Anhang").split("\n")[0].slice(0,90))}${(m.text||"").length>90?"…":""}</b><span class="sub">Mitteilung · ${kursLabel(k)}</span></span><span class="due"><b>${rel(m.zeit)}</b>${fmtDate(m.zeit)}</span></button></li>`}))].sort((a,b)=>b.z-a.z);
+ const neu=[...fb.map(a=>({z:fbZeit(getSub(a,ME_S.id)),h:fbRowS(a,"Feedback")})),...ms.map(({m,k})=>({z:m.zeit,h:`<li><button class="row click" data-open-kurs="${k.id}"><span class="main"><b>${esc((m.text||"Mitteilung mit Anhang").split("\n")[0].slice(0,90))}${(m.text||"").length>90?"…":""}</b><span class="sub">${kursLabel(k)} · Mitteilung</span></span>${fbPill("neu")}<span class="due"><b>${rel(m.zeit)}</b>${fmtDate(m.zeit)}</span></button></li>`}))].sort((a,b)=>b.z-a.z);
  return `<div class="head"><div><h1>${gruss("Hallo")}, ${esc(ME_S.vn)}</h1><p>${over.length?`${over.length} Aufgabe${over.length>1?"n":""} überfällig · `:""}${bald.length?`${bald.length} in den nächsten 7 Tagen fällig`:"In den nächsten 7 Tagen ist nichts fällig"}</p></div></div>
  ${terminErinnerung()?`<div class="erinnerungen">${terminErinnerung()}</div>`:""}
  <section class="panel"><header><h2>Zu tun</h2>${zt.length?`<span class="pill ${over.length?"p-late":"p-open"}">${zt.length}</span>`:""}</header><ul class="list">${kap(zt,5,"s-tun").map(a=>taskRow(a,ME_S.id,{pill:false,spaet:over.includes(a)})).join("")+mehr(zt,5,"s-tun")||`<li class="empty">Alles erledigt. In den nächsten 7 Tagen ist nichts fällig.</li>`}</ul></section>
