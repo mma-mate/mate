@@ -801,7 +801,7 @@ function aTitelText(a){return (a.nr?"Nr. "+a.nr+" ":"")+"„"+a.titel+"“"}
 function aSortWahl(kursGewaehlt){const r=st.role==="schueler"?"s":"l";let v=null;try{v=JSON.parse(localStorage.getItem("mate-asort")||"{}")[r]}catch(e){}return v==="nr"||v==="frist"?v:(kursGewaehlt?"nr":"frist")}
 function aSortMerken(v){const r=st.role==="schueler"?"s":"l";try{const o=JSON.parse(localStorage.getItem("mate-asort")||"{}")||{};o[r]=v;localStorage.setItem("mate-asort",JSON.stringify(o))}catch(e){}}
 function aSortChips(v){return `<div class="chips" role="group" aria-label="Sortierung" style="margin-top:-6px"><span style="color:var(--muted);font-size:.85rem;align-self:center">Sortieren:</span>${[["nr","Neueste zuerst"],["frist","Nach Frist"]].map(([x,l])=>`<button class="chip" data-asort="${x}" aria-pressed="${v===x}">${l}</button>`).join("")}</div>`}
-function aSortieren(as,v,mitKursen,fristAuf,frist){return as.sort(v==="nr"?((a,b)=>(mitKursen?kursKurz(K(a.kurs)).localeCompare(kursKurz(K(b.kurs)),"de"):0)||nachNr(a,b)):((a,b)=>fristAuf?frist(a)-frist(b):frist(b)-frist(a)))}
+function aSortieren(as,v,mitKursen,fristAuf,frist){return as.sort(v==="nr"?((a,b)=>(mitKursen?kursKurz(K(a.kurs)).localeCompare(kursKurz(K(b.kurs)),"de"):0)||nachNr(a,b)):((a,b)=>(fristAuf?frist(a)-frist(b):frist(b)-frist(a))||(mitKursen?kursKurz(K(a.kurs)).localeCompare(kursKurz(K(b.kurs)),"de"):0)||(fristAuf?(a.nr||0)-(b.nr||0):(b.nr||0)-(a.nr||0))))}
 function nachNr(a,b){return (b.nr||0)-(a.nr||0)||b.frist-a.frist}
 function titelOhneNr(t){const m=/^\s*(?:nr\.?\s*)?\d{1,3}\s*[.):]\s*(\S.*)$/i.exec(t||"");return m?m[1].trim():t}
 function kursLuecken(k){const belegt=new Set(kursAufgaben(k.id).map(a=>a.nr));return (k.luecken||[]).filter(l=>!belegt.has(l.nr)).sort((x,y)=>x.nr-y.nr)}
@@ -1327,7 +1327,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611140800";
+const APP_VERSION="202611150830";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
