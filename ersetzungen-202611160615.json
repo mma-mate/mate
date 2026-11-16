@@ -1,0 +1,126 @@
+[
+[
+"<meta name=\"theme-color\" content=\"#FFFFFF\">",
+"<meta name=\"theme-color\" content=\"#FFFFFF\" media=\"(prefers-color-scheme: light)\"><meta name=\"theme-color\" content=\"#171A1B\" media=\"(prefers-color-scheme: dark)\">"
+],
+[
+"zu korrigieren`:\"nichts zu korrigieren\"}</p>",
+"zu korrigieren`:\"\"}</p>"
+],
+[
+"<h1>${gruss(\"Guten Tag\")}, ${esc(T1.vn)}</h1><p>${fmtDate(NOW.getTime())} · ${korr.length?",
+"<h1>${gruss(\"Guten Tag\")}, ${esc(T1.vn)}</h1><p>${fmtDate(NOW.getTime())}${korr.length?\" · \":\"\"}${korr.length?"
+],
+[
+"<span class=\"klapp-r\">${fristen.length?fristen.length+\" · \":\"\"}nächste 7 Tage</span>",
+"<span class=\"klapp-r\">${fristen.length||\"keine\"} · nächste 7 Tage</span>"
+],
+[
+"<span class=\"klapp-r\">${ts.length?ts.length+\" · \":\"\"}nächste 2 Wochen</span>",
+"<span class=\"klapp-r\">${ts.length||\"keine\"} · nächste 2 Wochen</span>"
+],
+[
+"function rechtLinks(){return (st.angemeldet?`<button type=\"button\" data-hilfe=\"\">Hilfe</button><span aria-hidden=\"true\">·</span>`:\"\")+Object.entries(RECHT).map(([k,x])=>`<button type=\"button\" data-recht=\"${k}\">${x.t}</button>`).join(\"<span aria-hidden=\\\"true\\\">·</span>\")}",
+"function rechtLinks(){return (st.angemeldet?`<button type=\"button\" data-hilfe=\"\">Hilfe</button>`:\"\")+Object.entries(RECHT).map(([k,x])=>`<button type=\"button\" data-recht=\"${k}\">${x.t}</button>`).join(\"\")}"
+],
+[
+".legal{display:flex;flex-wrap:wrap;gap:4px 10px;",
+".legal{display:flex;flex-wrap:wrap;gap:2px 20px;"
+],
+[
+"const APP_VERSION=\"202611152000\";",
+"const APP_VERSION=\"202611160545\";"
+],
+[
+"link:'<path d=\"M10 14a4",
+"warn:'<path d=\"M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/>',link:'<path d=\"M10 14a4"
+],
+[
+"title=\"Aufzählung mit Punkten\">• Liste</button>",
+"title=\"Aufzählung mit Punkten\" aria-label=\"Aufzählung mit Punkten\">•<span class=\"fl-t\"> Liste</span></button>"
+],
+[
+"title=\"Nummerierte Aufzählung\">1. Liste</button>",
+"title=\"Nummerierte Aufzählung\" aria-label=\"Nummerierte Aufzählung\">1.<span class=\"fl-t\"> Liste</span></button>"
+],
+[
+"title=\"Hinweis-Kasten (farbig hinterlegt)\">⚠️ Hinweis</button>",
+"title=\"Hinweis-Kasten (farbig hinterlegt)\" aria-label=\"Hinweis-Kasten\">${ico(\"warn\")}<span class=\"fl-t\">Hinweis</span></button>"
+],
+[
+"title=\"Link einfügen\">🔗 Link</button>",
+"title=\"Link im Text\" aria-label=\"Link im Text\">${ico(\"link\")}<span class=\"fl-t\">Link</span></button>"
+],
+[
+".fmt-leiste .sep{width:1px;background:var(--line);margin:2px 3px}",
+".fmt-leiste .sep{width:1px;background:var(--line);margin:2px 3px}.fmt-leiste button{display:inline-flex;align-items:center;justify-content:center;gap:5px}.fmt-leiste svg{width:16px;height:16px;flex:none}.fmt-leiste [data-fmt=\"hinweis\"] svg{color:var(--orange)}@media (max-width:600px){.fmt-leiste{flex-wrap:nowrap}.fmt-leiste .fl-t{display:none}.fmt-leiste button{flex:1 1 0;min-width:0;max-width:52px;min-height:40px;padding:2px 0}.fmt-leiste .sep{display:none}}"
+],
+[
+"function anhWerkzeug(ziel){return",
+"function anhWerkzeug(ziel,mitLink=true){return"
+],
+[
+"class=\"vh\">${linkEingabe(ziel)}</div></div>`}",
+"class=\"vh\">${mitLink?linkEingabe(ziel):\"\"}</div></div>`}"
+],
+[
+"sc(st.p.entwurf||\"\")}</textarea></div>${anhWerkzeug(\"fbl\")",
+"sc(st.p.entwurf||\"\")}</textarea></div>${anhWerkzeug(\"fbl\",false)"
+],
+[
+"hricht.\"></textarea></div>${(ANH.fbl=[],anhWerkzeug(\"fbl\")",
+"hricht.\"></textarea></div>${(ANH.fbl=[],anhWerkzeug(\"fbl\",false)"
+],
+[
+"anhWerkzeug(\"mfb\")",
+"anhWerkzeug(\"mfb\",false)"
+],
+[
+"anhWerkzeug(\"msge\")",
+"anhWerkzeug(\"msge\",false)"
+],
+[
+"<summary class=\"btn\">${ico(\"link\")}Link hinzufügen</summary>",
+"<summary class=\"btn\">${ico(\"link\")}Link anhängen</summary>"
+],
+[
+"const t=hat?\"Weiteren Link hinzufügen\":\"Link hinzufügen\";",
+"const t=hat?\"Weiteren Link anhängen\":\"Link anhängen\";"
+],
+[
+"<h2>Link hinzufügen</h2>",
+"<h2>Link anhängen</h2>"
+],
+[
+"data-act=\"link-ok\" data-ziel=\"${ziel}\">Link hinzufügen</button>",
+"data-act=\"link-ok\" data-ziel=\"${ziel}\">Link anhängen</button>"
+],
+[
+"nimmst du **„Link hinzufügen“**",
+"nimmst du **„Link anhängen“**"
+],
+[
+"uId,\"l\")}\n  ${ro?\"\":`<div class=\"field\"><label for=\"fb\">Nachricht an ${esc(u.vn)}</label>",
+"uId,\"l\")}\n  ${ro?\"\":`<div class=\"field\"><label for=\"fb\">Feedback an ${esc(u.vn)}</label>"
+],
+[
+"{verlauf(a,u.id,\"l\")}<div class=\"field\"><label for=\"fb\">Nachricht an ${esc(u.vn)}</label>",
+"{verlauf(a,u.id,\"l\")}<div class=\"field\"><label for=\"fb\">Feedback an ${esc(u.vn)}</label>"
+],
+[
+"- **Link** für einen Link mit eigenem Text",
+"- **Link** (🔗) für einen Link mit eigenem Text"
+],
+[
+"- **Hinweis** für einen farbigen Kasten",
+"- **Hinweis** (⚠) für einen farbigen Kasten"
+],
+[
+"Über den Textfeldern für Beschreibungen, Termine, Mitteilungen und Feedback steht eine Leiste. Text markieren, dann:",
+"Über den Textfeldern für Beschreibungen, Termine, Mitteilungen und Feedback steht eine Leiste (am Handy nur mit Symbolen). Text markieren, dann:"
+],
+[
+"const APP_VERSION=\"202611160545\";",
+"const APP_VERSION=\"202611160615\";"
+]
+]
