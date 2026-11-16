@@ -1,0 +1,34 @@
+[
+[
+"<meta name=\"theme-color\" content=\"#FFFFFF\">",
+"<meta name=\"theme-color\" content=\"#FFFFFF\" media=\"(prefers-color-scheme: light)\"><meta name=\"theme-color\" content=\"#171A1B\" media=\"(prefers-color-scheme: dark)\">"
+],
+[
+"zu korrigieren`:\"nichts zu korrigieren\"}</p>",
+"zu korrigieren`:\"\"}</p>"
+],
+[
+"<h1>${gruss(\"Guten Tag\")}, ${esc(T1.vn)}</h1><p>${fmtDate(NOW.getTime())} · ${korr.length?",
+"<h1>${gruss(\"Guten Tag\")}, ${esc(T1.vn)}</h1><p>${fmtDate(NOW.getTime())}${korr.length?\" · \":\"\"}${korr.length?"
+],
+[
+"<span class=\"klapp-r\">${fristen.length?fristen.length+\" · \":\"\"}nächste 7 Tage</span>",
+"<span class=\"klapp-r\">${fristen.length||\"keine\"} · nächste 7 Tage</span>"
+],
+[
+"<span class=\"klapp-r\">${ts.length?ts.length+\" · \":\"\"}nächste 2 Wochen</span>",
+"<span class=\"klapp-r\">${ts.length||\"keine\"} · nächste 2 Wochen</span>"
+],
+[
+"function rechtLinks(){return (st.angemeldet?`<button type=\"button\" data-hilfe=\"\">Hilfe</button><span aria-hidden=\"true\">·</span>`:\"\")+Object.entries(RECHT).map(([k,x])=>`<button type=\"button\" data-recht=\"${k}\">${x.t}</button>`).join(\"<span aria-hidden=\\\"true\\\">·</span>\")}",
+"function rechtLinks(){return (st.angemeldet?`<button type=\"button\" data-hilfe=\"\">Hilfe</button>`:\"\")+Object.entries(RECHT).map(([k,x])=>`<button type=\"button\" data-recht=\"${k}\">${x.t}</button>`).join(\"\")}"
+],
+[
+".legal{display:flex;flex-wrap:wrap;gap:4px 10px;",
+".legal{display:flex;flex-wrap:wrap;gap:2px 20px;"
+],
+[
+"const APP_VERSION=\"202611152000\";",
+"const APP_VERSION=\"202611160545\";"
+]
+]
