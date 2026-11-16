@@ -1,0 +1,190 @@
+[
+[
+"<meta name=\"theme-color\" content=\"#FFFFFF\">",
+"<meta name=\"theme-color\" content=\"#FFFFFF\" media=\"(prefers-color-scheme: light)\"><meta name=\"theme-color\" content=\"#171A1B\" media=\"(prefers-color-scheme: dark)\">"
+],
+[
+"zu korrigieren`:\"nichts zu korrigieren\"}</p>",
+"zu korrigieren`:\"\"}</p>"
+],
+[
+"<h1>${gruss(\"Guten Tag\")}, ${esc(T1.vn)}</h1><p>${fmtDate(NOW.getTime())} · ${korr.length?",
+"<h1>${gruss(\"Guten Tag\")}, ${esc(T1.vn)}</h1><p>${fmtDate(NOW.getTime())}${korr.length?\" · \":\"\"}${korr.length?"
+],
+[
+"<span class=\"klapp-r\">${fristen.length?fristen.length+\" · \":\"\"}nächste 7 Tage</span>",
+"<span class=\"klapp-r\">${fristen.length||\"keine\"} · nächste 7 Tage</span>"
+],
+[
+"<span class=\"klapp-r\">${ts.length?ts.length+\" · \":\"\"}nächste 2 Wochen</span>",
+"<span class=\"klapp-r\">${ts.length||\"keine\"} · nächste 2 Wochen</span>"
+],
+[
+"function rechtLinks(){return (st.angemeldet?`<button type=\"button\" data-hilfe=\"\">Hilfe</button><span aria-hidden=\"true\">·</span>`:\"\")+Object.entries(RECHT).map(([k,x])=>`<button type=\"button\" data-recht=\"${k}\">${x.t}</button>`).join(\"<span aria-hidden=\\\"true\\\">·</span>\")}",
+"function rechtLinks(){return (st.angemeldet?`<button type=\"button\" data-hilfe=\"\">Hilfe</button>`:\"\")+Object.entries(RECHT).map(([k,x])=>`<button type=\"button\" data-recht=\"${k}\">${x.t}</button>`).join(\"\")}"
+],
+[
+".legal{display:flex;flex-wrap:wrap;gap:4px 10px;",
+".legal{display:flex;flex-wrap:wrap;gap:2px 20px;"
+],
+[
+"const APP_VERSION=\"202611152000\";",
+"const APP_VERSION=\"202611160545\";"
+],
+[
+"link:'<path d=\"M10 14a4",
+"warn:'<path d=\"M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/>',link:'<path d=\"M10 14a4"
+],
+[
+"title=\"Aufzählung mit Punkten\">• Liste</button>",
+"title=\"Aufzählung mit Punkten\" aria-label=\"Aufzählung mit Punkten\">•<span class=\"fl-t\"> Liste</span></button>"
+],
+[
+"title=\"Nummerierte Aufzählung\">1. Liste</button>",
+"title=\"Nummerierte Aufzählung\" aria-label=\"Nummerierte Aufzählung\">1.<span class=\"fl-t\"> Liste</span></button>"
+],
+[
+"title=\"Hinweis-Kasten (farbig hinterlegt)\">⚠️ Hinweis</button>",
+"title=\"Hinweis-Kasten (farbig hinterlegt)\" aria-label=\"Hinweis-Kasten\">${ico(\"warn\")}<span class=\"fl-t\">Hinweis</span></button>"
+],
+[
+"title=\"Link einfügen\">🔗 Link</button>",
+"title=\"Link im Text\" aria-label=\"Link im Text\">${ico(\"link\")}<span class=\"fl-t\">Link</span></button>"
+],
+[
+".fmt-leiste .sep{width:1px;background:var(--line);margin:2px 3px}",
+".fmt-leiste .sep{width:1px;background:var(--line);margin:2px 3px}.fmt-leiste button{display:inline-flex;align-items:center;justify-content:center;gap:5px}.fmt-leiste svg{width:16px;height:16px;flex:none}.fmt-leiste [data-fmt=\"hinweis\"] svg{color:var(--orange)}@media (max-width:600px){.fmt-leiste{flex-wrap:nowrap}.fmt-leiste .fl-t{display:none}.fmt-leiste button{flex:1 1 0;min-width:0;max-width:52px;min-height:40px;padding:2px 0}.fmt-leiste .sep{display:none}}"
+],
+[
+"function anhWerkzeug(ziel){return",
+"function anhWerkzeug(ziel,mitLink=true){return"
+],
+[
+"class=\"vh\">${linkEingabe(ziel)}</div></div>`}",
+"class=\"vh\">${mitLink?linkEingabe(ziel):\"\"}</div></div>`}"
+],
+[
+"sc(st.p.entwurf||\"\")}</textarea></div>${anhWerkzeug(\"fbl\")",
+"sc(st.p.entwurf||\"\")}</textarea></div>${anhWerkzeug(\"fbl\",false)"
+],
+[
+"hricht.\"></textarea></div>${(ANH.fbl=[],anhWerkzeug(\"fbl\")",
+"hricht.\"></textarea></div>${(ANH.fbl=[],anhWerkzeug(\"fbl\",false)"
+],
+[
+"anhWerkzeug(\"mfb\")",
+"anhWerkzeug(\"mfb\",false)"
+],
+[
+"anhWerkzeug(\"msge\")",
+"anhWerkzeug(\"msge\",false)"
+],
+[
+"<summary class=\"btn\">${ico(\"link\")}Link hinzufügen</summary>",
+"<summary class=\"btn\">${ico(\"link\")}Link anhängen</summary>"
+],
+[
+"const t=hat?\"Weiteren Link hinzufügen\":\"Link hinzufügen\";",
+"const t=hat?\"Weiteren Link anhängen\":\"Link anhängen\";"
+],
+[
+"<h2>Link hinzufügen</h2>",
+"<h2>Link anhängen</h2>"
+],
+[
+"data-act=\"link-ok\" data-ziel=\"${ziel}\">Link hinzufügen</button>",
+"data-act=\"link-ok\" data-ziel=\"${ziel}\">Link anhängen</button>"
+],
+[
+"nimmst du **„Link hinzufügen“**",
+"nimmst du **„Link anhängen“**"
+],
+[
+"uId,\"l\")}\n  ${ro?\"\":`<div class=\"field\"><label for=\"fb\">Nachricht an ${esc(u.vn)}</label>",
+"uId,\"l\")}\n  ${ro?\"\":`<div class=\"field\"><label for=\"fb\">Feedback an ${esc(u.vn)}</label>"
+],
+[
+"{verlauf(a,u.id,\"l\")}<div class=\"field\"><label for=\"fb\">Nachricht an ${esc(u.vn)}</label>",
+"{verlauf(a,u.id,\"l\")}<div class=\"field\"><label for=\"fb\">Feedback an ${esc(u.vn)}</label>"
+],
+[
+"- **Link** für einen Link mit eigenem Text",
+"- **Link** (🔗) für einen Link mit eigenem Text"
+],
+[
+"- **Hinweis** für einen farbigen Kasten",
+"- **Hinweis** (⚠) für einen farbigen Kasten"
+],
+[
+"Über den Textfeldern für Beschreibungen, Termine, Mitteilungen und Feedback steht eine Leiste. Text markieren, dann:",
+"Über den Textfeldern für Beschreibungen, Termine, Mitteilungen und Feedback steht eine Leiste (am Handy nur mit Symbolen). Text markieren, dann:"
+],
+[
+"const APP_VERSION=\"202611160545\";",
+"const APP_VERSION=\"202611160615\";"
+],
+[
+"${bald.length?`${bald.length} in den nächsten 7 Tagen fällig`:\"In den nächsten 7 Tagen ist nichts fällig\"}</p>",
+"${bald.length?`${bald.length} in den nächsten 7 Tagen fällig`:over.length?\"sonst nichts fällig\":\"\"}</p>"
+],
+[
+"<span class=\"pill p-done\">${n} zu korrigieren</span>",
+"<span class=\"pill p-done\">${n} Abgabe${n===1?\"\":\"n\"}</span>"
+],
+[
+"title=\"Foto-Check: gleiche Fotos bei mehreren Abgaben\">${f} auffällig</span>",
+"title=\"Foto-Check: gleiche Fotos bei mehreren Abgaben\">${f} gleiche Fotos</span>"
+],
+[
+"Antwort = nur Text, Verbesserung = mit Datei.",
+"Antwort = nur Text, Verbesserung = mit Datei oder Link."
+],
+[
+"<label for=\"mfb\">Nachricht</label>",
+"<label for=\"mfb\">Feedback</label>"
+],
+[
+"for=\"tf-anh\">Dateien anhängen</label>",
+"for=\"tf-anh\">Datei anhängen</label>"
+],
+[
+"for=\"antwort-files\">Dateien anhängen</label>",
+"for=\"antwort-files\">Datei anhängen</label>"
+],
+[
+"<span class=\"main\"><b>${esc(kursName(k))}</b><span class=\"sub\">${k.art} · ${k.schueler.length} Schüler·innen · ${BEW[k.bew]}",
+"<span class=\"main\"><b>${esc(kursKurz(k))}</b><span class=\"sub\">${k.art} · ${k.schueler.length} Schüler·innen · ${BEW[k.bew]}"
+],
+[
+"${k.archiv?`<span class=\"tag\">archiviert</span>`:\"\"}</button></li>`;\n return `<div class=\"head\"><div><h1>Meine Kurse</h1><p>Schuljahr ${SJ}</p>",
+"</button></li>`;\n return `<div class=\"head\"><div><h1>Meine Kurse</h1><p>Schuljahr ${SJ}</p>"
+],
+[
+"<span class=\"sub tsub\">${terminWer(t)}<span>· ${zeitText(t,true)}</span>",
+"<span class=\"sub tsub\">${terminWer(t)}<span class=\"tp\">${zeitText(t,true)}</span>"
+],
+[
+"\"<span>· \"+fuerText(t)+\"</span>\"",
+"\"<span class=\\\"tp\\\">\"+fuerText(t)+\"</span>\""
+],
+[
+"`<span>· eingetragen von ",
+"`<span class=\"tp\">eingetragen von "
+],
+[
+".tsub{display:flex;flex-wrap:wrap;align-items:center;column-gap:.3em;row-gap:2px}",
+".tsub{display:flex;flex-wrap:wrap;align-items:center;column-gap:.9em;row-gap:2px;overflow:hidden}.tsub>.tp{position:relative}.tsub>.tp::before{content:\"·\";position:absolute;left:-.6em}"
+],
+[
+"${ks.length>1?kurseSortWahl(\"ks\"):\"\"}<section class=\"panel\"><ul class=\"list\">${kurseSortieren(ks,\"ks\").map(card).join(\"\")}",
+"<section class=\"panel\"><ul class=\"list\">${(st.sorts.ks={key:\"name\",dir:1},kurseSortieren(ks,\"ks\")).map(card).join(\"\")}"
+],
+[
+"const APP_VERSION=\"202611160615\";",
+"const APP_VERSION=\"202611160645\";"
+],
+[
+"<p>${over.length?`${over.length} Aufgabe${over.length>1?\"n\":\"\"} überfällig · `:\"\"}${bald.length?`${bald.length} in den nächsten 7 Tagen fällig`:over.length?\"sonst nichts fällig\":\"\"}</p>",
+"<p>${[over.length&&`${over.length} Aufgabe${over.length>1?\"n\":\"\"} überfällig`,bald.length&&`${bald.length} in den nächsten 7 Tagen fällig`].filter(Boolean).join(\" · \")}</p>"
+]
+]
