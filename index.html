@@ -1334,7 +1334,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611180720";
+const APP_VERSION="202611180745";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -2159,7 +2159,7 @@ document.addEventListener("click",e=>{const kl=e.target.closest&&e.target.closes
  if(act==="qr-link"){const a=A(d.a);const u=aufgabeLink(a);(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast("Link kopiert."),()=>toast(u));return}
  if(act==="t-zeigen"){T_(d.t).sichtbar=Date.now()-1000;toast("Der Termin ist jetzt für die Schüler·innen sichtbar.");render();return}
  if(act==="a-zeigen"){A(d.a).sichtbar=Date.now()-1000;toast("Die Aufgabe ist jetzt für die Schüler·innen sichtbar.");render();return}
- if(act==="uebergeben"){const k=K(d.kurs);const u=U(d.u);modal(`<h2>Verantwortung an ${esc(u.vn)} ${esc(u.nn)} übergeben?</h2><p>${esc(u.vn)} wird verantwortlich für ${esc(kursName(k))} und kann dann Lehrkräfte einladen und entfernen. Du bleibst als eingeladene Lehrkraft im Kurs.</p><div class="actions"><button class="btn primary" data-act="uebergeben-ok" data-kurs="${k.id}" data-u="${u.id}">Übergeben</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
+ if(act==="uebergeben"){const k=K(d.kurs);const u=U(d.u);modal(`<h2>Verantwortung an ${esc(u.vn)} ${esc(u.nn)} übergeben?</h2><p>${esc(u.vn)} wird verantwortlich für ${esc(kursKurz(k))} und kann dann Lehrkräfte einladen und entfernen.${k.alleLk?"":` Abgaben und Feedback dieses Kurses bekommt dann ${esc(u.vn)}.`} Du bleibst als eingeladene Lehrkraft im Kurs.</p><div class="actions"><button class="btn primary" data-act="uebergeben-ok" data-kurs="${k.id}" data-u="${u.id}">Übergeben</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
  if(act==="uebergeben-ok"){const k=K(d.kurs);k.eigentuemer=d.u;if(!k.lehrer.includes(d.u))k.lehrer.push(d.u);closeModal();toast(`${U(d.u).vn} ${U(d.u).nn} ist jetzt verantwortlich.`);render();return}
  if(act==="intro-ok"){try{localStorage.setItem("mate-intro","1")}catch(e){}closeModal();return}
  if(act==="termin-neu"){startTermin(d.kurs||null,null,d.kurs?"kurs":"termine");return}
