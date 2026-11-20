@@ -1,0 +1,22 @@
+# ---- Claude-Connector (MCP) – Ergänzung für public/.htaccess (vor den bestehenden Regeln einfügen) ----
+RewriteEngine On
+
+# Authorization-Kopf (Bearer-Token) an PHP weitergeben – IONOS reicht ihn sonst nicht durch
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Wege des Connectors
+RewriteRule ^mcp/?$ mcp.php [L,QSA]
+RewriteRule ^oauth/(register|authorize|token|revoke)$ oauth.php?weg=/oauth/$1 [L,QSA]
+RewriteRule ^\.well-known/(oauth-protected-resource(/mcp)?|oauth-authorization-server(/mcp)?|openid-configuration(/mcp)?)$ oauth.php?weg=/.well-known/$1 [L,QSA]
+
+# ---- NUR AM DEV: Passwortschutz für diese Wege aufheben ----
+# Claude ruft /mcp aus der Cloud auf und kann das Dev-Passwort nicht eingeben.
+# Die Wege sind trotzdem geschützt (Token bzw. MATE-Anmeldung). Die bestehende „Require valid-user“-Zeile
+# durch diesen Block ersetzen:
+#
+# SetEnvIf Request_URI "^/(mcp|mcp\.php|oauth/|oauth\.php|\.well-known/)" MATE_MCP
+# <RequireAny>
+#   Require env MATE_MCP
+#   Require valid-user
+# </RequireAny>
