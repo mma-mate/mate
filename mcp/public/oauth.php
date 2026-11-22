@@ -131,7 +131,7 @@ function oauth_fehlerseite(string $text): void
 
 function oauth_authorize(string $basis): void
 {
-    mcp_sitzung_starten();
+    mcp_sitzung_starten(true);
     $q = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' ? $_POST : $_GET;
     $client = oauth_client((string)($q['client_id'] ?? ''));
     $redirect = (string)($q['redirect_uri'] ?? '');
@@ -189,7 +189,7 @@ function oauth_authorize(string $basis): void
         if ($_POST['schritt'] === 'ablehnen') { $zurueck(['error' => 'access_denied']); return; }
         $code = mcp_zufall(32);
         mcp_pdo()->prepare('INSERT INTO mcp_codes (code_hash, client_id, benutzer_id, redirect_uri, challenge, ablauf) VALUES (?,?,?,?,?,?)')
-            ->execute([mcp_hash($code), $client['client_id'], (int)$ich['id'], $redirect, $challenge, mcp_jetzt() + MCP_CODE_SEK * 1000]);
+            ->execute([mcp_hash($code), $client['client_id'], (string)$ich['id'], $redirect, $challenge, mcp_jetzt() + MCP_CODE_SEK * 1000]);
         $zurueck(['code' => $code]);
         return;
     }
@@ -230,18 +230,18 @@ function oauth_token(): void
         $v = (string)($d['code_verifier'] ?? '');
         $soll = rtrim(strtr(base64_encode(hash('sha256', $v, true)), '+/', '-_'), '=');
         if (!preg_match('/^[A-Za-z0-9\-._~]{43,128}$/', $v) || !hash_equals($c['challenge'], $soll)) { $fehler('invalid_grant', 'PKCE stimmt nicht'); return; }
-        $grund = mcp_zugang_grund(mcp_benutzer((int)$c['benutzer_id']));
+        $grund = mcp_zugang_grund(mcp_benutzer((string)$c['benutzer_id']));
         if ($grund !== null) { $fehler('invalid_grant', $grund); return; }
-        mcp_json(200, mcp_token_paar($c['client_id'], (int)$c['benutzer_id']));
+        mcp_json(200, mcp_token_paar($c['client_id'], (string)$c['benutzer_id']));
         return;
     }
     if ($grant === 'refresh_token') {
         $r = mcp_token_finden((string)($d['refresh_token'] ?? ''), 'refresh');
         if (!$r || ($clientId !== '' && $clientId !== $r['client_id'])) { $fehler('invalid_grant', 'Erneuerung ungültig – bitte neu verbinden'); return; }
-        $grund = mcp_zugang_grund(mcp_benutzer((int)$r['benutzer_id']));
-        if ($grund !== null) { mcp_verbindungen_trennen((int)$r['benutzer_id']); $fehler('invalid_grant', $grund); return; }
+        $grund = mcp_zugang_grund(mcp_benutzer((string)$r['benutzer_id']));
+        if ($grund !== null) { mcp_verbindungen_trennen((string)$r['benutzer_id']); $fehler('invalid_grant', $grund); return; }
         $pdo->prepare('DELETE FROM mcp_tokens WHERE verbindung = ?')->execute([$r['verbindung']]);   // Rotation: alte Token weg
-        mcp_json(200, mcp_token_paar($r['client_id'], (int)$r['benutzer_id'], $r['verbindung']));
+        mcp_json(200, mcp_token_paar($r['client_id'], (string)$r['benutzer_id'], $r['verbindung']));
         return;
     }
     $fehler('unsupported_grant_type');

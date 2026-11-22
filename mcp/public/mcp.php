@@ -32,10 +32,10 @@ if (!$zeile) {
     mcp_json(401, ['error' => 'Anmeldung bei MATE nötig.'], $k);
     exit;
 }
-$lk = mcp_benutzer((int)$zeile['benutzer_id']);
+$lk = mcp_benutzer((string)$zeile['benutzer_id']);
 $grund = mcp_zugang_grund($lk);
 if ($grund !== null) {
-    mcp_verbindungen_trennen((int)$zeile['benutzer_id']);
+    mcp_verbindungen_trennen((string)$zeile['benutzer_id']);
     mcp_json(401, ['error' => $grund], $kopf401 + []);
     exit;
 }
@@ -94,21 +94,21 @@ function mcp_rpc(array $n, array $lk): ?array
         case 'tools/call':
             $name = (string)($p['name'] ?? '');
             $arg = is_array($p['arguments'] ?? null) ? $p['arguments'] : [];
-            if (!mcp_limit_ok((int)$lk['id'])) return $ok(['content' => [['type' => 'text', 'text' => 'Zu viele Aufrufe in kurzer Zeit. Bitte in ein paar Minuten noch einmal.']], 'isError' => true]);
+            if (!mcp_limit_ok((string)$lk['id'])) return $ok(['content' => [['type' => 'text', 'text' => 'Zu viele Aufrufe in kurzer Zeit. Bitte in ein paar Minuten noch einmal.']], 'isError' => true]);
             try {
                 $daten = mcp_werkzeug_ausfuehren($lk, $name, $arg);
                 $extra = $daten['_inhalt'] ?? [];
                 $info = (string)($daten['info'] ?? '');
                 unset($daten['_inhalt'], $daten['info']);
-                mcp_protokollieren((int)$lk['id'], $name, true, $info);
+                mcp_protokollieren((string)$lk['id'], $name, true, $info);
                 $text = json_encode($daten, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
                 return $ok(['content' => array_merge([['type' => 'text', 'text' => $text]], $extra), 'structuredContent' => $daten, 'isError' => false]);
             } catch (McpFehler $e) {
-                mcp_protokollieren((int)$lk['id'], $name, false, mb_substr($e->getMessage(), 0, 120));
+                mcp_protokollieren((string)$lk['id'], $name, false, mb_substr($e->getMessage(), 0, 120));
                 return $ok(['content' => [['type' => 'text', 'text' => $e->getMessage()]], 'isError' => true]);
             } catch (Throwable $e) {
                 error_log('MATE-MCP ' . $name . ': ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
-                mcp_protokollieren((int)$lk['id'], $name, false, 'Serverfehler');
+                mcp_protokollieren((string)$lk['id'], $name, false, 'Serverfehler');
                 return $ok(['content' => [['type' => 'text', 'text' => 'In MATE ist ein Fehler aufgetreten. Bitte später noch einmal versuchen.']], 'isError' => true]);
             }
         default:

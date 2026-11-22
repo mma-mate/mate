@@ -28,7 +28,7 @@ function mcp_redirect_erlaubt(string $uri): bool
 
 function mcp_basis(): string
 {
-    $b = (string)mcp_cfg('mcp_basis', '');
+    $b = (string)(mcp_cfg('mcp_basis', '') ?: mcp_cfg('app_url', ''));
     if ($b !== '') return rtrim($b, '/');
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
@@ -70,7 +70,7 @@ function mcp_einstellungen(): array
     return [
         'aktiv'     => !empty($d['aktiv']),
         'werkzeuge' => $w,
-        'lk'        => array_values(array_map('intval', $d['lk'] ?? [])),
+        'lk'        => array_values(array_map('strval', $d['lk'] ?? [])),
     ];
 }
 
@@ -86,7 +86,7 @@ function mcp_einstellungen_speichern(array $neu): array
         foreach (mcp_werkzeug_namen() as $n) if (array_key_exists($n, $neu['werkzeuge'])) $d['werkzeuge'][$n] = (bool)$neu['werkzeuge'][$n];
     if (isset($neu['lk']) && is_array($neu['lk'])) {
         $ids = [];
-        foreach ($neu['lk'] as $id) { $b = mcp_benutzer((int)$id); if ($b && $b['rolle'] === 'l') $ids[] = (int)$id; }
+        foreach ($neu['lk'] as $id) { $b = mcp_benutzer((string)$id); if ($b && $b['rolle'] === 'l') $ids[] = (string)$id; }
         $d['lk'] = array_values(array_unique($ids));
     }
     $pdo = mcp_pdo();
@@ -94,7 +94,7 @@ function mcp_einstellungen_speichern(array $neu): array
     $pdo->prepare('INSERT INTO mcp_einstellungen (id, daten, geaendert) VALUES (1, ?, ?)')
         ->execute([json_encode($d, JSON_UNESCAPED_UNICODE), mcp_jetzt()]);
     // Wer nicht mehr freigeschaltet ist, verliert seine Verbindungen sofort
-    foreach (array_diff($alt['lk'], $d['lk']) as $weg) mcp_verbindungen_trennen((int)$weg);
+    foreach (array_diff($alt['lk'], $d['lk']) as $weg) mcp_verbindungen_trennen((string)$weg);
     if (!$d['aktiv']) mcp_pdo()->exec('DELETE FROM mcp_tokens');
     return mcp_einstellungen();
 }
@@ -106,13 +106,13 @@ function mcp_zugang_grund(?array $b): ?string
     if (!$e['aktiv']) return 'Der Claude-Connector ist in MATE ausgeschaltet.';
     if (!$b || empty($b['aktiv'])) return 'Dieses Konto ist nicht aktiv.';
     if ($b['rolle'] !== 'l') return 'Der Claude-Connector ist nur für Lehrkräfte.';
-    if (!in_array((int)$b['id'], $e['lk'], true)) return 'Dein Konto ist für den Claude-Connector nicht freigeschaltet. Frag den Admin.';
+    if (!in_array((string)$b['id'], $e['lk'], true)) return 'Dein Konto ist für den Claude-Connector nicht freigeschaltet. Frag den Admin.';
     return null;
 }
 
 /* ---------- Token ---------- */
 
-function mcp_token_paar(string $client, int $benutzer, ?string $verbindung = null): array
+function mcp_token_paar(string $client, string $benutzer, ?string $verbindung = null): array
 {
     $verbindung = $verbindung ?? bin2hex(random_bytes(12));
     $acc = 'mate_at_' . mcp_zufall();
@@ -133,7 +133,7 @@ function mcp_token_finden(string $token, string $art): ?array
     return $r;
 }
 
-function mcp_verbindungen_trennen(int $benutzer, ?string $verbindung = null): void
+function mcp_verbindungen_trennen(string $benutzer, ?string $verbindung = null): void
 {
     if ($verbindung) mcp_pdo()->prepare('DELETE FROM mcp_tokens WHERE benutzer_id = ? AND verbindung = ?')->execute([$benutzer, $verbindung]);
     else mcp_pdo()->prepare('DELETE FROM mcp_tokens WHERE benutzer_id = ?')->execute([$benutzer]);
@@ -146,8 +146,8 @@ function mcp_verbindungen(): array
     $st->execute([mcp_jetzt()]);
     $aus = [];
     foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
-        $b = mcp_benutzer((int)$r['benutzer_id']);
-        $aus[] = ['verbindung' => $r['verbindung'], 'lk' => (int)$r['benutzer_id'], 'name' => $b ? trim($b['vn'] . ' ' . $b['nn']) : '?',
+        $b = mcp_benutzer((string)$r['benutzer_id']);
+        $aus[] = ['verbindung' => $r['verbindung'], 'lk' => (string)$r['benutzer_id'], 'name' => $b ? trim($b['vn'] . ' ' . $b['nn']) : '?',
                   'seit' => (int)$r['seit'], 'zuletzt' => (int)$r['zuletzt'] ?: null];
     }
     return $aus;
@@ -167,7 +167,7 @@ function mcp_aufraeumen(): void
 
 /* ---------- Protokoll ---------- */
 
-function mcp_protokollieren(int $benutzer, string $werkzeug, bool $ok, string $info = ''): void
+function mcp_protokollieren(string $benutzer, string $werkzeug, bool $ok, string $info = ''): void
 {
     mcp_pdo()->prepare('INSERT INTO mcp_protokoll (zeit, benutzer_id, werkzeug, ok, info) VALUES (?,?,?,?,?)')
         ->execute([mcp_jetzt(), $benutzer, substr($werkzeug, 0, 60), $ok ? 1 : 0, mb_substr($info, 0, 200)]);
@@ -180,14 +180,14 @@ function mcp_protokoll(int $anzahl = 100): array
     $namen = [];
     $aus = [];
     foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
-        $id = (int)$r['benutzer_id'];
+        $id = (string)$r['benutzer_id'];
         if (!isset($namen[$id])) { $b = mcp_benutzer($id); $namen[$id] = $b ? trim($b['vn'] . ' ' . $b['nn']) : '?'; }
         $aus[] = ['zeit' => (int)$r['zeit'], 'lk' => $id, 'name' => $namen[$id], 'werkzeug' => $r['werkzeug'], 'ok' => (bool)$r['ok'], 'info' => $r['info']];
     }
     return $aus;
 }
 
-function mcp_limit_ok(int $benutzer): bool
+function mcp_limit_ok(string $benutzer): bool
 {
     $st = mcp_pdo()->prepare('SELECT COUNT(*) FROM mcp_protokoll WHERE benutzer_id = ? AND zeit > ?');
     $st->execute([$benutzer, mcp_jetzt() - 600000]);

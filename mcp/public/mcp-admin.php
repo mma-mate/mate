@@ -19,7 +19,7 @@ $admin = !empty($ich['admin']);
 function mcp_admin_stand(bool $admin, array $ich): array
 {
     $e = mcp_einstellungen();
-    $meine = array_values(array_filter(mcp_verbindungen(), fn($v) => $v['lk'] === (int)$ich['id']));
+    $meine = array_values(array_filter(mcp_verbindungen(), fn($v) => $v['lk'] === (string)$ich['id']));
     $stand = ['csrf' => $_SESSION['mcp_csrf'], 'adresse' => mcp_basis() . '/mcp', 'aktiv' => $e['aktiv'],
               'ich' => ['freigeschaltet' => mcp_zugang_grund($ich) === null, 'verbindungen' => $meine]];
     if (!$admin) return $stand;
@@ -37,7 +37,7 @@ $d = mcp_body();
 $aktion = (string)($d['aktion'] ?? '');
 
 if ($aktion === 'meine_trennen') {
-    mcp_verbindungen_trennen((int)$ich['id'], isset($d['verbindung']) ? (string)$d['verbindung'] : null);
+    mcp_verbindungen_trennen((string)$ich['id'], isset($d['verbindung']) ? (string)$d['verbindung'] : null);
     mcp_json(200, mcp_admin_stand($admin, $ich));
     exit;
 }
@@ -48,7 +48,7 @@ if ($aktion === 'speichern') {
     exit;
 }
 if ($aktion === 'trennen') {
-    mcp_verbindungen_trennen((int)($d['lk'] ?? 0), isset($d['verbindung']) ? (string)$d['verbindung'] : null);
+    mcp_verbindungen_trennen((string)($d['lk'] ?? ''), isset($d['verbindung']) ? (string)$d['verbindung'] : null);
     mcp_json(200, mcp_admin_stand($admin, $ich));
     exit;
 }

@@ -18,9 +18,9 @@ function mcp_pdo(): PDO
 
 function mcp_cfg(string $k, $standard = null) { return $standard; }
 
-function mcp_sitzung_starten(): void { if (session_status() !== PHP_SESSION_ACTIVE) { session_save_path(MCPT_DIR); session_name('MATESID'); session_start(); } }
+function mcp_sitzung_starten(bool $oauth = false): void { if (session_status() !== PHP_SESSION_ACTIVE) { session_save_path(MCPT_DIR); session_name('MATESID'); session_start(); } }
 
-function mcp_sitzung_benutzer(): ?array { $id = (int)($_SESSION['uid'] ?? 0); return $id ? mcp_benutzer($id) : null; }
+function mcp_sitzung_benutzer(): ?array { $id = (string)($_SESSION['uid'] ?? ''); return $id !== '' ? mcp_benutzer($id) : null; }
 
 function t_daten(): array { return json_decode(file_get_contents(MCPT_DIR . '/daten.json'), true); }
 function t_speichern(array $d): void { file_put_contents(MCPT_DIR . '/daten.json', json_encode($d, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)); }
@@ -38,27 +38,27 @@ function mcp_anmelden(string $kennung, string $pw): array
     return ['ok' => false, 'meldung' => 'E-Mail oder Passwort stimmt nicht.'];
 }
 
-function mcp_benutzer(int $id): ?array
+function mcp_benutzer(string $id): ?array
 {
-    foreach (t_daten()['users'] as $u) if ($u['db'] === $id)
-        return ['id' => $u['db'], 'app_id' => $u['id'], 'vn' => $u['vn'], 'nn' => $u['nn'], 'rolle' => $u['rolle'], 'admin' => !empty($u['admin']), 'aktiv' => $u['aktiv'] ?? true];
+    foreach (t_daten()['users'] as $u) if ((string)$u['db'] === $id)
+        return ['id' => (string)$u['db'], 'app_id' => $u['id'], 'vn' => $u['vn'], 'nn' => $u['nn'], 'rolle' => $u['rolle'], 'admin' => !empty($u['admin']), 'aktiv' => $u['aktiv'] ?? true];
     return null;
 }
 
 function mcp_lehrkraefte(): array
 {
     $a = [];
-    foreach (t_daten()['users'] as $u) if ($u['rolle'] === 'l') $a[] = ['id' => $u['db'], 'name' => $u['vn'] . ' ' . $u['nn'], 'mail' => $u['mail']];
+    foreach (t_daten()['users'] as $u) if ($u['rolle'] === 'l') $a[] = ['id' => (string)$u['db'], 'name' => $u['vn'] . ' ' . $u['nn'], 'mail' => $u['mail']];
     return $a;
 }
 
-function t_app_id(int $lk): string { return mcp_benutzer($lk)['app_id']; }
+function t_app_id(string $lk): string { return mcp_benutzer($lk)['app_id']; }
 
-function mcp_kurse(int $lk): array { $me = t_app_id($lk); return array_values(array_filter(t_daten()['kurse'], fn($k) => in_array($me, $k['lehrer'], true))); }
+function mcp_kurse(string $lk): array { $me = t_app_id($lk); return array_values(array_filter(t_daten()['kurse'], fn($k) => in_array($me, $k['lehrer'], true))); }
 function mcp_aufgaben(string $kurs): array { return array_values(array_filter(t_daten()['aufgaben'], fn($a) => $a['kurs'] === $kurs)); }
 function mcp_aufgabe(string $id): ?array { foreach (t_daten()['aufgaben'] as $a) if ($a['id'] === $id) return $a; return null; }
 
-function mcp_aufgabe_speichern(array $a, int $lk, bool $neu): void
+function mcp_aufgabe_speichern(array $a, string $lk, bool $neu): void
 {
     $d = t_daten();
     $k = null; foreach ($d['kurse'] as $x) if ($x['id'] === $a['kurs']) $k = $x;
@@ -68,13 +68,13 @@ function mcp_aufgabe_speichern(array $a, int $lk, bool $neu): void
     t_speichern($d);
 }
 
-function mcp_termine(int $lk): array
+function mcp_termine(string $lk): array
 {
     $ids = array_column(mcp_kurse($lk), 'id');
     return array_values(array_filter(t_daten()['termine'], fn($t) => ($t['ebene'] ?? 'kurs') !== 'kurs' || in_array($t['kurs'], $ids, true)));
 }
 
-function mcp_termin_speichern(array $t, int $lk, bool $neu): void
+function mcp_termin_speichern(array $t, string $lk, bool $neu): void
 {
     $d = t_daten();
     if ($neu) $d['termine'][] = $t;

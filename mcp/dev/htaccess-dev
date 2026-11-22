@@ -1,0 +1,92 @@
+# ------------------------------------------------------------------
+# MATE – Web-Ordner (Document Root der Subdomain zeigt auf public/)
+# ------------------------------------------------------------------
+
+Options -Indexes
+
+# Keine „Meinten Sie …?“-Seiten mit ähnlichen Dateinamen (mod_speling bei IONOS)
+<IfModule mod_speling.c>
+  CheckSpelling Off
+</IfModule>
+# MATE-DEV-PASSWORTSCHUTZ (eingerichtet 05.11.2026)
+AuthType Basic
+AuthName "MATE Dev-System"
+AuthUserFile /homepages/34/d918459934/htdocs/mate-dev/config/.htpasswd
+# Claude-Connector (22.11.2026): /mcp, /oauth/… und /.well-known/… ohne Dev-Passwort –
+# Claude ruft aus der Cloud auf; geschützt durch Token bzw. MATE-Anmeldung
+SetEnvIf Request_URI "^/(mcp|mcp\.php|oauth/|oauth\.php|\.well-known/)" MATE_MCP
+<RequireAny>
+  Require env MATE_MCP
+  Require env REDIRECT_MATE_MCP
+  Require valid-user
+</RequireAny>
+# Ausnahme für den IONOS-Cronjob (cron.php schützt sich selbst mit dem cron_token)
+<Files "cron.php">
+  Require all granted
+</Files>
+DirectoryIndex index.html
+
+RewriteEngine On
+
+# Immer HTTPS
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# Versteckte Dateien (.git, .env …) sperren – außer .well-known (für HTTPS-Zertifikate)
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule (^|/)\. - [F]
+
+# Claude-Connector (MCP): Bearer-Token an PHP weitergeben und Wege auf die PHP-Dateien leiten
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^mcp/?$ mcp.php [L,QSA]
+RewriteRule ^oauth/(register|authorize|token|revoke)$ oauth.php?weg=/oauth/$1 [L,QSA]
+RewriteRule ^\.well-known/(oauth-protected-resource(/mcp)?|oauth-authorization-server(/mcp)?|openid-configuration(/mcp)?)$ oauth.php?weg=/.well-known/$1 [L,QSA]
+
+# --- NUR IM DEV-SYSTEM: Passwortschutz vor der ganzen Seite -------------------
+# (Dann oben „Require all granted“ durch die Zeilen unten ersetzen.)
+# Die folgenden Zeilen im Dev-Ordner aktivieren (# entfernen) und den Pfad anpassen.
+# Die .htpasswd-Datei liegt AUSSERHALB von public/, erzeugen mit:
+#   htpasswd -c /pfad/zu/mate-dev/config/.htpasswd mate
+# (oder über „Verzeichnisschutz“ im Webpanel des Providers)
+#AuthType Basic
+#AuthName "MATE Testsystem"
+#AuthUserFile /pfad/zu/mate-dev/config/.htpasswd
+#Require valid-user
+# Ausnahme für den IONOS-Cronjob-Manager (cron.php schützt sich selbst mit dem cron_token):
+#<Files "cron.php">
+#  Require all granted
+#</Files>
+
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "same-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(self)"
+  # Die App kommt ohne fremde Server aus; Bilder auch als data:/blob: (Vorschau beim Hochladen)
+  # (Anmeldeseite des Claude-Connectors setzt eine eigene CSP, die den Rücksprung zu Claude erlaubt)
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" "expr=%{REQUEST_URI} !~ m#^/(oauth/|oauth\.php)#"
+
+  # App-Shell nicht zu lange cachen, damit Updates schnell ankommen
+  <FilesMatch "\.(html|webmanifest|json)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "^sw\.js$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
+# PHP-Einstellungen (wirken nur bei mod_php; bei PHP-FPM über das Webpanel oder .user.ini setzen)
+<IfModule mod_php.c>
+  php_value upload_max_filesize 20M
+  php_value post_max_size 100M
+  php_value max_file_uploads 20
+  php_flag display_errors off
+  php_flag expose_php off
+</IfModule>

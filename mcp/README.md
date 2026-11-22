@@ -21,14 +21,15 @@ Stand 20. 11. 2026. Vorbereitet für das **Dev-System** (`mate-dev.eibengasse.at
 |---|---|
 | `src/mcp/kern.php` | Einstellungen, Token, Protokoll |
 | `src/mcp/werkzeuge.php` | die 13 Werkzeuge (Regeln wie in der App) |
-| `src/mcp/anbindung.php` | **Entwurf** – Anbindung an Datenbank, Sitzung, Sync des MATE-Servers; vor dem Einspielen mit dem echten Server-Code ausfüllen |
+| `src/mcp/anbindung.php` | Anbindung an den MATE-Server 0.3.2: lesen über `sync_laden`, speichern über `sync_aendern` (gleiche Rechteprüfung wie die App), Dateien aus `storage/uploads`; eigene Sitzung `<session_name>_claude` für die Anmeldeseite |
 | `src/mcp/mcp.sql` | 5 neue Tabellen `mcp_*` |
 | `public/mcp.php` | MCP-Endpunkt |
 | `public/oauth.php` | Anmeldung (Beschreibung, Registrierung, Anmelde-/Erlauben-Seite, Token) |
 | `public/mcp-admin.php` | Schnittstelle für Admin-Bereich und Profil |
 | `public/mcp-setup.php` | legt die Tabellen an, löscht sich selbst (nur als Admin) |
 | `public/htaccess-mcp.txt` | Ergänzung für `public/.htaccess` (+ Dev-Passwortschutz) |
-| `test/` | lokale Tests (SQLite, erfundene Daten): `php test/lauf.php` → 61 Prüfungen |
+| `test/` | `php test/lauf.php` → 61 Prüfungen (Testanbindung); `test/lauf-server.php` → 33 Prüfungen gegen den echten Server-Code (SQLite + Demo-Daten) |
+| `dev/htaccess-dev`, `dev/taeglich.php` | fertige `public/.htaccess` und `cron/taeglich.php` fürs Dev (Stand 22. 11. 2026) |
 
 Dazu im App-Repo **Build 202611201830** (Admin-Bereich „Claude“, Profil-Abschnitt, Hilfe-Frage) und die Ersetzungsliste `ersetzungen-202611201830.json` (7 Ersetzungen ab 202611190700).
 

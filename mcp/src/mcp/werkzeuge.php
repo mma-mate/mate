@@ -170,7 +170,7 @@ function w_kurs_name(array $k): string
 /** Eigener Kurs der LK; beim Schreiben nicht archiviert. */
 function w_kurs(array $lk, string $kursId, bool $schreiben = false): array
 {
-    foreach (mcp_kurse((int)$lk['id']) as $k) {
+    foreach (mcp_kurse((string)$lk['id']) as $k) {
         if (($k['id'] ?? '') !== $kursId) continue;
         if (!in_array(w_ich($lk), array_map('strval', $k['lehrer'] ?? []), true)) break;
         if ($schreiben && !empty($k['archiv'])) mcp_fehler('Der Kurs ist archiviert und kann nur gelesen werden.');
@@ -302,6 +302,7 @@ function mcp_werkzeug_ausfuehren(array $lk, string $name, array $p): array
     $alle = mcp_werkzeuge();
     if (!isset($alle[$name])) mcp_fehler("Unbekanntes Werkzeug: $name");
     if (empty(mcp_einstellungen()['werkzeuge'][$name])) mcp_fehler('Dieses Werkzeug ist in MATE nicht freigeschaltet (Admin → Claude-Connector).');
+    $GLOBALS['mcp_lk'] = (string)$lk['id'];
     $f = 'w_' . $name;
     return $f($lk, $p);
 }
@@ -309,7 +310,7 @@ function mcp_werkzeug_ausfuehren(array $lk, string $name, array $p): array
 function w_kurse_auflisten(array $lk, array $p): array
 {
     $aus = [];
-    foreach (mcp_kurse((int)$lk['id']) as $k) {
+    foreach (mcp_kurse((string)$lk['id']) as $k) {
         if (!in_array(w_ich($lk), array_map('strval', $k['lehrer'] ?? []), true)) continue;
         if (!empty($k['archiv']) && empty($p['archiv'])) continue;
         $aus[] = ['id' => $k['id'], 'name' => w_kurs_name($k), 'fach' => $k['fach'] ?? '', 'klassen' => $k['klassen'] ?? [],
@@ -360,10 +361,10 @@ function w_termine_auflisten(array $lk, array $p): array
     $bis = isset($p['bis']) && $p['bis'] !== '' ? w_zeitpunkt((string)$p['bis'], '23:59', 'bis') : $von + 31 * 86400000;
     if ($bis < $von) mcp_fehler('„bis“ liegt vor „von“.');
     $kurse = [];
-    foreach (mcp_kurse((int)$lk['id']) as $k) $kurse[$k['id']] = $k;
+    foreach (mcp_kurse((string)$lk['id']) as $k) $kurse[$k['id']] = $k;
     if (!empty($p['kurs_id'])) w_kurs($lk, (string)$p['kurs_id']);
     $aus = [];
-    foreach (mcp_termine((int)$lk['id']) as $t) {
+    foreach (mcp_termine((string)$lk['id']) as $t) {
         $ende = (int)(($t['zeit'] ?? '') === 'mehrtag' && !empty($t['datumBis']) ? $t['datumBis'] : $t['datum']) + 86399999;
         if ($ende < $von || (int)$t['datum'] > $bis) continue;
         if (!empty($p['kurs_id']) && ($t['kurs'] ?? null) !== $p['kurs_id']) continue;
@@ -399,7 +400,7 @@ function w_aufgabe_anlegen(array $lk, array $p): array
           'bew' => $bew, 'max' => $max, 'abgabe' => $abgabe, 'frist' => $frist, 'spaet' => $nachfrist['art'] !== 'keine',
           'nachfrist' => $nachfrist, 'gruppe' => false, 'sichtbar' => $sichtbar, 'freigegeben' => false, 'subs' => []];
     foreach (w_ziel($a, $k) as $u) w_sub($a, $u);
-    mcp_aufgabe_speichern($a, (int)$lk['id'], true);
+    mcp_aufgabe_speichern($a, (string)$lk['id'], true);
     return ['info' => 'Aufgabe ' . $a['id'] . ' · ' . w_kurs_name($k), 'ergebnis' => 'Aufgabe Nr. ' . $a['nr'] . ' „' . $titel . '“ angelegt.', 'kurs' => w_kurs_name($k)] + w_aufgabe_kurz($a, $k);
 }
 
@@ -439,7 +440,7 @@ function w_aufgabe_aendern(array $lk, array $p): array
         $geaendert[] = 'Sichtbarkeit';
     }
     if (!$geaendert) mcp_fehler('Nichts zu ändern – gib mindestens ein Feld an.');
-    mcp_aufgabe_speichern($a, (int)$lk['id'], false);
+    mcp_aufgabe_speichern($a, (string)$lk['id'], false);
     return ['info' => 'Aufgabe ' . $a['id'] . ' · ' . implode(', ', $geaendert), 'ergebnis' => 'Geändert: ' . implode(', ', $geaendert) . '.'] + w_aufgabe_kurz($a, $k);
 }
 
@@ -483,7 +484,7 @@ function w_termin_anlegen(array $lk, array $p): array
           'autor' => w_ich($lk), 'sj' => $k['sj']];
     if (!isset($p['art'], $p['datum'])) mcp_fehler('art und datum fehlen.');
     w_termin_felder($t, $p, $k);
-    mcp_termin_speichern($t, (int)$lk['id'], true);
+    mcp_termin_speichern($t, (string)$lk['id'], true);
     return ['info' => 'Termin ' . $t['id'] . ' · ' . w_kurs_name($k), 'ergebnis' => '„' . $t['titel'] . '“ am ' . w_tag((int)$t['datum']) . ' eingetragen.'] + w_termin_kurz($t, [$k['id'] => $k]);
 }
 
@@ -491,14 +492,14 @@ function w_termin_aendern(array $lk, array $p): array
 {
     $id = (string)($p['termin_id'] ?? '');
     $t = null;
-    foreach (mcp_termine((int)$lk['id']) as $x) if (($x['id'] ?? '') === $id) { $t = $x; break; }
+    foreach (mcp_termine((string)$lk['id']) as $x) if (($x['id'] ?? '') === $id) { $t = $x; break; }
     if (!$t) mcp_fehler('Diesen Termin gibt es nicht. Mit termine_auflisten findest du die Termin-IDs.');
     if (($t['ebene'] ?? 'kurs') !== 'kurs' || empty($t['kurs'])) mcp_fehler('Über Claude lassen sich nur Kurstermine ändern.');
     $k = w_kurs($lk, (string)$t['kurs'], true);
     $g = w_termin_felder($t, $p, $k);
     if (!$g) mcp_fehler('Nichts zu ändern – gib mindestens ein Feld an.');
     $t['gesehen'] = new stdClass();
-    mcp_termin_speichern($t, (int)$lk['id'], false);
+    mcp_termin_speichern($t, (string)$lk['id'], false);
     return ['info' => 'Termin ' . $t['id'] . ' · ' . implode(', ', $g), 'ergebnis' => 'Geändert: ' . implode(', ', $g) . '.'] + w_termin_kurz($t, [$k['id'] => $k]);
 }
 
@@ -580,7 +581,7 @@ function w_bewertung_eintragen(array $lk, array $p): array
         $a['subs'][$u]['abwesend'] = false;
         $erg = 'Bewertung ' . w_score_text($a, $a['subs'][$u]['score']) . ' eingetragen.' . (!empty($a['freigegeben']) ? ' Die Bewertungen sind freigegeben – das Kind sieht sie sofort.' : ' Das Kind sieht sie erst nach der Freigabe.');
     } else mcp_fehler('Gib „bewertung“ oder „abwesend: true“ an.');
-    mcp_aufgabe_speichern($a, (int)$lk['id'], false);
+    mcp_aufgabe_speichern($a, (string)$lk['id'], false);
     return ['info' => 'Aufgabe ' . $a['id'], 'ergebnis' => $erg, 'status' => w_status($a, $u)] + w_zaehler($a, $k);
 }
 
@@ -595,10 +596,10 @@ function w_feedback_senden(array $lk, array $p): array
     w_sub($a, $u);
     $s = &$a['subs'][$u];
     $s['msgs'] = $s['msgs'] ?? [];
-    $s['msgs'][] = ['von' => 'l', 'u' => w_ich($lk), 'text' => $text, 'bild' => null, 'zeit' => mcp_jetzt()];
+    $s['msgs'][] = ['id' => 'l' . base_convert((string)mcp_jetzt(), 10, 36) . substr(bin2hex(random_bytes(2)), 0, 3), 'von' => 'l', 'u' => w_ich($lk), 'text' => $text, 'bild' => null, 'zeit' => mcp_jetzt()];
     $s['sNeu'] = true; $s['erledigt'] = false; $s['lOffen'] = false; $s['lNeu'] = false;
     unset($s);
-    mcp_aufgabe_speichern($a, (int)$lk['id'], false);
+    mcp_aufgabe_speichern($a, (string)$lk['id'], false);
     return ['info' => 'Aufgabe ' . $a['id'], 'ergebnis' => 'Feedback gesendet. Das Kind sieht es unter „Feedback“.'];
 }
 
@@ -613,6 +614,6 @@ function w_bewertungen_freigeben(array $lk, array $p): array
         $erg = 'Bewertungen freigegeben (' . $z['bewertet'] . ' von ' . $z['kinder'] . ' bewertet). Jedes Kind sieht nur seine eigene.'
             . ($z['offen_zu_bewerten'] > 0 ? ' Achtung: ' . $z['offen_zu_bewerten'] . ' noch ohne Bewertung – später Eingetragenes ist sofort sichtbar.' : '');
     } else { $a['freigegeben'] = false; $erg = 'Freigabe zurückgenommen. Die Kinder sehen ihre Bewertung nicht mehr.'; }
-    mcp_aufgabe_speichern($a, (int)$lk['id'], false);
+    mcp_aufgabe_speichern($a, (string)$lk['id'], false);
     return ['info' => 'Aufgabe ' . $a['id'], 'ergebnis' => $erg] + $z;
 }

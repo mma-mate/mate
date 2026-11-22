@@ -73,8 +73,8 @@ pruef(isset($st['einstellungen']) && count($st['werkzeuge']) === 13, 'Admin sieh
 pruef(count($st['lehrkraefte']) === 4, 'Admin sieht die LK-Liste');
 $r = adminPost($jarA, 'falsch', ['aktion' => 'speichern', 'einstellungen' => ['aktiv' => true]]); pruef($r['code'] === 403, 'ohne CSRF kein Speichern');
 $alle = array_fill_keys(array_column($st['werkzeuge'], 'name'), true);
-$r = adminPost($jarA, $st['csrf'], ['aktion' => 'speichern', 'einstellungen' => ['aktiv' => true, 'werkzeuge' => $alle, 'lk' => [1, 10]]]);
-pruef($r['json']['einstellungen']['aktiv'] === true && $r['json']['einstellungen']['lk'] === [1], 'eingeschaltet, nur Sabine freigeschaltet (Kind-ID wird ignoriert)');
+$r = adminPost($jarA, $st['csrf'], ['aktion' => 'speichern', 'einstellungen' => ['aktiv' => true, 'werkzeuge' => $alle, 'lk' => ['1', '10']]]);
+pruef($r['json']['einstellungen']['aktiv'] === true && $r['json']['einstellungen']['lk'] === ['1'], 'eingeschaltet, nur Sabine freigeschaltet (Kind-ID wird ignoriert)');
 
 echo "LK ohne Freischaltung / mit Startpasswort\n";
 $v = verbinden('ali.test@demo.mate.test', '/tmp/mate-mcp-test/ali.jar');
@@ -147,7 +147,7 @@ $x = tool($tok, 'abgabe_lesen', ['aufgabe_id' => 'a1', 'schueler_id' => 's11', '
 pruef(count($x['content']) === 1 && end($x['structuredContent']['feedback_verlauf'])['von'] === 'Lehrkraft', 'Feedback steht im Verlauf, ohne Dateien');
 $x = tool($tok, 'bewertungen_freigeben', ['aufgabe_id' => 'a1', 'freigeben' => true]); pruef(str_contains($x['structuredContent']['ergebnis'] ?? '', '2 von 4'), 'bewertungen_freigeben mit Hinweis auf Offene');
 $d = json_decode(file_get_contents('/tmp/mate-mcp-test/daten.json'), true); $a = array_column($d['aufgaben'], null, 'id')['a1'];
-pruef($a['freigegeben'] === true && $a['subs']['s11']['msgs'][1]['u'] === 'l1' && $a['subs']['s11']['sNeu'] === true && $a['subs']['s12']['abwesend'] === false, 'gespeicherte Daten wie in der App (msgs.u, sNeu, abwesend)');
+pruef($a['freigegeben'] === true && $a['subs']['s11']['msgs'][1]['u'] === 'l1' && !empty($a['subs']['s11']['msgs'][1]['id']) && $a['subs']['s11']['sNeu'] === true && $a['subs']['s12']['abwesend'] === false, 'gespeicherte Daten wie in der App (msgs.u, sNeu, abwesend)');
 
 echo "Erneuern, Freischaltung, Protokoll\n";
 $r = http('POST', '/oauth/token', ['grant_type' => 'refresh_token', 'refresh_token' => $ref, 'client_id' => $v['client']], [], null, true);
@@ -168,7 +168,7 @@ $stA = http('GET', '/mcp-admin.php', null, [], $jarA)['json'];
 adminPost($jarA, $stA['csrf'], ['aktion' => 'speichern', 'einstellungen' => ['lk' => []]]);
 pruef(rpc($tok2, 'tools/list')['code'] === 401, 'Freischaltung entzogen: sofort getrennt');
 
-adminPost($jarA, $stA['csrf'], ['aktion' => 'speichern', 'einstellungen' => ['lk' => [1]]]);
+adminPost($jarA, $stA['csrf'], ['aktion' => 'speichern', 'einstellungen' => ['lk' => ['1']]]);
 $v = verbinden('sabine.demo@demo.mate.test', $jar, $ver); $loc = erlauben($v, $jar); parse_str((string)parse_url((string)$loc, PHP_URL_QUERY), $q);
 $tok3 = http('POST', '/oauth/token', ['grant_type' => 'authorization_code', 'code' => $q['code'], 'redirect_uri' => RED, 'client_id' => $v['client'], 'code_verifier' => $ver], [], null, true)['json']['access_token'];
 $st = http('GET', '/mcp-admin.php', null, [], $jar)['json'];

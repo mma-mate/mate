@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS mcp_clients (
 CREATE TABLE IF NOT EXISTS mcp_codes (
   code_hash CHAR(64) PRIMARY KEY,
   client_id VARCHAR(255) NOT NULL,
-  benutzer_id INTEGER NOT NULL,
+  benutzer_id VARCHAR(20) NOT NULL,
   redirect_uri TEXT NOT NULL,
   challenge VARCHAR(128) NOT NULL,
   ablauf BIGINT NOT NULL
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS mcp_tokens (
   art VARCHAR(10) NOT NULL,         -- 'access' oder 'refresh'
   verbindung VARCHAR(32) NOT NULL,  -- gemeinsame Kennung von access + refresh einer Verbindung
   client_id VARCHAR(255) NOT NULL,
-  benutzer_id INTEGER NOT NULL,
+  benutzer_id VARCHAR(20) NOT NULL,
   erstellt BIGINT NOT NULL,
   ablauf BIGINT NOT NULL,
   zuletzt BIGINT NULL
@@ -46,7 +46,7 @@ CREATE INDEX IF NOT EXISTS mcp_tokens_verbindung ON mcp_tokens (verbindung);
 CREATE TABLE IF NOT EXISTS mcp_protokoll (
   id INTEGER PRIMARY KEY AUTO_INCREMENT_PLATZHALTER,
   zeit BIGINT NOT NULL,
-  benutzer_id INTEGER NOT NULL,
+  benutzer_id VARCHAR(20) NOT NULL,
   werkzeug VARCHAR(60) NOT NULL,
   ok TINYINT NOT NULL,
   info VARCHAR(200) NOT NULL        -- z. B. „Aufgabe a123 · 2B Digitale Grundbildung“, nie Namen oder Texte
