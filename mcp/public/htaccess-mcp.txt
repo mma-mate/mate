@@ -8,7 +8,9 @@ RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 # Wege des Connectors
 RewriteRule ^mcp/?$ mcp.php [L,QSA]
 RewriteRule ^oauth/(register|authorize|token|revoke)$ oauth.php?weg=/oauth/$1 [L,QSA]
-RewriteRule ^\.well-known/(oauth-protected-resource(/mcp)?|oauth-authorization-server(/mcp)?|openid-configuration(/mcp)?)$ oauth.php?weg=/.well-known/$1 [L,QSA]
+# IONOS: für /.well-known/ nur mit absolutem Ziel (relatives Ziel ergibt 404)
+RewriteCond %{REQUEST_URI} ^/\.well-known/(oauth-protected-resource|oauth-authorization-server|openid-configuration)
+RewriteRule ^ /oauth.php [L]
 
 # ---- NUR AM DEV: Passwortschutz für diese Wege aufheben ----
 # Claude ruft /mcp aus der Cloud auf und kann das Dev-Passwort nicht eingeben.
