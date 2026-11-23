@@ -1,0 +1,18 @@
+[
+ [
+  "const APP_VERSION=\"202611201830\";",
+  "const APP_VERSION=\"202611230730\";"
+ ],
+ [
+  "st.view=view;st.p=p;st.reply=[];",
+  "st.view=view;st.p=p;if(view===\"claude\"||view===\"profil\")MCPS=null;st.reply=[];"
+ ],
+ [
+  "async function mcpAnfrage(body){",
+  "async function mcpAnfrage(body,nochmal){"
+ ],
+ [
+  " const r=await fetch(\"mcp-admin.php\",o);const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.fehler||\"MATE hat nicht geantwortet.\");return j}",
+  " const r=await fetch(\"mcp-admin.php\",o);const j=await r.json().catch(()=>({}));\n /* Sicherheits-Token veraltet (z. B. nach neuer Anmeldung im selben Tab): Stand neu holen und einmal wiederholen */\n if(r.status===403&&body&&!nochmal){MCPS=await mcpAnfrage(null);return mcpAnfrage(body,true)}\n if(!r.ok)throw new Error(j.fehler||\"MATE hat nicht geantwortet.\");return j}"
+ ]
+]
