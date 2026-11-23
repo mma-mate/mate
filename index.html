@@ -1331,10 +1331,13 @@ let MCPS=null,MCP_LAEDT=false;
 function mcpLokal(){const m=db.mcp||(db.mcp={aktiv:false,werkzeuge:{},lk:[],verb:[]});const lks=db.users.filter(u=>u.rolle!=="s"&&u.aktiv!==false).sort((a,b)=>(a.nn+a.vn).localeCompare(b.nn+b.vn,"de"));
  return {adresse:"https://mate.eibengasse.at/mcp",aktiv:!!m.aktiv,einstellungen:{aktiv:!!m.aktiv,werkzeuge:Object.fromEntries(MCP_WZ.map(([n])=>[n,!!m.werkzeuge[n]])),lk:[...m.lk]},
   lehrkraefte:lks.map(u=>({id:u.id,name:u.vn+" "+u.nn,mail:u.mail||""})),verbindungen:m.verb,protokoll:[],ich:{freigeschaltet:!!m.aktiv&&m.lk.includes(T1.id),verbindungen:m.verb.filter(v=>v.lk===T1.id)}}}
-async function mcpAnfrage(body){if(!MCP_SERVER){const m=db.mcp||mcpLokal()&&db.mcp;if(body){if(body.aktion==="speichern"){const e=body.einstellungen;if("aktiv" in e)m.aktiv=!!e.aktiv;if(e.werkzeuge)Object.assign(m.werkzeuge,e.werkzeuge);if(e.lk)m.lk=e.lk;if(!m.aktiv)m.verb=[];m.verb=m.verb.filter(v=>m.lk.includes(v.lk))}
+async function mcpAnfrage(body,nochmal){if(!MCP_SERVER){const m=db.mcp||mcpLokal()&&db.mcp;if(body){if(body.aktion==="speichern"){const e=body.einstellungen;if("aktiv" in e)m.aktiv=!!e.aktiv;if(e.werkzeuge)Object.assign(m.werkzeuge,e.werkzeuge);if(e.lk)m.lk=e.lk;if(!m.aktiv)m.verb=[];m.verb=m.verb.filter(v=>m.lk.includes(v.lk))}
    if(body.aktion==="trennen"||body.aktion==="meine_trennen")m.verb=m.verb.filter(v=>v.verbindung!==body.verbindung);demoSpeichern()}return mcpLokal()}
  const o={credentials:"same-origin",headers:{"Accept":"application/json"}};if(body){o.method="POST";o.headers["Content-Type"]="application/json";o.headers["X-MATE-MCP-CSRF"]=(MCPS&&MCPS.csrf)||"";o.body=JSON.stringify(body)}
- const r=await fetch("mcp-admin.php",o);const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.fehler||"MATE hat nicht geantwortet.");return j}
+ const r=await fetch("mcp-admin.php",o);const j=await r.json().catch(()=>({}));
+ /* Sicherheits-Token veraltet (z. B. nach neuer Anmeldung im selben Tab): Stand neu holen und einmal wiederholen */
+ if(r.status===403&&body&&!nochmal){MCPS=await mcpAnfrage(null);return mcpAnfrage(body,true)}
+ if(!r.ok)throw new Error(j.fehler||"MATE hat nicht geantwortet.");return j}
 function mcpLaden(){if(MCP_LAEDT)return;MCP_LAEDT=true;mcpAnfrage(null).then(s=>{MCPS=s}).catch(e=>{MCPS={fehler:e.message}}).finally(()=>{MCP_LAEDT=false;if(["claude","profil"].includes(st.view))render()})}
 async function mcpSpeichern(body,ok){try{MCPS=await mcpAnfrage(body);if(ok)toast(ok)}catch(e){toast(e.message)}render()}
 function mcpZeit(t){if(!t)return"–";const d=new Date(t);return `${d.getDate()}.${d.getMonth()+1}., ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`}
@@ -1396,7 +1399,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611201830";
+const APP_VERSION="202611230730";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -1458,7 +1461,7 @@ function adminItems(){return[["start","Übersicht","home",meldungen().filter(m=>
 function lehrItems(){const dl=dashL();return[["start","Startseite","home"],["aufgaben","Aufgaben","tasks",new Set(dl.korr.map(x=>x.a.id)).size],["termine","Termine","cal",naechsteTermine(7).length],["feedback","Feedback","chat",dl.antw.length+dl.verb.length],["kurse","Kurse","book"]]}
 /* Admin-Bereiche: mehrere Ansichten gehören zu einem Menüpunkt */
 function aBereich(v){return ["schueler","lehrer","archiv","person","benutzer"].includes(v)?"benutzer":["klassen","klasse","kurse","faecher","schule"].includes(v)?"schule":["wechsel","schuljahr"].includes(v)?"schuljahr":v==="karten"?"benutzer":["termin","terminneu"].includes(v)?"termine":v==="profil"?"":v}
-function go(view,p={}){if(st.up&&st.up.fertig)st.up=null;if(st.ordnen&&!(view==="kurs"&&p&&p.id===st.ordnen.kurs))st.ordnen=null;if(view!=="recht"&&/^#(impressum|datenschutz|nutzung)$/.test(location.hash))try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}st.view=view;st.p=p;st.reply=[];st.antwortAuf=null;st.mehr={};if(view!=="kurs")st.tab="aufgaben";if(view==="termine"&&st.role==="admin"&&st.tfilter&&st.tfilter.kurs&&!["","schule","klasse"].includes(st.tfilter.kurs))st.tfilter.kurs="";verlaufMerken();render();window.scrollTo(0,0)}
+function go(view,p={}){if(st.up&&st.up.fertig)st.up=null;if(st.ordnen&&!(view==="kurs"&&p&&p.id===st.ordnen.kurs))st.ordnen=null;if(view!=="recht"&&/^#(impressum|datenschutz|nutzung)$/.test(location.hash))try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}st.view=view;st.p=p;if(view==="claude"||view==="profil")MCPS=null;st.reply=[];st.antwortAuf=null;st.mehr={};if(view!=="kurs")st.tab="aufgaben";if(view==="termine"&&st.role==="admin"&&st.tfilter&&st.tfilter.kurs&&!["","schule","klasse"].includes(st.tfilter.kurs))st.tfilter.kurs="";verlaufMerken();render();window.scrollTo(0,0)}
 /* Verlauf: Zurück-Taste, Wischgeste am Handy und Browser-Zurück führen zur vorigen Ansicht */
 let VERLAUF_POP=false;
 function verlaufZustand(){return {mate:1,v:st.view,p:st.p,role:st.role,tab:st.tab}}
