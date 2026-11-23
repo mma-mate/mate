@@ -1,0 +1,7 @@
+[
+ [
+  "src/sync_speichern.php",
+  "    $kid = kl_id($klasse);\n    $neu = patch_anwenden(null, $set, $unset);\n",
+  "    $kid = kl_id($klasse);\n    // Bisherigen Stand laden: Die App schickt bei einer Änderung nur die geänderten Felder\n    // (z. B. nur kadmin). Ohne diesen Stand ging der Klassenvorstand verloren (23. 11. 2026).\n    $alt = null;\n    if ($op !== 'neu') {\n        $alt = new stdClass;\n        $alt->kv = null;\n        $alt->kadmin = [];\n        foreach (q_alle('SELECT benutzer_id, ist_kv FROM klassenadmins WHERE klasse_id = ?', [$kid]) as $r) {\n            if ((int)$r['ist_kv']) $alt->kv = $r['benutzer_id'];\n            else $alt->kadmin[] = $r['benutzer_id'];\n        }\n    }\n    $neu = patch_anwenden($alt, $set, $unset);\n"
+ ]
+]
