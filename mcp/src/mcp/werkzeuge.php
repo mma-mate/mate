@@ -454,13 +454,24 @@ function w_termin_felder(array &$t, array $p, array $k): array
         if ($d > w_sj_ende((string)$k['sj'])) mcp_fehler('Das Datum liegt nach dem Ende des Schuljahres ' . $k['sj'] . '.');
         $t['datum'] = $d; $g[] = 'Datum';
     }
-    if (isset($p['einheit_von'])) {
-        $v = (int)$p['einheit_von']; $b = isset($p['einheit_bis']) ? (int)$p['einheit_bis'] : null;
-        if ($v < 1 || $v > 12 || ($b !== null && ($b < $v || $b > 12))) mcp_fehler('Einheit: 1 bis 12, „bis“ nicht vor „von“.');
+    // Nur angegebene Felder ändern: fehlt „von“ oder „bis“, gilt der bisherige Wert (sofern der Termin schon so eingeteilt war).
+    if (isset($p['einheit_von']) || isset($p['einheit_bis'])) {
+        $war = ($t['zeit'] ?? '') === 'einheit';
+        $v = isset($p['einheit_von']) ? (int)$p['einheit_von'] : ($war ? (int)($t['von'] ?? 0) : 0);
+        if ($v < 1) mcp_fehler('Einheit: gib einheit_von an.');
+        $b = isset($p['einheit_bis']) ? (int)$p['einheit_bis'] : (($war && !empty($t['bis'])) ? (int)$t['bis'] : null);
+        if (!isset($p['einheit_bis']) && $b !== null && $b < $v) mcp_fehler('Die bisherige Einheit „bis“ (' . $b . ') liegt vor dem neuen Beginn – gib einheit_bis mit an.');
+        if ($v > 12 || ($b !== null && ($b < $v || $b > 12))) mcp_fehler('Einheit: 1 bis 12, „bis“ nicht vor „von“.');
         $t['zeit'] = 'einheit'; $t['von'] = $v; $t['bis'] = ($b === null || $b === $v) ? null : $b; $t['uvon'] = ''; $t['ubis'] = ''; $g[] = 'Einheit';
-    } elseif (isset($p['uhrzeit_von'])) {
-        $v = (string)$p['uhrzeit_von']; $b = (string)($p['uhrzeit_bis'] ?? '');
-        if (!preg_match('/^\d{1,2}:\d{2}$/', $v) || ($b !== '' && (!preg_match('/^\d{1,2}:\d{2}$/', $b) || $b <= $v))) mcp_fehler('Uhrzeit: HH:MM, das Ende nach dem Beginn.');
+    } elseif (isset($p['uhrzeit_von']) || isset($p['uhrzeit_bis'])) {
+        $war = ($t['zeit'] ?? '') === 'uhrzeit';
+        $hhmm = static fn(string $x): string => preg_match('/^(\d{1,2}):(\d{2})$/', $x, $m) ? sprintf('%02d:%s', (int)$m[1], $m[2]) : $x;
+        $v = isset($p['uhrzeit_von']) ? (string)$p['uhrzeit_von'] : ($war ? (string)($t['uvon'] ?? '') : '');
+        if ($v === '') mcp_fehler('Uhrzeit: gib uhrzeit_von an.');
+        $b = isset($p['uhrzeit_bis']) ? (string)$p['uhrzeit_bis'] : ($war ? (string)($t['ubis'] ?? '') : '');
+        if (!preg_match('/^\d{1,2}:\d{2}$/', $v) || ($b !== '' && !preg_match('/^\d{1,2}:\d{2}$/', $b))) mcp_fehler('Uhrzeit: HH:MM, das Ende nach dem Beginn.');
+        $v = $hhmm($v); $b = $b === '' ? '' : $hhmm($b);
+        if ($b !== '' && $b <= $v) mcp_fehler(isset($p['uhrzeit_bis']) ? 'Uhrzeit: HH:MM, das Ende nach dem Beginn.' : 'Die bisherige Endzeit (' . $b . ') liegt nicht nach dem neuen Beginn – gib uhrzeit_bis mit an.');
         $t['zeit'] = 'uhrzeit'; $t['uvon'] = $v; $t['ubis'] = $b; $t['von'] = null; $t['bis'] = null; $g[] = 'Uhrzeit';
     }
     if (isset($p['titel'])) { $t['titel'] = trim((string)$p['titel']) === '' ? '' : w_titel((string)$p['titel']); $g[] = 'Titel'; }

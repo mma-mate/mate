@@ -130,6 +130,11 @@ $x = tool($tok, 'termin_anlegen', ['kurs_id' => 'k1', 'art' => 'pruefung', 'datu
 $tn = $x['structuredContent'] ?? []; pruef(($tn['titel'] ?? '') === 'Schularbeit Englisch' && ($tn['zeit'] ?? '') === '3. Einheit', 'termin_anlegen: Standardtitel, 3. Einheit');
 $x = tool($tok, 'termin_aendern', ['termin_id' => $tn['id'], 'titel' => 'Test Unit 1–3', 'sichtbar' => 'spaeter']); pruef(($x['structuredContent']['titel'] ?? '') === 'Test Unit 1–3', 'termin_aendern');
 $x = tool($tok, 'termin_aendern', ['termin_id' => 't2', 'titel' => 'Hack']); pruef($x['isError'], 'Schultermin ändern: Fehler');
+$x = tool($tok, 'termin_aendern', ['termin_id' => $tn['id'], 'einheit_bis' => 4]); pruef(($x['structuredContent']['zeit'] ?? '') === '3.–4. Einheit', 'termin_aendern: nur einheit_bis, Beginn bleibt');
+$x = tool($tok, 'termin_aendern', ['termin_id' => $tn['id'], 'uhrzeit_von' => '9:00', 'uhrzeit_bis' => '11:30']); pruef(($x['structuredContent']['zeit'] ?? '') === '09:00–11:30', 'termin_aendern: Uhrzeit, einstellige Stunde vor zweistelliger');
+$x = tool($tok, 'termin_aendern', ['termin_id' => $tn['id'], 'uhrzeit_von' => '08:30']); pruef(($x['structuredContent']['zeit'] ?? '') === '08:30–11:30', 'termin_aendern: nur uhrzeit_von, Endzeit bleibt');
+$x = tool($tok, 'termin_aendern', ['termin_id' => $tn['id'], 'uhrzeit_bis' => '12:00']); pruef(($x['structuredContent']['zeit'] ?? '') === '08:30–12:00', 'termin_aendern: nur uhrzeit_bis, Beginn bleibt');
+$x = tool($tok, 'termin_aendern', ['termin_id' => $tn['id'], 'uhrzeit_von' => '12:30']); pruef($x['isError'] && str_contains($x['content'][0]['text'], 'uhrzeit_bis'), 'termin_aendern: neuer Beginn nach alter Endzeit: Fehler');
 
 $x = tool($tok, 'abgaben_auflisten', ['aufgabe_id' => 'a1']); $ab = array_column($x['structuredContent']['abgaben'], null, 'schueler_id');
 pruef($ab['s10']['status'] === 'abgegeben' && $ab['s11']['status'] === 'verspätet' && $ab['s12']['status'] === 'abwesend' && $ab['s13']['status'] === 'überfällig' && $ab['s11']['wartet_auf_antwort'], 'abgaben_auflisten: Status wie in der App');
