@@ -1,0 +1,42 @@
+[
+ [
+  "const APP_VERSION=\"202611230730\";",
+  "const APP_VERSION=\"202611231100\";"
+ ],
+ [
+  "bis:b?`${b.getFullYear()}-${p(b.getMonth()+1)}-${p(b.getDate())}`:\"\"}}",
+  "bis:b?`${b.getFullYear()}-${p(b.getMonth()+1)}-${p(b.getDate())}`:\"\",bisZeit:b?`${p(b.getHours())}:${p(b.getMinutes())}`:\"08:00\"}}"
+ ],
+ [
+  "<input type=\"date\" id=\"af-nfb\" value=\"${esc(n.bis)}\" max=\"${isoTag(ende)}\"></div>",
+  "<input type=\"date\" id=\"af-nfb\" value=\"${esc(n.bis)}\" max=\"${isoTag(ende)}\" style=\"width:auto;flex:1 1 9em\"><input type=\"time\" id=\"af-nfz\" value=\"${esc(n.bisZeit||\"08:00\")}\" style=\"width:auto;flex:0 1 7em\" aria-label=\"Uhrzeit, bis wann verspätet abgegeben werden kann\"></div>"
+ ],
+ [
+  "if(g(\"#af-nfb\"))af.nf.bis=g(\"#af-nfb\").value;",
+  "if(g(\"#af-nfb\"))af.nf.bis=g(\"#af-nfb\").value;if(g(\"#af-nfz\"))af.nf.bisZeit=g(\"#af-nfz\").value;"
+ ],
+ [
+  "else if(n.art===\"bis\"&&/^\\d{4}-\\d{2}-\\d{2}$/.test(n.bis||\"\"))e=new Date(n.bis+\"T23:59\").getTime();if(!e)return\"\";",
+  "else if(n.art===\"bis\"&&/^\\d{4}-\\d{2}-\\d{2}$/.test(n.bis||\"\"))e=new Date(n.bis+\"T\"+(/^\\d{2}:\\d{2}$/.test(n.bisZeit||\"\")?n.bisZeit:\"23:59\")).getTime();if(!e)return\"\";"
+ ],
+ [
+  "return `${n.art===\"tage\"?`<span class=\"hint\">Ende der Nachfrist:",
+  "return `${n.art===\"tage\"||n.art===\"bis\"?`<span class=\"hint\">Ende der Nachfrist:"
+ ],
+ [
+  "const bt=new Date(n.bis+\"T23:59\").getTime();",
+  "const bt=new Date(n.bis+\"T\"+(/^\\d{2}:\\d{2}$/.test(n.bisZeit||\"\")?n.bisZeit:\"23:59\")).getTime();"
+ ],
+ [
+  "if((t.id===\"af-nft\"||t.id===\"af-nfb\"||t.id===\"af-zeit\")&&af&&$(\"#af-nf-h\"))",
+  "if((t.id===\"af-nft\"||t.id===\"af-nfb\"||t.id===\"af-nfz\"||t.id===\"af-zeit\")&&af&&$(\"#af-nf-h\"))"
+ ],
+ [
+  "` · Nachfrist bis ${fmtDate(nfEnde(a))}`",
+  "` · Nachfrist bis ${fmtDate(nfEnde(a))}, ${fmtTime(nfEnde(a))}`"
+ ],
+ [
+  "n.art===\"bis\"?`Nachfrist bis ${fmtDate(n.bis)}`",
+  "n.art===\"bis\"?`Nachfrist bis ${fmtDate(n.bis)}, ${fmtTime(n.bis)}`"
+ ]
+]
