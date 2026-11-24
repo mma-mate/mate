@@ -1411,7 +1411,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611241610";
+const APP_VERSION="202611241620";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -2467,7 +2467,7 @@ function fotoQuellen(){const out=[];db.kurse.filter(k=>k.sj===SJ).forEach(k=>{
  db.aufgaben.filter(a=>a.kurs===k.id).forEach(a=>{
   (a.anhaenge||[]).map(anhNorm).forEach(f=>{if(f.h||f.ph)out.push({typ:"lk",k,a,f,wo:`Anhang deiner Aufgabe „${a.titel}“`,zeit:null})});
   Object.entries(a.subs).forEach(([u,s])=>{(s.files||[]).forEach(f=>{if(f.h||f.ph)out.push({typ:"s",k,a,u,s,f,zeit:s.zeit})});
-   msgs(s).forEach(m=>(m.files||[]).forEach(f=>{if(f.h||f.ph)out.push(m.von==="s"?{typ:"s",k,a,u,s,f,zeit:m.zeit,verb:true}:{typ:"lk",k,a,f,wo:`Anhang deines Feedbacks bei „${a.titel}“`,zeit:m.zeit})}))})})});return out}
+   msgs(s).forEach(m=>m.typ!=="zw"&&(m.files||[]).forEach(f=>{if(f.h||f.ph)out.push(m.von==="s"?{typ:"s",k,a,u,s,f,zeit:m.zeit,verb:true}:{typ:"lk",k,a,f,wo:`Anhang deines Feedbacks bei „${a.titel}“`,zeit:m.zeit})}))})})});return out}
 function eigeneFotos(a,uId){const s=a.subs[uId];if(!s)return[];return[...(s.files||[]).map(f=>({f,zeit:s.zeit})),...msgs(s).filter(m=>m.von==="s").flatMap(m=>(m.files||[]).map(f=>({f,zeit:m.zeit,verb:true})))].filter(x=>x.f.h||x.f.ph)}
 /* Treffer für die Abgabe eines Kindes: andere Kinder (auch andere Aufgaben/Kurse im Schuljahr) und Material der Lehrkraft */
 function fotoTreffer(a,uId,Q){const eigen=eigeneFotos(a,uId);if(!eigen.length)return[];Q=Q||fotoQuellen();const tr=new Map();
