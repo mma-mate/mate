@@ -1407,7 +1407,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611241415";
+const APP_VERSION="202611241430";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -1469,7 +1469,12 @@ function adminItems(){return[["start","Übersicht","home",meldungen().filter(m=>
 function lehrItems(){const dl=dashL();return[["start","Startseite","home"],["aufgaben","Aufgaben","tasks",new Set(dl.korr.map(x=>x.a.id)).size],["termine","Termine","cal",naechsteTermine(7).length],["feedback","Feedback","chat",dl.antw.length+dl.verb.length],["kurse","Kurse","book"]]}
 /* Admin-Bereiche: mehrere Ansichten gehören zu einem Menüpunkt */
 function aBereich(v){return ["schueler","lehrer","archiv","person","benutzer"].includes(v)?"benutzer":["klassen","klasse","kurse","faecher","schule"].includes(v)?"schule":["wechsel","schuljahr"].includes(v)?"schuljahr":v==="karten"?"benutzer":["termin","terminneu"].includes(v)?"termine":v==="profil"?"":v}
-function go(view,p={}){if(st.up&&st.up.fertig)st.up=null;if(st.ordnen&&!(view==="kurs"&&p&&p.id===st.ordnen.kurs))st.ordnen=null;if(view!=="recht"&&/^#(impressum|datenschutz|nutzung)$/.test(location.hash))try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}st.view=view;st.p=p;if(view==="claude"||view==="profil")MCPS=null;st.reply=[];st.antwortAuf=null;st.mehr={};if(view!=="kurs")st.tab="aufgaben";if(view==="termine"&&st.role==="admin"&&st.tfilter&&st.tfilter.kurs&&!["","schule","klasse"].includes(st.tfilter.kurs))st.tfilter.kurs="";verlaufMerken();render();window.scrollTo(0,0)}
+/* Ungesendetes Feedback auf der Abgabe-Seite nicht kommentarlos verlieren (24. 11. 2026): beim Verlassen nachfragen */
+let fbWeiter=null;
+function fbOffen(){return st.view==="abgabe"&&st.p&&(String(st.p.entwurf||"").trim()||(ANH.fbl||[]).length)}
+function fbWarnen(view,p){fbWeiter={view,p};const u=U(st.p.u);modal(`<h2>Feedback noch nicht gesendet</h2><p>Dein Feedback an ${esc(u.vn)} ist noch nicht gesendet. Was soll damit passieren?</p><div class="actions"><button class="btn primary" data-act="fbw-senden">Senden und weiter</button><button class="btn" data-act="fbw-weg">Verwerfen und weiter</button><button class="btn ghost" data-close-btn>Hierbleiben</button></div>`)}
+addEventListener("beforeunload",e=>{if(fbOffen()){e.preventDefault();e.returnValue=""}});
+function go(view,p={}){if(fbOffen()&&!(view==="abgabe"&&p&&p.id===st.p.id&&p.u===st.p.u)){fbWarnen(view,p);return}if(st.up&&st.up.fertig)st.up=null;if(st.ordnen&&!(view==="kurs"&&p&&p.id===st.ordnen.kurs))st.ordnen=null;if(view!=="recht"&&/^#(impressum|datenschutz|nutzung)$/.test(location.hash))try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}st.view=view;st.p=p;if(view==="claude"||view==="profil")MCPS=null;st.reply=[];st.antwortAuf=null;st.mehr={};if(view!=="kurs")st.tab="aufgaben";if(view==="termine"&&st.role==="admin"&&st.tfilter&&st.tfilter.kurs&&!["","schule","klasse"].includes(st.tfilter.kurs))st.tfilter.kurs="";verlaufMerken();render();window.scrollTo(0,0)}
 /* Verlauf: Zurück-Taste, Wischgeste am Handy und Browser-Zurück führen zur vorigen Ansicht */
 let VERLAUF_POP=false;
 function verlaufZustand(){return {mate:1,v:st.view,p:st.p,role:st.role,tab:st.tab}}
@@ -2332,7 +2337,8 @@ if(act==="freigabe-ok"){const a=A(d.a);a.freigegeben=true;closeModal();toast("Be
   L.splice(+d.m,1);if(m.von==="l"){s.sNeu=L.some(x=>x.von==="l"&&msgUngelesen({...s,sNeu:true},x))}else{const rest=L.filter(x=>x.von==="s"&&msgUngelesen({...s,lNeu:true},x));if(!rest.length){s.lNeu=false;s.lOffen=false}if(s.verbesserung&&!rest.some(x=>x.files&&x.files.length))s.verbesserung=false}
   st.msgEdit=null;toast("Nachricht gelöscht.");msgNeu(d.a,d.u);return}
  if(act==="abg-oeffnen"){closeModal();ANH.fbl=[];const imA=st.view==="aufgabe";go("abgabe",{id:d.a,u:d.u,from:imA?(st.p.from||""):st.view,aFrom:imA?(st.p.from||""):(st.view==="sk"?"":st.view),zr:imA?null:{view:st.view,p:{...st.p}}});window.scrollTo(0,0);return}
- if(act==="abg-geh"){ANH.fbl=[];go("abgabe",{id:d.a,u:d.u,from:st.p.from,aFrom:st.p.aFrom,zr:st.p.zr});window.scrollTo(0,0);return}
+ if(act==="abg-geh"){const vorher=st.p;go("abgabe",{id:d.a,u:d.u,from:st.p.from,aFrom:st.p.aFrom,zr:st.p.zr});if(st.p!==vorher){ANH.fbl=[];window.scrollTo(0,0)}return}
+ if(act==="fbw-senden"||act==="fbw-weg"){const w=fbWeiter;fbWeiter=null;if(!w||st.view!=="abgabe"){closeModal();return}if(act==="fbw-senden"){const u=st.p.u,t=String(st.p.entwurf||"").trim(),fs=[...(ANH.fbl||[])];const s0=getSub(A(st.p.id),u);sendL(s0,t);if(fs.length)msgs(s0)[msgs(s0).length-1].files=fs;toast(`Feedback an ${U(u).vn} gesendet.`)}st.p.entwurf="";ANH.fbl=[];closeModal();go(w.view,w.p);window.scrollTo(0,0);return}
  if(act==="abg-zurueck"){const z=st.p.zr;if(z){go(z.view,z.p);window.scrollTo(0,0)}return}
  if(act==="zur-aufgabe"){closeModal();go("aufgabe",{id:d.a,from:st.p.aFrom||"",hl:d.u});setTimeout(()=>{const r=document.querySelector(`tr[data-urow="${d.u}"]`);if(r)r.scrollIntoView({block:"center",behavior:"smooth"})},60);return}
  if(act==="fb-l-erledigt"){const x=getSub(A(d.a),d.u);x.lOffen=false;x.lNeu=false;x.lErledigt=Date.now();x.lErlVon=T1.id;closeModal();toast("Als erledigt markiert. Du findest den Verlauf unter Feedback → Erledigt.");render();return}
