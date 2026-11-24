@@ -1,0 +1,22 @@
+[
+ [
+  "<div class=\"msg-editf\"><textarea id=\"msg-edit-t\" rows=\"3\" aria-label=\"Nachricht ändern\">",
+  "<div class=\"msg-editf\">${fmtLeiste(\"msg-edit-t\")}<textarea id=\"msg-edit-t\" rows=\"6\" aria-label=\"Nachricht ändern\">"
+ ],
+ [
+  "<div class=\"msg ${m.von}\"><small>",
+  "<div class=\"msg ${m.von}${msgEditHier(a,uId,i)?\" editing\":\"\"}\"><small>"
+ ],
+ [
+  ".msg-editf textarea{width:100%;min-width:220px;margin-top:4px}",
+  ".msg.editing{max-width:100%;width:100%}.msg-editf textarea{width:100%;min-width:0;min-height:150px;margin-top:2px;resize:vertical;box-sizing:border-box;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 11px}.msg-editf .fmt-leiste{margin-top:2px}"
+ ],
+ [
+  "if(t.id===\"fb\"&&st.view===\"abgabe\"){st.p.entwurf=t.value;return}",
+  "if(t.id===\"fb\"&&st.view===\"abgabe\"){st.p.entwurf=t.value;return}if(t.id===\"msg-edit-t\"&&st.msgEdit){st.msgEdit.text=t.value;return}"
+ ],
+ [
+  "const APP_VERSION=\"202611241300\";",
+  "const APP_VERSION=\"202611241330\";"
+ ]
+]
