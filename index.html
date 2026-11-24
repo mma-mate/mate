@@ -1407,7 +1407,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611241230";
+const APP_VERSION="202611241300";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -2460,7 +2460,7 @@ function fotoKarte(t,a0){const a=t.a;const src=a?bildVon(t.f,a):(t.f.img||null);
  const wer=t.typ==="s"?`${esc(U(t.u).vn)} ${esc(U(t.u).nn)}`:"Dein Material";
  const wo=t.typ==="s"?(a===a0?(t.verb?"Verbesserung":"diese Aufgabe"):`${aTitel(a)} · ${esc(kursKurz(t.k))}`):esc(t.wo);
  const ent=t.typ==="s"?fotoStand(a,t.u).stand:null;
- const akt=t.typ==="s"&&t.a===a0&&t.aktiv;return `<figure class="fvgl${akt?" aktiv":""}">${src?`<button type="button" class="fvgl-bild" data-act="fvgl-zoom" title="Größer/kleiner anzeigen"><img src="${src}" alt="Foto: ${wer}"></button>`:`<div class="fvgl-bild"><span class="tag">${esc((t.f.n.split(".").pop()||"").toUpperCase())}</span></div>`}<figcaption><b>${wer}</b>${akt?` <span class="tag">ausgewählt</span>`:""}${t.art?` <span class="pill ${t.art==="identisch"?"p-late":"p-warn"}">${t.art}</span>`:""}<span class="sub">${wo}${t.zeit?` · ${fmtDate(t.zeit)}, ${fmtTime(t.zeit)}`:""}</span>${bew?`<span class="sub">${esc(bew)}</span>`:""}
+ const akt=t.typ==="s"&&t.a===a0&&t.aktiv;return `<figure class="fvgl${akt?" aktiv":""}">${src?`<button type="button" class="fvgl-bild" data-act="fvgl-zoom" title="Größer/kleiner anzeigen"><img src="${src}" alt="Foto: ${wer}"></button>`:`<div class="fvgl-bild"${t.f.url?` data-fvgl-url="${esc(t.f.url)}" data-fvgl-n="${esc(t.f.n)}"`:""}><span class="tag">${esc((t.f.n.split(".").pop()||"").toUpperCase())}</span></div>`}<figcaption><b>${wer}</b>${akt?` <span class="tag">ausgewählt</span>`:""}${t.art?` <span class="pill ${t.art==="identisch"?"p-late":"p-warn"}">${t.art}</span>`:""}<span class="sub">${wo}${t.zeit?` · ${fmtDate(t.zeit)}, ${fmtTime(t.zeit)}`:""}</span>${bew?`<span class="sub">${esc(bew)}</span>`:""}
  ${t.typ==="s"&&ent?`<span class="fvgl-ent" role="group" aria-label="Entscheidung für ${wer}"><button type="button" class="chip" data-act="foto-ent" data-w="ok" data-a="${a.id}" data-u="${t.u}" aria-pressed="${ent==="ok"}">In Ordnung</button><button type="button" class="chip" data-act="foto-ent" data-w="nicht" data-a="${a.id}" data-u="${t.u}" aria-pressed="${ent==="nicht"}">Nicht in Ordnung</button></span>`:""}</figcaption></figure>`}
 function fotoVergleich(aId,uId){const a=A(aId);const u=U(uId);const{tr}=fotoStand(a,uId);const s=getSub(a,uId);
  const eigen={typ:"s",aktiv:true,k:K(a.kurs),a,u:uId,s,f:(tr[0]&&tr[0].meins)||eigeneFotos(a,uId)[0]?.f||{n:""},zeit:s.zeit};
