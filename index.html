@@ -204,7 +204,7 @@ button.panel.stat.click{text-align:left;cursor:pointer;font:inherit;color:inheri
 .av img{width:100%;height:100%;object-fit:cover}
 .av.lg{width:84px;height:84px;font-size:1.6rem}
 
-.tablewrap{overflow-x:auto}
+.tablewrap{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
 th,td{padding:9px 12px;border-top:1px solid var(--line);text-align:left;vertical-align:middle}
 .sortbtn{border:0;background:none;padding:0;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit;cursor:pointer;white-space:nowrap}.sortbtn:hover{color:var(--fg)}th[aria-sort="ascending"],th[aria-sort="descending"]{color:var(--fg)}
@@ -1400,7 +1400,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611240530";
+const APP_VERSION="202611241045";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
