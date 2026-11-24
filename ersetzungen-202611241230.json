@@ -1,0 +1,46 @@
+[
+ [
+  "function linkEingabe(ziel,hinweis=\"\"){",
+  "/* Kurze Namen (24. 11. 2026): Fotos heißen beim Hochladen Nachname_Vorname_A<Nr>_<k>.jpg, in Listen steht nur „Foto k“ bzw. „Link k“. Andere Dateien behalten ihren Namen. */\nconst istFotoDatei=f=>!!f&&!istLink(f)&&(!!f.img||/\\.(jpe?g|png|heic|heif|webp|gif)$/i.test(f.n||\"\"));\nfunction kurzName(f,list){if(istFotoDatei(f))return\"Foto \"+(list.filter(istFotoDatei).indexOf(f)+1);return f.n}\nfunction linkKurz(f,list,extra=\"\"){return `<a class=\"linkanh\" href=\"${esc(f.url)}\" target=\"_blank\" rel=\"noopener noreferrer\" title=\"${esc(f.n)} – ${esc(f.url)}\" ${extra}>${ico(\"link\")}<span><b>Link ${list.filter(istLink).indexOf(f)+1}</b><small>${esc(linkDomain(f.url))}</small></span></a>`}\nfunction fotoNamen(a,u,neu,alt){const vorh=new Set(alt.filter(Boolean).map(f=>f.n));const pre=slug(`${u.nn}_${u.vn}_${a.nr?\"A\"+a.nr+\"_\":\"\"}`);let k=alt.filter(istFotoDatei).length;for(const d of neu){if(!istFotoDatei(d))continue;const ext=((d.n||\"\").match(/\\.[a-z0-9]{2,5}$/i)||[\".jpg\"])[0].toLowerCase();let n;do{k++;n=pre+k+ext}while(vorh.has(n));d.orig=d.orig||d.n;d.n=n;vorh.add(n)}}\nfunction alleDateien(s){return [...s.files,...msgs(s).flatMap(m=>m.files||[])]}\nfunction linkEingabe(ziel,hinweis=\"\"){"
+ ],
+ [
+  "<td><span style=\"display:flex;flex-wrap:wrap;gap:6px;align-items:center\">${s.files.length?s.files.map((f,i)=>istLink(f)?linkKnopf(",
+  "<td style=\"min-width:290px\"><span style=\"display:flex;flex-wrap:wrap;gap:6px;align-items:center\">${s.files.length?s.files.map((f,i)=>istLink(f)?linkKnopf("
+ ],
+ [
+  "s.files.map((f,i)=>istLink(f)?linkKnopf(f,'style=\"max-width:220px\"'):`<button class=\"btn small ghost\" data-act=\"l-vorschau\" data-u=\"${u.id}\" data-i=\"${i}\" title=\"Vorschau öffnen\">${f.img?`<img src=\"${f.img}\" alt=\"\" style=\"width:26px;height:26px;object-fit:cover;border-radius:4px\">`:\"\"}${esc(f.n)}</button>`)",
+  "s.files.map((f,i)=>istLink(f)?linkKurz(f,s.files,'style=\"max-width:200px\"'):`<button class=\"btn small ghost fkurz\" data-act=\"l-vorschau\" data-u=\"${u.id}\" data-i=\"${i}\" title=\"${esc(f.n)} – Vorschau öffnen\">${f.img?`<img src=\"${f.img}\" alt=\"\" style=\"width:26px;height:26px;object-fit:cover;border-radius:4px\">`:\"\"}<span>${esc(kurzName(f,s.files))}</span></button>`)"
+ ],
+ [
+  "s.files.map((f,j)=>istLink(f)?`<div class=\"file\">${linkKnopf(f,'style=\"flex:1;min-width:0\"')}</div>`",
+  "s.files.map((f,j)=>istLink(f)?`<div class=\"file\">${linkKurz(f,s.files,'style=\"flex:1;min-width:0\"')}</div>`"
+ ],
+ [
+  "<span class=\"main\" style=\"overflow-wrap:anywhere\">${esc(f.n)}</span><button type=\"button\" class=\"btn small\" data-act=\"l-vorschau\" data-u=\"${uId}\" data-i=\"${j}\">Ansehen</button>",
+  "<span class=\"main\" style=\"overflow-wrap:anywhere\" title=\"${esc(f.n)}\">${esc(kurzName(f,s.files))}</span><button type=\"button\" class=\"btn small\" data-act=\"l-vorschau\" data-u=\"${uId}\" data-i=\"${j}\">Ansehen</button>"
+ ],
+ [
+  "const r=await prozessDatei(list[i]);if(r.datei){it.datei=r.datei;it.st=\"senden\"}",
+  "const r=await prozessDatei(list[i]);if(r.datei){fotoNamen(a,ME_S,[r.datei],[...alleDateien(s),...st.up.items.map(x=>x.datei)]);it.datei=r.datei;it.st=\"senden\"}"
+ ],
+ [
+  "doppelt:s.files.some(x=>dateiStamm(x.n)===dateiStamm(f.name))",
+  "doppelt:s.files.some(x=>dateiStamm(x.orig||x.n)===dateiStamm(f.name))"
+ ],
+ [
+  "const{ok,fehler}=await pruefeAlle(list);st.reply.push(...ok);",
+  "const{ok,fehler}=await pruefeAlle(list);if(st.role===\"schueler\"&&st.view===\"aufgabe\"&&ME_S){const a=A(st.p.id);if(a)fotoNamen(a,ME_S,ok,[...alleDateien(getSub(a,ME_S.id)),...st.reply])}st.reply.push(...ok);"
+ ],
+ [
+  "const orig=f.n||\"Datei\";const dot=orig.lastIndexOf(\".\");const base=dot>0?orig.slice(0,dot):orig,ext=dot>0?orig.slice(dot):\"\";return slug(`${u.nn}_${u.vn}_${teil}_${base}`)+ext}",
+  "const orig=f.n||\"Datei\";const dot=orig.lastIndexOf(\".\");let base=dot>0?orig.slice(0,dot):orig;const ext=dot>0?orig.slice(dot):\"\";const pre=slug(`${u.nn}_${u.vn}_`);if(base.startsWith(pre))base=base.slice(pre.length);return slug(`${u.nn}_${u.vn}_${teil}_${base}`)+ext}"
+ ],
+ [
+  ".linkanh:hover{background:var(--sunk)}",
+  ".linkanh:hover{background:var(--sunk)}\n.fkurz{min-width:0;max-width:100%}.fkurz span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px}"
+ ],
+ [
+  "APP_VERSION=\"202611241200\"",
+  "APP_VERSION=\"202611241230\""
+ ]
+]
