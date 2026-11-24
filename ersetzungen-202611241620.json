@@ -1,0 +1,10 @@
+[
+ [
+  "APP_VERSION=\"202611241610\"",
+  "APP_VERSION=\"202611241620\""
+ ],
+ [
+  "msgs(s).forEach(m=>(m.files||[]).forEach(f=>{if(f.h||f.ph)out.push(m.von===\"s\"",
+  "msgs(s).forEach(m=>m.typ!==\"zw\"&&(m.files||[]).forEach(f=>{if(f.h||f.ph)out.push(m.von===\"s\""
+ ]
+]
