@@ -1,0 +1,14 @@
+[
+ [
+  "const APP_VERSION=\"202611241330\";",
+  "const APP_VERSION=\"202611241400\";"
+ ],
+ [
+  "data-act=\"l-vorschau\" data-u=\"${uId}\" data-i=\"${j}\">Ansehen</button></div>`",
+  "data-act=\"l-vorschau\" data-u=\"${uId}\" data-i=\"${j}\">Ansehen</button></div>${f.url&&!f.img&&!f.geloescht?`<div class=\"inline-vorschau\" data-iv-url=\"${esc(f.url)}\" data-iv-n=\"${esc(f.n)}\"></div>`:\"\"}`"
+ ],
+ [
+  "<script src=\"mate-server.js?v=202611241300\"></script>",
+  "<script src=\"mate-server.js?v=202611241400\"></script>"
+ ]
+]
