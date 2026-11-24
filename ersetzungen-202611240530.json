@@ -1,0 +1,26 @@
+[
+ [
+  "const APP_VERSION=\"202611231100\";",
+  "const APP_VERSION=\"202611240530\";"
+ ],
+ [
+  "function fmtTime(t){const d=new Date(t);return `${String(d.getHours()).padStart(2,\"0\")}:${String(d.getMinutes()).padStart(2,\"0\")}`}\n",
+  "function fmtTime(t){const d=new Date(t);return `${String(d.getHours()).padStart(2,\"0\")}:${String(d.getMinutes()).padStart(2,\"0\")}`}\nfunction sichtbarText(a){return a.sichtbar<Date.now()+300*864e5?`sichtbar ab ${fmtDate(a.sichtbar)}, ${fmtTime(a.sichtbar)}`:\"noch nicht sichtbar\"}\n"
+ ],
+ [
+  "${a.aus?`<span class=\"pill p-aus\">${ico(\"eyeoff\")}ausgeblendet</span>`:a.sichtbar>Date.now()?`<span class=\"pill p-open\">noch nicht sichtbar</span>`:\"\"}${F.frei(a)",
+  "${a.aus?`<span class=\"pill p-aus\">${ico(\"eyeoff\")}ausgeblendet</span>`:a.sichtbar>Date.now()?`<span class=\"pill p-open\">${sichtbarText(a)}</span>`:\"\"}${F.frei(a)"
+ ],
+ [
+  "${a.aus?\"ausgeblendet\":a.sichtbar>Date.now()?\"noch nicht sichtbar\":\"SuS sehen sie\"}",
+  "${a.aus?\"ausgeblendet\":a.sichtbar>Date.now()?sichtbarText(a):\"SuS sehen sie\"}"
+ ],
+ [
+  "`${a.sichtbar>Date.now()?`<span class=\"pill p-open\">noch nicht sichtbar</span>`:\"\"}${a.freigegeben?",
+  "`${a.sichtbar>Date.now()?`<span class=\"pill p-open\">${sichtbarText(a)}</span>`:\"\"}${a.freigegeben?"
+ ],
+ [
+  "<b>${aTitel(a)}</b>${a.sichtbar>Date.now()?` <span class=\"pill p-open\">noch nicht sichtbar</span>`:\"\"}<br>",
+  "<b>${aTitel(a)}</b>${a.sichtbar>Date.now()?` <span class=\"pill p-open\">${sichtbarText(a)}</span>`:\"\"}<br>"
+ ]
+]
