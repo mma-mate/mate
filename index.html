@@ -1410,7 +1410,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611241545";
+const APP_VERSION="202611241550";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -1870,7 +1870,7 @@ function vAbgabeL(a,uId){if(!a||!U(uId))return vAufgabenL();const k=K(a.kurs),u=
  const korrBtn=!ro&&a.abgabe!=="keine"&&s.files.some(f=>bildVon(f,a))?`<button class="btn" data-act="korr" data-u="${uId}">Korrigieren</button>`:"";
  const vi=letzteVerb(s);let verbBtn="";if(!ro&&vi>=0&&a.abgabe!=="keine"){const fi=msgs(s)[vi].files.findIndex(f=>bildVon(f,a));if(fi>=0)verbBtn=`<button class="btn" data-act="korr" data-u="${uId}" data-m="${vi}" data-fi="${fi}">Verbesserung korrigieren</button>`}
  const navBtn=(x,txt,cls)=>x?`<button class="btn ${cls}" data-act="abg-geh" data-a="${a.id}" data-u="${x.id}" aria-label="${txt}: ${esc(x.vn)} ${esc(x.nn)}">${cls==="vor"?"‹ ":""}<span class="d-only">${esc(x.vn)} ${esc(x.nn)}</span><span class="m-only">${txt}</span>${cls==="nach"?" ›":""}</button>`:`<span></span>`;
- return `<div class="head"><div>${ZUR?`<button class="crumb" data-act="abg-zurueck">← ${ZUR}</button>`:`<button class="crumb" data-act="zur-aufgabe" data-a="${a.id}" data-u="${uId}">← ${aTitel(a)}</button>`}<h1 class="abg-titel">${avatar(u)}<span>${esc(u.vn)} ${esc(u.nn)}</span></h1><p>${aTitel(a)} · ${esc(kursKurz(k))} · Frist ${fmtDate(fr(a,uId))}, ${fmtTime(fr(a,uId))}${eigen?" (eigene Frist)":""}</p></div><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${pill(status(a,uId))}${abwAbg(s)?ABW_ABG_PILL:""}</span></div>
+ return `<div class="head"><div>${ZUR?`<button class="crumb" data-act="abg-zurueck">← ${ZUR}</button>`:`<button class="crumb" data-act="zur-aufgabe" data-a="${a.id}" data-u="${uId}">← ${aTitel(a)}</button>`}<h1 class="abg-titel">${avatar(u)}<span>${esc(u.vn)} ${esc(u.nn)}</span></h1><p>${ZUR?aTitel(a)+" · ":""}${esc(kursKurz(k))} · Frist ${fmtDate(fr(a,uId))}, ${fmtTime(fr(a,uId))}${eigen?" (eigene Frist)":""}</p></div><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${pill(status(a,uId))}${abwAbg(s)?ABW_ABG_PILL:""}</span></div>
  <nav class="abg-nav" aria-label="Weitere Abgaben">${navBtn(vor,"Vorheriges","vor")}<span class="abg-pos">${i>=0?`${i+1} von ${liste.length}`:""}</span>${navBtn(nach,"Nächstes","nach")}</nav>
  ${i<0?`<div class="note warn">${esc(u.vn)} gehört nicht (mehr) zu den Schüler·innen dieser Aufgabe.</div>`:""}
  <div class="grid2">
