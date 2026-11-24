@@ -1407,7 +1407,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611241400";
+const APP_VERSION="202611241415";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -2090,7 +2090,12 @@ function render(){if(rendering){renderAgain=true;return}if(!window.MateApi||st.r
  pflichtMarken();
  if(fk){const scope=inSide?document.getElementById("side"):document.getElementById("main");const el=scope.querySelector(fk)||document.querySelector(fk);if(el&&el!==document.activeElement&&!(TOUCH()&&(el.tagName==="SELECT"||/^(date|time|datetime-local|month|week|color|file)$/.test(el.type)))){el.focus({preventScroll:true});if(typeof sel==="number"&&el.setSelectionRange&&/^(text|search|email)$/.test(el.type))try{el.setSelectionRange(sel,sel)}catch(e){}}}
  if(renderAgain){renderAgain=false;render()}}
-function renderSoon(){setTimeout(render,0)}
+/* Neu zeichnen erst nach dem Loslassen von Maus/Finger: Sonst ersetzt das Speichern beim Verlassen eines Feldes (z. B. Punkte) den angeklickten Knopf, bevor der Klick ankommt, und man muss zweimal klicken. */
+let zeigerUnten=false,renderWartet=false,renderNotfall=null;
+addEventListener("pointerdown",()=>{zeigerUnten=true},true);
+const zeigerLos=()=>{zeigerUnten=false;clearTimeout(renderNotfall);if(renderWartet){renderWartet=false;setTimeout(render,0)}};
+addEventListener("pointerup",zeigerLos,true);addEventListener("pointercancel",zeigerLos,true);
+function renderSoon(){if(zeigerUnten){renderWartet=true;clearTimeout(renderNotfall);renderNotfall=setTimeout(zeigerLos,1500);return}setTimeout(render,0)}
 function renderInner(){let h="";const v=st.view,r=st.role;
  document.body.classList.toggle("login",!st.angemeldet);
  if(v==="recht")h=vRecht();
