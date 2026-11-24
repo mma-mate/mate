@@ -192,6 +192,7 @@ form.f{display:flex;flex-direction:column;gap:18px}
 .note.flex{display:flex;gap:8px}
 .note.info{background:var(--tint-blue);color:var(--blue-ink)}
 .note.warn{background:var(--tint-orange);color:var(--orange-ink)}
+.note svg{width:18px;height:18px;flex:none;vertical-align:-4px}
 .navgrp{margin:14px 12px 4px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0}.dl dt{color:var(--muted)}.dl dd{margin:0}
 @media(max-width:520px){.dl{grid-template-columns:1fr;gap:0}.dl dd{margin-bottom:8px}}
@@ -1410,7 +1411,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611241550";
+const APP_VERSION="202611241600";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
