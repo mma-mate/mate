@@ -1,0 +1,12 @@
+[
+ [
+  "public/mate-server.js",
+  "  // Fenster der App ergänzen: echte Vorschau und Download statt Demo-Hinweisen\n  const modalOrig = modal;",
+  "  // Office-Dateien (Word, Excel, PowerPoint): Vorschau direkt im Browser (24. 11. 2026).\n  // Die Bibliotheken liegen am eigenen Server in /vorschau und laden erst beim Öffnen einer Vorschau;\n  // die Datei geht an keinen fremden Dienst.\n  const OFFICE = /\\.(docx|docm|dotx|xlsx|xlsm|xls|ods|pptx|pptm|ppsx)$/i;\n  let officeLaden = null;\n  function officeModul() {\n    return officeLaden || (officeLaden = new Promise((ok, nein) => {\n      const s = document.createElement(\"script\");\n      s.src = \"vorschau/office-vorschau.js?v=1\";\n      s.onload = () => (window.MateVorschau ? ok(window.MateVorschau) : nein(new Error(\"MateVorschau fehlt\")));\n      s.onerror = () => { officeLaden = null; s.remove(); nein(new Error(\"vorschau/office-vorschau.js nicht ladbar\")); };\n      document.head.appendChild(s);\n    }));\n  }\n  async function officeVorschau(box, f) {\n    box.innerHTML = '<div class=\"mv-info\" style=\"padding:24px 16px;text-align:center;color:var(--muted)\">Vorschau wird geladen …</div>';\n    try {\n      const [mv, daten] = await Promise.all([\n        officeModul(),\n        fetch(f.url, { credentials: \"same-origin\" }).then((r) => { if (!r.ok) throw new Error(\"HTTP \" + r.status); return r.arrayBuffer(); }),\n      ]);\n      if (box.isConnected) await mv.zeigen(box, daten, f.n);\n    } catch (x) {\n      console.warn(\"Office-Vorschau:\", x);\n      const i = box.querySelector(\".mv-info\");\n      if (i) i.textContent = \"Für diese Datei klappt die Vorschau leider nicht. Lade sie herunter, um sie zu öffnen.\";\n    }\n  }\n\n  // Fenster der App ergänzen: echte Vorschau und Download statt Demo-Hinweisen\n  const modalOrig = modal;"
+ ],
+ [
+  "public/mate-server.js",
+  "        if (f.url && /pdf$/i.test(f.mime || f.n || \"\")) drop.outerHTML = `<iframe class=\"ms-vorschau\" src=\"${f.url}\" title=\"Vorschau ${escH(f.n)}\"></iframe>`;\n        else if (f.url) drop",
+  "        if (f.url && /pdf$/i.test(f.mime || f.n || \"\")) drop.outerHTML = `<iframe class=\"ms-vorschau\" src=\"${f.url}\" title=\"Vorschau ${escH(f.n)}\"></iframe>`;\n        else if (f.url && OFFICE.test(f.n || \"\")) { const box = document.createElement(\"div\"); drop.replaceWith(box); officeVorschau(box, f); }\n        else if (f.url) drop"
+ ]
+]

@@ -1,0 +1,10 @@
+[
+ [
+  "const APP_VERSION=\"202611241045\";",
+  "const APP_VERSION=\"202611241200\";"
+ ],
+ [
+  "<script src=\"mate-server.js?v=202611052000-db79a9a4\"></script>",
+  "<script src=\"mate-server.js?v=202611241200\"></script>"
+ ]
+]

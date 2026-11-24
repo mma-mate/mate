@@ -1,0 +1,16 @@
+MATE – Vorschau für Office-Dateien (seit Build 202611241200, 24. 11. 2026)
+
+Kommt am Server nach public/vorschau/ (also https://<mate>/vorschau/...).
+Die Abgabe wird im Browser aufbereitet; nichts geht an fremde Dienste.
+
+office-vorschau.js   eigener Code (MATE): lädt die Bibliotheken erst beim Öffnen,
+                     Word skaliert auf Fensterbreite, Excel als Tabelle mit Blättern,
+                     PowerPoint Folie für Folie, Sicherheitsnetz gegen javascript:-Links u. Ä.
+jszip.min.js         JSZip 3.10.2 (MIT oder GPLv3, hier unter MIT genutzt) – Stuart Knightley u. a.
+docx-preview.min.js  docx-preview 0.4.1 (Apache-2.0) – Volodymyr Baydalka
+xlsx.core.min.js     SheetJS Community Edition 0.20.3 (Apache-2.0) – SheetJS LLC
+                     (npm-Paket @e965/xlsx, laut Herausgeber unveränderte Kopie von cdn.sheetjs.com)
+pptx-preview.umd.js  pptx-preview 1.0.7 (ISC), enthält lodash (MIT), uuid (MIT), ECharts/zrender (Apache-2.0)
+
+Alle Bibliotheken ohne Netzwerkzugriffe geprüft (kein fetch/XMLHttpRequest).
+Mit dem Aufruf in mate-server.js: server-202611241200.json.
