@@ -1,0 +1,14 @@
+[
+ [
+  "function go(view,p={}){",
+  "/* Ungesendetes Feedback auf der Abgabe-Seite nicht kommentarlos verlieren (24. 11. 2026): beim Verlassen nachfragen */\nlet fbWeiter=null;\nfunction fbOffen(){return st.view===\"abgabe\"&&st.p&&(String(st.p.entwurf||\"\").trim()||(ANH.fbl||[]).length)}\nfunction fbWarnen(view,p){fbWeiter={view,p};const u=U(st.p.u);modal(`<h2>Feedback noch nicht gesendet</h2><p>Dein Feedback an ${esc(u.vn)} ist noch nicht gesendet. Was soll damit passieren?</p><div class=\"actions\"><button class=\"btn primary\" data-act=\"fbw-senden\">Senden und weiter</button><button class=\"btn\" data-act=\"fbw-weg\">Verwerfen und weiter</button><button class=\"btn ghost\" data-close-btn>Hierbleiben</button></div>`)}\naddEventListener(\"beforeunload\",e=>{if(fbOffen()){e.preventDefault();e.returnValue=\"\"}});\nfunction go(view,p={}){if(fbOffen()&&!(view===\"abgabe\"&&p&&p.id===st.p.id&&p.u===st.p.u)){fbWarnen(view,p);return}"
+ ],
+ [
+  "if(act===\"abg-geh\"){ANH.fbl=[];go(\"abgabe\",{id:d.a,u:d.u,from:st.p.from,aFrom:st.p.aFrom,zr:st.p.zr});window.scrollTo(0,0);return}",
+  "if(act===\"abg-geh\"){const vorher=st.p;go(\"abgabe\",{id:d.a,u:d.u,from:st.p.from,aFrom:st.p.aFrom,zr:st.p.zr});if(st.p!==vorher){ANH.fbl=[];window.scrollTo(0,0)}return}\n if(act===\"fbw-senden\"||act===\"fbw-weg\"){const w=fbWeiter;fbWeiter=null;if(!w||st.view!==\"abgabe\"){closeModal();return}if(act===\"fbw-senden\"){const u=st.p.u,t=String(st.p.entwurf||\"\").trim(),fs=[...(ANH.fbl||[])];const s0=getSub(A(st.p.id),u);sendL(s0,t);if(fs.length)msgs(s0)[msgs(s0).length-1].files=fs;toast(`Feedback an ${U(u).vn} gesendet.`)}st.p.entwurf=\"\";ANH.fbl=[];closeModal();go(w.view,w.p);window.scrollTo(0,0);return}"
+ ],
+ [
+  "APP_VERSION=\"202611241415\"",
+  "APP_VERSION=\"202611241430\""
+ ]
+]
