@@ -1,0 +1,14 @@
+[
+ [
+  "const APP_VERSION=\"202611241230\";",
+  "const APP_VERSION=\"202611241300\";"
+ ],
+ [
+  "`<div class=\"fvgl-bild\"><span class=\"tag\">${esc((t.f.n.split(\".\").pop()||\"\").toUpperCase())}</span></div>`",
+  "`<div class=\"fvgl-bild\"${t.f.url?` data-fvgl-url=\"${esc(t.f.url)}\" data-fvgl-n=\"${esc(t.f.n)}\"`:\"\"}><span class=\"tag\">${esc((t.f.n.split(\".\").pop()||\"\").toUpperCase())}</span></div>`"
+ ],
+ [
+  "<script src=\"mate-server.js?v=202611241200\"></script>",
+  "<script src=\"mate-server.js?v=202611241300\"></script>"
+ ]
+]

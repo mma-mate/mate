@@ -1,0 +1,12 @@
+[
+ [
+  "public/mate-server.js",
+  "  // Fenster der App ergänzen: echte Vorschau und Download statt Demo-Hinweisen\n  const modalOrig = modal;",
+  "  // Foto-Vergleich: Office-Dateien als Miniatur, antippen = groß (24. 11. 2026)\n  const fvglCss = document.createElement(\"style\");\n  fvglCss.textContent = `\n    .ms-fvgl-office{display:block!important;position:relative;cursor:zoom-in;min-height:0!important;background:#eef0f3!important}\n    .ms-fvgl-office .mv{max-height:190px;overflow:hidden;border:0;border-radius:0}\n    .ms-fvgl-office .mv>*{pointer-events:none}\n    .fvgl.gross .ms-fvgl-office{cursor:auto}\n    .fvgl.gross .ms-fvgl-office .mv{max-height:70vh;overflow:auto}\n    .fvgl.gross .ms-fvgl-office .mv>*{pointer-events:auto}\n    .ms-fvgl-klein{display:none!important;position:absolute;top:6px;right:6px;z-index:5}\n    .fvgl.gross .ms-fvgl-klein{display:inline-flex!important}\n  `;\n  document.head.appendChild(fvglCss);\n  function officeMiniaturen(layer) {\n    layer.querySelectorAll(\".fvgl-bild[data-fvgl-url]\").forEach((el) => {\n      const f = { url: el.dataset.fvglUrl, n: el.dataset.fvglN || \"\" };\n      if (!f.url || !OFFICE.test(f.n)) return;\n      el.classList.add(\"ms-fvgl-office\");\n      el.title = \"Antippen zum Vergrößern\";\n      const zeichnen = () => {\n        el.innerHTML = '<button type=\"button\" class=\"btn small ms-fvgl-klein\">Kleiner</button>';\n        const box = document.createElement(\"div\");\n        el.appendChild(box);\n        officeVorschau(box, f);\n      };\n      zeichnen();\n      el.addEventListener(\"click\", (e) => {\n        const fig = el.closest(\".fvgl\");\n        if (!fig) return;\n        if (!fig.classList.contains(\"gross\")) { fig.classList.add(\"gross\"); zeichnen(); }\n        else if (e.target.closest(\".ms-fvgl-klein\")) { fig.classList.remove(\"gross\"); zeichnen(); }\n      });\n    });\n  }\n\n  // Fenster der App ergänzen: echte Vorschau und Download statt Demo-Hinweisen\n  const modalOrig = modal;"
+ ],
+ [
+  "public/mate-server.js",
+  "    if (zm) zipKnopf(zm);\n",
+  "    if (zm) zipKnopf(zm);\n    officeMiniaturen(layer);\n"
+ ]
+]
