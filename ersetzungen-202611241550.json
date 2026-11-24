@@ -1,0 +1,1 @@
+[["</h1><p>${aTitel(a)} · ${esc(kursKurz(k))} · Frist ${fmtDate(fr(a,uId))}", "</h1><p>${ZUR?aTitel(a)+\" · \":\"\"}${esc(kursKurz(k))} · Frist ${fmtDate(fr(a,uId))}"], ["APP_VERSION=\"202611241545\"", "APP_VERSION=\"202611241550\""]]
