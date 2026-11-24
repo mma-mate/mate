@@ -1,0 +1,34 @@
+[
+ [
+  "APP_VERSION=\"202611241510\"",
+  "APP_VERSION=\"202611241530\""
+ ],
+ [
+  "const jetzt=zeit||Date.now();const vb=hatFb(s);",
+  "const jetzt=zeit||Date.now();const vb=hatFb(s)&&!(s.zurueck&&!s.files.length);"
+ ],
+ [
+  "m.sys?`<div class=\"msg sys\">${esc(m.text)} · ${fmtDate(m.zeit)}, ${fmtTime(m.zeit)}</div>`",
+  "m.sys?`<div class=\"msg sys\">${esc(m.text)} · ${fmtDate(m.zeit)}, ${fmtTime(m.zeit)}${m.typ===\"zw\"&&m.files&&m.files.length?`<div class=\"zw-dateien\">${m.files.map((f,fi)=>istLink(f)?linkKnopf(f):`<button class=\"btn small ghost\" style=\"background:var(--surface)\" data-act=\"mfile\" data-a=\"${a.id}\" data-u=\"${uId}\" data-m=\"${i}\" data-fi=\"${fi}\">${bildVon(f,a)?`<img src=\"${bildVon(f,a)}\" alt=\"\" style=\"width:28px;height:28px;object-fit:cover;border-radius:4px;max-width:none\">`:`<span class=\"tag\">${esc((f.n.split(\".\").pop()||\"\").toUpperCase())}</span>`}${esc(f.n)}</button>`).join(\"\")}</div>`:\"\"}</div>`"
+ ],
+ [
+  "msgs(s).forEach(m=>{if(m.von===\"s\"&&m.files)m.files=m.files.map(weg);",
+  "msgs(s).forEach(m=>{if((m.von===\"s\"||m.typ===\"zw\")&&m.files)m.files=m.files.map(weg);"
+ ],
+ [
+  "${abgabe}${dateien}${korrBtn||fotoPill(a,u)?`<div class=\"actions\" style=\"align-items:center\">${korrBtn}${fotoPill(a,u)}</div>`:\"\"}</div></section>",
+  "${abgabe}${dateien}${korrBtn||fotoPill(a,u)?`<div class=\"actions\" style=\"align-items:center\">${korrBtn}${fotoPill(a,u)}</div>`:\"\"}${!ro&&s.files.length?`<div class=\"zw-box\"><button type=\"button\" class=\"btn small ghost\" data-act=\"zw\" data-a=\"${a.id}\" data-u=\"${uId}\">Abgabe zurückweisen</button><span class=\"hint\">Nur verwenden, wenn die Abgabe eine andere Aufgabe betrifft.</span></div>`:s.zurueck&&!s.files.length?`<p class=\"hint\">Abgabe am ${fmtDate(s.zurueck)}, ${fmtTime(s.zurueck)} zurückgewiesen (siehe Feedback). Noch keine neue Abgabe.</p>`:\"\"}</div></section>"
+ ],
+ [
+  "if(act===\"abw-weg\"){",
+  "if(act===\"zw\"){const a=A(d.a),u=U(d.u);if(!a||!u)return;modal(`<h2>Abgabe von ${esc(u.vn)} zurückweisen?</h2><div class=\"note warn\"><b>Nur verwenden, wenn die Abgabe eine andere Aufgabe betrifft</b>, zum Beispiel ein Foto der falschen HÜ.</div><ul class=\"nrliste\"><li>Der Status ist wieder „offen“, eine eingetragene Bewertung wird entfernt.</li><li>Die Datei bleibt im Feedback-Verlauf als „zurückgewiesen“ sichtbar, zählt aber nicht als Abgabe.</li><li>${esc(u.vn)} sieht dein Feedback und kann neu abgeben.</li></ul><p class=\"hint\">Schreib ${esc(u.vn)} am besten im Feedback dazu, wo die Arbeit hingehört.</p><div class=\"actions\"><button class=\"btn danger solid\" data-act=\"zw-ok\" data-a=\"${a.id}\" data-u=\"${u.id}\">Zurückweisen</button><button class=\"btn ghost\" data-close-btn>Abbrechen</button></div>`);return}\nif(act===\"zw-ok\"){const a=A(d.a),u=U(d.u);if(!a||!u)return;const s=getSub(a,u.id);if(K(a.kurs).archiv||!s.files.length){closeModal();render();return}const jetzt=Date.now();msgs(s).push({von:\"l\",u:T1.id,sys:true,typ:\"zw\",text:\"Abgabe zurückgewiesen, weil sie eine andere Aufgabe betrifft\",files:s.files.map(f=>({...f})),zeit:jetzt});s.files=[];s.score=null;s.zeit=null;s.verbesserung=false;s.zurueck=jetzt;delete s.korrektur;delete s.fotoCheck;s.sNeu=true;s.erledigt=false;s.lOffen=false;s.lNeu=false;closeModal();toast(`Abgabe von ${u.vn} zurückgewiesen. Der Status ist wieder offen.`);render();return}\nif(act===\"abw-weg\"){"
+ ],
+ [
+  "  <div id=\"upbox\">${upListe()}</div>",
+  "  ${s.zurueck&&!s.files.length?`<div class=\"note warn\" style=\"margin-bottom:12px\"><b>Deine Abgabe wurde zurückgewiesen.</b> Sie gehört zu einer anderen Aufgabe. Lade sie dort hoch und gib hier die richtige Arbeit ab.</div>`:\"\"}\n  <div id=\"upbox\">${upListe()}</div>"
+ ],
+ [
+  ".msg.sys{",
+  ".zw-box{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:12px}.zw-box .hint{margin:0}.zw-dateien{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:6px}.msg.sys{"
+ ]
+]
