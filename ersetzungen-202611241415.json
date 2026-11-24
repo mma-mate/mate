@@ -1,0 +1,10 @@
+[
+ [
+  "const APP_VERSION=\"202611241400\";",
+  "const APP_VERSION=\"202611241415\";"
+ ],
+ [
+  "function renderSoon(){setTimeout(render,0)}",
+  "/* Neu zeichnen erst nach dem Loslassen von Maus/Finger: Sonst ersetzt das Speichern beim Verlassen eines Feldes (z. B. Punkte) den angeklickten Knopf, bevor der Klick ankommt, und man muss zweimal klicken. */\nlet zeigerUnten=false,renderWartet=false,renderNotfall=null;\naddEventListener(\"pointerdown\",()=>{zeigerUnten=true},true);\nconst zeigerLos=()=>{zeigerUnten=false;clearTimeout(renderNotfall);if(renderWartet){renderWartet=false;setTimeout(render,0)}};\naddEventListener(\"pointerup\",zeigerLos,true);addEventListener(\"pointercancel\",zeigerLos,true);\nfunction renderSoon(){if(zeigerUnten){renderWartet=true;clearTimeout(renderNotfall);renderNotfall=setTimeout(zeigerLos,1500);return}setTimeout(render,0)}"
+ ]
+]
