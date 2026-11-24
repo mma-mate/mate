@@ -1,0 +1,10 @@
+[
+ [
+  "const APP_VERSION=\"202611240530\";",
+  "const APP_VERSION=\"202611241045\";"
+ ],
+ [
+  ".tablewrap{overflow-x:auto}\n",
+  ".tablewrap{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain}\n"
+ ]
+]
