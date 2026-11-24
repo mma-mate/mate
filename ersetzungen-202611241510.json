@@ -1,0 +1,14 @@
+[
+ [
+  "const hatBew=iz.some(x=>x.bew),hatUb=iz.some(x=>x.ub);",
+  "const hatBew=iz.some(x=>x.bew),hatVoll=iz.some(x=>x.v===\"voll\"),hatTeil=iz.some(x=>x.v===\"teil\"),hatUb=iz.some(x=>x.ub);"
+ ],
+ [
+  "${hatBew?`<button type=\"button\" class=\"chip\" data-act=\"mfb-sel\" data-w=\"voll\" aria-pressed=\"false\">Volle Punkte</button><button type=\"button\" class=\"chip\" data-act=\"mfb-sel\" data-w=\"teil\" aria-pressed=\"false\">Nicht volle Punkte</button>`:\"\"}",
+  "${hatVoll?`<button type=\"button\" class=\"chip\" data-act=\"mfb-sel\" data-w=\"voll\" aria-pressed=\"false\">Volle Punkte</button>`:\"\"}${hatTeil?`<button type=\"button\" class=\"chip\" data-act=\"mfb-sel\" data-w=\"teil\" aria-pressed=\"false\">Nicht volle Punkte</button>`:\"\"}"
+ ],
+ [
+  "APP_VERSION=\"202611241500\"",
+  "APP_VERSION=\"202611241510\""
+ ]
+]
