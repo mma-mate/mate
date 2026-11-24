@@ -122,6 +122,9 @@ details.klapp>summary{padding:14px 18px;display:flex;gap:10px;align-items:center
 .p-open{background:var(--sunk);color:var(--muted)}
 .p-done{background:var(--tint-blue);color:var(--blue-ink)}
 .p-graded{background:var(--tint-green);color:var(--green-ink)}
+.tag.voll{background:var(--tint-green);color:var(--green-ink);border-color:transparent;font-weight:700}
+.mfb-bs{margin-top:8px}.mfb-bs .chips{margin-top:4px!important}
+.mfb-sort{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 4px}.mfb-sort .chip{flex:0 0 auto;padding:3px 10px;font-size:.82rem}
 .p-abs{background:var(--tint-violet);color:var(--violet)}.p-miss{background:var(--line);color:var(--muted)}
 .p-warn{background:var(--tint-orange);color:var(--orange-ink)}
 .pf::after{content:" *";color:var(--red);font-weight:700}.pfh{font-size:.85rem;color:var(--muted);margin:4px 0 0}
@@ -1407,7 +1410,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611241445";
+const APP_VERSION="202611241500";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -2342,16 +2345,20 @@ if(act==="freigabe-ok"){const a=A(d.a);a.freigegeben=true;closeModal();toast("Be
  if(act==="abg-zurueck"){const z=st.p.zr;if(z){go(z.view,z.p);window.scrollTo(0,0)}return}
  if(act==="zur-aufgabe"){closeModal();go("aufgabe",{id:d.a,from:st.p.aFrom||"",hl:d.u});setTimeout(()=>{const r=document.querySelector(`tr[data-urow="${d.u}"]`);if(r)r.scrollIntoView({block:"center",behavior:"smooth"})},60);return}
  if(act==="fb-l-erledigt"){const x=getSub(A(d.a),d.u);x.lOffen=false;x.lNeu=false;x.lErledigt=Date.now();x.lErlVon=T1.id;closeModal();toast("Als erledigt markiert. Du findest den Verlauf unter Feedback → Erledigt.");render();return}
- if(act==="massfb"){const a=A(d.a);const z=zielgruppe(a).map(U).sort((x,y)=>x.nn.localeCompare(y.nn));
+ if(act==="massfb"){const a=A(d.a);const z=zielgruppe(a).map(U).sort((x,y)=>x.nn.localeCompare(y.nn));const iz=z.map(u=>mfbInfo(a,u.id));const hatBew=iz.some(x=>x.bew),hatUb=iz.some(x=>x.ub);mfbLetzt="alle";
   modal(`<h2>Feedback an mehrere</h2><p style="color:var(--muted);margin-top:-8px">${aTitel(a)} · Jedes Kind bekommt die Nachricht in seinen eigenen Feedback-Verlauf und sieht nicht, wer sie sonst noch bekommen hat.</p>
-  <div class="field"><label for="mfb">Feedback</label>${fmtLeiste("mfb")}<textarea id="mfb" placeholder="z. B. Achtet bei der Verbesserung auf die Verbformen bei he, she, it."></textarea></div>${(ANH.mfb=[],anhWerkzeug("mfb",false))}
+  <div class="field"><label for="mfb">Feedback</label>${fmtLeiste("mfb")}<textarea id="mfb" placeholder="z. B. Achtet bei der Verbesserung auf die Verbformen bei he, she, it."></textarea>
+  <div class="mfb-bs"><span class="hint">Textbausteine zum Antippen · {Vorname} wird bei jedem Kind durch seinen Vornamen ersetzt.</span><div class="chips">${MFB_BS.map((b,i)=>`<button type="button" class="chip" data-act="mfb-bs" data-i="${i}">${esc(b.k)}</button>`).join("")}<button type="button" class="chip" data-act="mfb-bs" data-i="vn">+ {Vorname}</button></div></div></div>${(ANH.mfb=[],anhWerkzeug("mfb",false))}
   <div class="field"><span class="lbl">Empfänger·innen <span id="mfb-n" style="color:var(--muted);font-weight:400">(${z.length} von ${z.length})</span></span>
-  <div class="chips"><button type="button" class="chip" data-act="mfb-sel" data-w="alle" aria-pressed="true">Alle</button><button type="button" class="chip" data-act="mfb-sel" data-w="keine" aria-pressed="false">Keine</button><button type="button" class="chip" data-act="mfb-sel" data-w="abgegeben" aria-pressed="false">Nur mit Abgabe</button><button type="button" class="chip" data-act="mfb-sel" data-w="ohne" aria-pressed="false">Nur ohne Abgabe</button></div>
-  <span id="mfb-hint" class="hint" hidden>Eigene Auswahl</span><div class="picklist">${z.map(u=>{const st0=status(a,u.id);return `<label><input type="checkbox" data-mfb="${u.id}" data-st="${st0}" checked>${esc(u.nn)} ${esc(u.vn)} <span class="tag">${st0}</span></label>`}).join("")}</div></div>
+  <div class="chips"><button type="button" class="chip" data-act="mfb-sel" data-w="alle" aria-pressed="true">Alle</button><button type="button" class="chip" data-act="mfb-sel" data-w="keine" aria-pressed="false">Keine</button><button type="button" class="chip" data-act="mfb-sel" data-w="abgegeben" aria-pressed="false">Nur mit Abgabe</button><button type="button" class="chip" data-act="mfb-sel" data-w="ohne" aria-pressed="false">Nur ohne Abgabe</button>${hatBew?`<button type="button" class="chip" data-act="mfb-sel" data-w="voll" aria-pressed="false">Volle Punkte</button><button type="button" class="chip" data-act="mfb-sel" data-w="teil" aria-pressed="false">Nicht volle Punkte</button>`:""}${hatUb?`<button type="button" class="chip" data-act="mfb-sel" data-w="unbew" aria-pressed="false">Noch nicht bewertet</button>`:""}</div>
+  ${hatBew?`<div class="mfb-sort"><span class="hint">Sortieren:</span><button type="button" class="chip" data-act="mfb-sort" data-w="name" aria-pressed="true">Name</button><button type="button" class="chip" data-act="mfb-sort" data-w="punkte" aria-pressed="false">Punkte</button></div>`:""}
+  <span id="mfb-hint" class="hint" hidden>Eigene Auswahl</span><div class="picklist" id="mfb-liste">${z.map((u,i)=>{const x=iz[i];return `<label data-n="${i}" data-p="${x.p}"><input type="checkbox" data-mfb="${u.id}" data-st="${x.st}" data-v="${x.v}" data-ub="${x.ub?1:""}" checked>${esc(u.nn)} ${esc(u.vn)} <span class="tag${x.v==="voll"?" voll":""}"${x.v==="voll"?` title="volle Punkte"`:""}>${esc(x.tag)}</span></label>`}).join("")}</div></div>
   <div class="actions"><button class="btn primary" data-act="mfb-ok" data-a="${a.id}">Senden</button><button class="btn ghost" data-close-btn>Abbrechen</button></div>`);return}
- if(act==="mfb-sel"){document.querySelectorAll("[data-mfb]").forEach(c=>{const hat=["abgegeben","nachgereicht","verspätet","bewertet"].includes(c.dataset.st);c.checked=d.w==="alle"||(d.w==="abgegeben"&&hat)||(d.w==="ohne"&&!hat)});mfbCount();return}
+ if(act==="mfb-sel"){const f=MFB_W[d.w];if(!f)return;mfbLetzt=d.w;document.querySelectorAll("[data-mfb]").forEach(c=>{c.checked=f(c)});mfbCount();return}
+ if(act==="mfb-sort"){const L=$("#mfb-liste");if(!L)return;const p=d.w==="punkte";[...L.children].sort((x,y)=>(p?(+y.dataset.p)-(+x.dataset.p):0)||(+x.dataset.n)-(+y.dataset.n)).forEach(l=>L.appendChild(l));document.querySelectorAll('[data-act="mfb-sort"]').forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.w===d.w)));return}
+ if(act==="mfb-bs"){const ta=$("#mfb");if(!ta)return;if(d.i==="vn"){const s0=ta.selectionStart??ta.value.length,e0=ta.selectionEnd??s0;ta.value=ta.value.slice(0,s0)+"{Vorname}"+ta.value.slice(e0);ta.focus();ta.setSelectionRange(s0+9,s0+9);return}const b=MFB_BS[+d.i];if(!b)return;const v=ta.value.replace(/\s+$/,"");ta.value=v?v+"\n"+b.t:b.t;ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);return}
  if(act==="mfb-ok"){const t=($("#mfb").value||"").trim();const fs=[...(ANH.mfb||[])];const ids=[...document.querySelectorAll("[data-mfb]:checked")].map(c=>c.dataset.mfb);if(!t&&!fs.length){fehlt("#mfb","Schreib zuerst eine Nachricht oder häng etwas an.");return}if(!ids.length){toast("Wähle mindestens eine Schülerin oder einen Schüler aus.");return}
-  const a=A(d.a);ids.forEach(id=>{const x=getSub(a,id);sendL(x,t);if(fs.length)msgs(x)[msgs(x).length-1].files=fs.map(f=>({...f}))});ANH.mfb=[];closeModal();toast(`Feedback an ${ids.length} Schüler·innen gesendet.`);render();return}
+  const a=A(d.a);ids.forEach(id=>{const x=getSub(a,id);sendL(x,t.replace(/\{\s*vorname\s*\}/gi,U(id).vn));if(fs.length)msgs(x)[msgs(x).length-1].files=fs.map(f=>({...f}))});ANH.mfb=[];closeModal();toast(`Feedback an ${ids.length} Schüler·innen gesendet.`);render();return}
  if(act==="verb-ok"){verbErledigt(getSub(A(d.a),d.u));closeModal();toast("Verbesserung angesehen, die Bewertung bleibt.");render();return}
  if(act==="fb-ok"){const t=$("#fb").value.trim();if(st.view==="abgabe")st.p.entwurf="";const fs=[...(ANH.fbl||[])];if(!t&&!fs.length){toast("Schreib zuerst eine Nachricht oder häng etwas an.");return}const s0=getSub(A(d.a),d.u);const vorh=msgs(s0).filter(m=>!m.sys);const istAntw=!!vorh.length&&vorh[vorh.length-1].von==="s";sendL(s0,t);if(fs.length)msgs(s0)[msgs(s0).length-1].files=fs;ANH.fbl=[];closeModal();toast(istAntw?"Antwort gesendet.":"Feedback gesendet.");render();return}
  if(act==="antwort-auf"){st.antwortAuf=st.p.id;render();setTimeout(()=>{const t=$("#antwort");if(t){t.focus();t.scrollIntoView({block:"center"})}},50);return}
@@ -2413,9 +2420,16 @@ if(act==="freigabe-ok"){const a=A(d.a);a.freigegeben=true;closeModal();toast("Be
   closeModal();toast(`${was} gespeichert.${bild||fbt?" Das Kind sieht es unter Feedback.":""}${scoreGeaendert&&!ka.freigegeben?" Die Bewertung sieht das Kind erst nach der Freigabe.":""}`);render();return}
  if(act==="foto-weg"){me().foto=null;render();return}
 });
+/* Feedback an mehrere (24. 11. 2026): Punkte je Kind, Filter nach Punkten, Sortierung, Textbausteine mit {Vorname} */
+const MFB_BS=[{k:"Lob",t:"Super gemacht, {Vorname}! Alles richtig – weiter so! 🎉"},{k:"Fast alles richtig",t:"Gut gemacht, {Vorname}! Schau dir meine Korrektur an, dann klappt es beim nächsten Mal ganz."},{k:"Verbesserung",t:"Hallo {Vorname}, schau dir bitte meine Korrektur an und schick mir eine Verbesserung."},{k:"Erinnerung",t:"Hallo {Vorname}, ich habe von dir noch keine Abgabe. Bitte gib die Aufgabe so bald wie möglich ab."}];
+const MFB_HAT=c=>["abgegeben","nachgereicht","verspätet","bewertet"].includes(c.dataset.st);
+const MFB_W={alle:()=>true,keine:()=>false,abgegeben:MFB_HAT,ohne:c=>!MFB_HAT(c),voll:c=>c.dataset.v==="voll",teil:c=>c.dataset.v==="teil",unbew:c=>c.dataset.ub==="1"};
+let mfbLetzt="alle";
+function mfbInfo(a,id){const s=getSub(a,id);const st0=status(a,id);const bew=!leer(s.score);const n=bew?scoreNorm(a,s):null;
+ return{st:st0,bew,v:bew?(isMax(a,s)?"voll":"teil"):"",ub:!bew&&((s.files||[]).length>0||((a.abgabe==="keine"||a.abgabe==="schule")&&!s.abwesend)),p:n===null?-1:Math.round(n*10)/10,tag:bew?scoreText(a,s).replace(/ \/ /,"/"):st0}}
 function mfbCount(){const all=[...document.querySelectorAll("[data-mfb]")],on=all.filter(c=>c.checked);const n=$("#mfb-n");if(n)n.textContent=`(${on.length} von ${all.length})`;
- const hat=c=>["abgegeben","nachgereicht","verspätet","bewertet"].includes(c.dataset.st);const passt={alle:all.every(c=>c.checked),keine:all.every(c=>!c.checked),abgegeben:all.some(hat)&&all.every(c=>c.checked===hat(c)),ohne:all.some(c=>!hat(c))&&all.every(c=>c.checked===!hat(c))};
- let gewaehlt=["alle","keine","abgegeben","ohne"].find(k=>passt[k])||null;document.querySelectorAll('[data-act="mfb-sel"]').forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.w===gewaehlt)));
+ const passt=k=>{const f=MFB_W[k];return !!document.querySelector(`[data-act="mfb-sel"][data-w="${k}"]`)&&(k==="alle"||k==="keine"||all.some(f))&&all.every(c=>c.checked===f(c))};
+ let gewaehlt=passt(mfbLetzt)?mfbLetzt:(Object.keys(MFB_W).find(passt)||null);document.querySelectorAll('[data-act="mfb-sel"]').forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.w===gewaehlt)));
  const hint=$("#mfb-hint");if(hint)hint.hidden=!!gewaehlt}
 /* Dateinamen im ZIP: Nachname_Vorname_1-Abgabe(-verspaetet)_Original bzw. _2-Verbesserung-1_Original. Verspätet zählt pro Datei. */
 function verbSendungen(s){const g={};s.files.filter(f=>f.verb).forEach(f=>{(g[f.zeit]=g[f.zeit]||[]).push(f)});const L=Object.entries(g).map(([z,fs])=>({zeit:+z,files:fs}));msgs(s).forEach(m=>{if(m.von==="s"&&!m.sys&&m.files&&m.files.length)L.push({zeit:m.zeit,files:m.files})});return L.sort((x,y)=>x.zeit-y.zeit)}
