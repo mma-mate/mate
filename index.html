@@ -1411,7 +1411,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611250540";
+const APP_VERSION="202611250600";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
@@ -2143,6 +2143,8 @@ document.addEventListener("click",e=>{const kl=e.target.closest&&e.target.closes
  if(d.erst){const u=U(d.erst);go("erstlogin",{u:u.id,schritt:1,rolle:u.rolle==="s"?"schueler":"lehrkraft"});return}
  if(d.act==="erst-spaeter"){const u=U(st.p.u);u.angemeldet=true;anmeldenAls(u,st.p.rolle);toast(`Angemeldet als ${u.vn} ${u.nn}. Ein eigenes Passwort legst du im Profil fest.`);return}
  if(d.act==="drucken"){window.print();return}
+ if(d.act==="angabe-ja"){angabeTrotzdem();return}
+ if(d.act==="angabe-nein"){st.angabeWarten=null;closeModal();toast("Nicht abgegeben. Wähle deine bearbeitete Datei.");return}
  if(d.act==="up-weiter"){if(st.up){st.up.items.forEach(x=>{if(x.st==="wartet")x.st="senden"});uploadWeiter();if(!navigator.onLine)toast("Noch keine Internetverbindung.")}return}
  if(d.act==="karten-pdf"){const us=(st.p.ids||[]).map(U).filter(Boolean);if(us.length)kartenPdfTeilen(us);return}
  if(d.act==="pw-reset"){const u=U(d.u);const darf=st.role==="admin"||(st.role==="lehrkraft"&&u.rolle==="s"&&binKA(T1,u.klasse));if(!darf){toast("Das dürfen nur der Admin und die Klassenadmins der Klasse.");return}
@@ -2549,7 +2551,7 @@ document.addEventListener("change",async e=>{const t=e.target;const d=t.dataset;
  if(af&&st.view==="neu"){if(t.name==="af-fuer"){syncAf();af.fuer=t.value;render();return}if(t.name==="af-bew"){syncAf();af.bew=t.value;render();return}if(t.name==="af-abg"){syncAf();af.abgabe=t.value;render();return}
   if(d.afS){const i=af.auswahl.indexOf(d.afS);t.checked?af.auswahl.push(d.afS):af.auswahl.splice(i,1);return}
   if(t.id==="af-file"){syncAf();const list=[...t.files];if(af.anhaenge.length+list.length>10){toast(`Höchstens 10 Anhänge. Du kannst noch ${10-af.anhaenge.length} anhängen.`);t.value="";return}const{ok,fehler}=await pruefeAlle(list);af.anhaenge.push(...ok);meldung(ok,fehler,`${ok.length} ${ok.length>1?"Dateien":"Datei"} angehängt.`);render();return}}
- if(t.id==="upl"){await upload(t.files);return}
+ if(t.id==="upl"){await uploadPruefen(t.files);return}
  if(d.anhZiel){const z=d.anhZiel;const L=ANH[z]||(ANH[z]=[]);const list=[...t.files];if(L.length+list.length>10){toast(`Höchstens 10 Anhänge. Du kannst noch ${10-L.length} hinzufügen.`);t.value="";return}const{ok,fehler}=await pruefeAlle(list);L.push(...ok);if(fehler.length)toast(fehler.join(" "));t.value="";if(z==="mit"){syncMit();render()}else anhBoxNeu(z);return}
  if(t.id==="antwort-files"){await anhaengen(t.files);return}
  if(t.id==="tf-anh"&&tf){const list=[...t.files];if(tf.anhaenge.length+list.length>10){toast(`Höchstens 10 Lernunterlagen. Du kannst noch ${10-tf.anhaenge.length} anhängen.`);t.value="";return}syncTf();const{ok,fehler}=await pruefeAlle(list);tf.anhaenge.push(...ok);meldung(ok,fehler,`${ok.length} ${ok.length>1?"Dateien":"Datei"} angehängt.`);render();return}
@@ -2672,7 +2674,7 @@ async function bildHash(file,N){N=N||32;try{const b=await bitmap(file);
  let m=0;for(const v of h)m+=v;m/=h.length;let sd=0;for(const v of h)sd+=(v-m)**2;sd=Math.sqrt(sd/h.length);if(sd<1.5)return null;
  // auf 4 Bit quantisieren (±2 sd)
  let hex="";for(const v of h){const z=Math.max(-2,Math.min(2,(v-m)/sd));hex+=Math.min(15,Math.floor((z+2)/4*16)).toString(16)}return hex}catch(e){return null}}
-async function prozessDatei(f){const r0=await prozessDatei0(f);if(r0.datei){const h=await dateiHash(f);if(h)r0.datei.h=h;if(r0.datei.img||/\.(jpe?g|png|webp|gif)$/i.test(f.name)){const ph=await bildHash(f);if(ph)r0.datei.ph=ph}}return r0}
+async function prozessDatei(f){const r0=await prozessDatei0(f);if(r0.datei){const h=await dateiHash(f);if(h)r0.datei.h=h;if(OFFICE_RE.test(f.name)){const th=await textFinger(f,f.name);if(th)r0.datei.th=th}if(r0.datei.img||/\.(jpe?g|png|webp|gif)$/i.test(f.name)){const ph=await bildHash(f);if(ph)r0.datei.ph=ph}}return r0}
 async function prozessDatei0(f){
  if(!ERLAUBT.test(f.name))return{fehler:`„${f.name}“: Dieser Dateityp geht nicht. Erlaubt sind Fotos, PDF und Office-Dateien.`};
  if(f.size===0)return{fehler:`„${f.name}“ ist leer.`};
@@ -2688,6 +2690,56 @@ async function prozessDatei0(f){
 async function pruefeAlle(list){const ok=[],fehler=[];for(const f of list){const r=await prozessDatei(f);if(r.datei)ok.push(r.datei);else fehler.push(r.fehler)}return{ok,fehler}}
 function meldung(ok,fehler,okText){if(fehler.length&&ok.length)toast(`${ok.length} ${ok.length>1?"Dateien":"Datei"} gespeichert. Nicht übernommen: ${fehler.join(" ")}`);else if(fehler.length)toast(fehler.join(" "));else if(ok.length)toast(okText)}
 function abgabeErgaenzen(s,ok,zeit){if(ok.length){const jetzt=zeit||Date.now();const vb=hatFb(s)&&!(s.zurueck&&!s.files.length);ok.forEach(f=>{f.zeit=jetzt;if(vb)f.verb=true});s.files.push(...ok);if(vb){if(!msgs(s).some(m=>m.sys&&m.zeit===jetzt))sendS(s,"Verbesserung abgegeben",jetzt,true);s.verbesserung=true;s.erledigt=true}else s.zeit=jetzt}}
+/* ---------- Angabe wieder hochgeladen? (25. 11. 2026) ----------
+ Vergleicht die gewählten Dateien des Kindes mit den Anhängen der Aufgabe (Angabe):
+ gleich   = Byte für Byte dieselbe Datei (SHA-256) → wird nicht abgegeben
+ ähnlich  = Office-Datei mit unverändertem Inhalt (nur neu gespeichert), fast gleiches Bild oder gleicher Name und gleiche Größe → nur nach Bestätigung */
+const OFFICE_RE=/\.(docx|pptx|xlsx|odt|odp|ods|txt)$/i;
+async function zipTexte(buf){const b=new Uint8Array(buf);if(b.length<22)return null;const dv=new DataView(b.buffer,b.byteOffset,b.byteLength);let e=-1;for(let i=b.length-22;i>=Math.max(0,b.length-65557);i--){if(dv.getUint32(i,true)===0x06054b50){e=i;break}}if(e<0)return null;
+ const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const td=new TextDecoder();const L=[];
+ for(let k=0;k<n;k++){if(p+46>b.length||dv.getUint32(p,true)!==0x02014b50)return null;const meth=dv.getUint16(p+10,true),csz=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true);L.push({name:td.decode(b.subarray(p+46,p+46+nl)),meth,csz,lo});p+=46+nl+xl+cl}
+ const lies=async x=>{if(x.lo+30>b.length)return "";const s=x.lo+30+dv.getUint16(x.lo+26,true)+dv.getUint16(x.lo+28,true);const d=b.subarray(s,s+x.csz);if(x.meth===0)return td.decode(d);if(x.meth!==8||typeof DecompressionStream==="undefined")throw new Error("zip");return await new Response(new Blob([d]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text()};
+ const TEIL=/^(word\/(document|header\d*|footer\d*|footnotes|endnotes)\.xml|ppt\/slides\/slide\d+\.xml|xl\/sharedStrings\.xml|xl\/worksheets\/sheet\d+\.xml|content\.xml)$/;
+ const teile=L.filter(x=>TEIL.test(x.name)).sort((x,y)=>x.name.localeCompare(y.name,"en",{numeric:true}));if(!teile.length)return null;
+ const medien=L.filter(x=>/^(word|ppt|xl)\/media\/|^Pictures\//.test(x.name)&&!/\/$/.test(x.name)).length;
+ let txt="",haken=0;for(const x of teile){const xml=await lies(x);haken+=(xml.match(/w14:checked w14:val="(1|true)"/g)||[]).length;txt+=" "+x.name.replace(/\d+/g,"#")+": "+xml.replace(/<w:tab\/>|<w:br\/>|<\/w:p>|<\/a:p>|<\/text:p>|<\/si>|<\/c>/g," ").replace(/<[^>]*>/g,"")}
+ return{txt,extra:`|s${teile.length}|m${medien}|h${haken}`}}
+async function textFinger(blob,name){try{if(!OFFICE_RE.test(name||""))return null;const buf=await blob.arrayBuffer();if(buf.byteLength>15*1024*1024)return null;let r;
+ if(/\.txt$/i.test(name))r={txt:new TextDecoder().decode(buf),extra:""};else r=await zipTexte(buf);if(!r)return null;
+ const t=r.txt.replace(/&nbsp;|&#160;| /g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/\s+/g," ").trim();
+ if(t.replace(/[^\p{L}\p{N}]/gu,"").length<15&&!/m[1-9]/.test(r.extra))return null;
+ return await dateiHash(new Blob([t+r.extra]))}catch(e){return null}}
+const ANGABE_CACHE=new Map();
+async function angabeDaten(x){const k=x.url||x.h||x.img||x.n;if(ANGABE_CACHE.has(k))return ANGABE_CACHE.get(k);const p=(async()=>{let blob=null;try{if(x.url){const r=await fetch(x.url,{credentials:"same-origin"});if(r.ok)blob=await r.blob()}else if(x.img&&/^data:/.test(x.img))blob=await (await fetch(x.img)).blob()}catch(e){}
+ if(!blob)return{};return{h:await dateiHash(blob),th:await textFinger(blob,x.n),gr:blob.size}})();ANGABE_CACHE.set(k,p);return p}
+async function angabeVergleich(a,list){const anh=(a.anhaenge||[]).map(anhNorm).filter(x=>x&&!istLink(x)&&x.n);const erg=list.map(()=>null);if(!anh.length)return erg;
+ for(let i=0;i<list.length;i++){const f=list[i];try{const h=await dateiHash(f);let th;const thF=async()=>th===undefined?(th=await textFinger(f,f.name)):th;let ph;
+  for(const x of anh){
+   if(h&&x.h&&h===x.h){erg[i]={art:"gleich",x};break}
+   const groesse=x.kb?Math.abs(x.kb*1024-f.size)<=1536:true;const office=OFFICE_RE.test(f.name)&&OFFICE_RE.test(x.n);
+   let d=null;if(groesse||(office&&!x.th))d=await angabeDaten(x);
+   if(d&&d.h&&h===d.h){erg[i]={art:"gleich",x};break}
+   if(office){const t=await thF();const xt=x.th||(d||await angabeDaten(x)).th;if(t&&xt&&t===xt){erg[i]={art:"inhalt",x};continue}}
+   if(x.ph&&/\.(jpe?g|png|webp|gif|heic|heif)$/i.test(f.name)){if(ph===undefined)ph=await bildHash(f);if(ph&&phAehnlich(ph,x.ph)>=PH_GRENZE){erg[i]=erg[i]||{art:"bild",x};continue}}
+   const gr=(d&&d.gr)||(x.kb?x.kb*1024:0);if(dateiStamm(f.name)===dateiStamm(x.orig||x.n)&&gr&&Math.abs(gr-f.size)<=Math.max(2048,gr*.02))erg[i]=erg[i]||{art:"name",x}}
+ }catch(e){}}
+ return erg}
+async function uploadPruefen(files){const a=A(st.p.id);const list=[...files];if(!a||!list.length)return;const erg=await angabeVergleich(a,list);
+ const gleich=list.filter((f,i)=>erg[i]&&erg[i].art==="gleich"),aehnlich=list.filter((f,i)=>erg[i]&&erg[i].art!=="gleich"),ok=list.filter((f,i)=>!erg[i]);
+ if(!gleich.length&&!aehnlich.length){await upload(list);return}
+ const GRUND={inhalt:"hat genau denselben Inhalt wie die Angabe – sie wurde nur geöffnet und neu gespeichert",bild:"ist fast dasselbe Bild wie die Angabe",name:"hat denselben Namen und dieselbe Größe wie die Angabe"};
+ const nm=f=>`<b>„${esc(f.name)}“</b>`;
+ st.angabeWarten=aehnlich.length?{a:a.id,files:aehnlich}:null;
+ modal(`<h2>${gleich.length&&!aehnlich.length?"Das ist die Angabe – nicht abgegeben":"Ist das wirklich deine bearbeitete Datei?"}</h2>
+ ${gleich.length?`<div class="note warn" style="background:var(--tint-red)"><p style="margin:0">${gleich.map(nm).join(", ")} ${gleich.length>1?"sind":"ist"} <b>genau dieselbe Datei wie die Angabe</b> deiner Lehrkraft. ${gleich.length>1?"Diese Dateien werden":"Diese Datei wird"} <b>nicht abgegeben</b>.</p></div>`:""}
+ ${aehnlich.length?`<div class="note warn"><p style="margin:0">${aehnlich.map(f=>`${nm(f)} ${GRUND[erg[list.indexOf(f)].art]}`).join(".<br>")}.</p></div>`:""}
+ <p>Vermutlich hast du <b>die falsche Datei ausgewählt</b> oder die Aufgabe <b>noch nicht bearbeitet</b>. Öffne die Datei, mach die Aufgabe, speichere sie und lade dann deine bearbeitete Datei hoch.</p>
+ ${ok.length?`<p class="hint" style="color:var(--muted)">${ok.length>1?`Die anderen ${ok.length} Dateien werden`:"Die andere Datei wird"} normal abgegeben.</p>`:""}
+ <div class="actions">${aehnlich.length?`<button class="btn primary" type="button" data-act="angabe-nein">Andere Datei wählen</button><button class="btn" type="button" data-act="angabe-ja">Ja, ich habe sie bearbeitet – trotzdem abgeben</button>`:`<button class="btn primary" type="button" data-close-btn>OK, verstanden</button>`}</div>`);
+ if(ok.length)await upload(ok)}
+async function angabeTrotzdem(){const w=st.angabeWarten;st.angabeWarten=null;closeModal();if(!w||!st.p||st.p.id!==w.a)return;
+ for(let i=0;i<200&&st.up&&st.up.a===w.a&&st.up.items.some(x=>!["ok","fehler"].includes(x.st)&&x.st!=="wartet");i++)await new Promise(r=>setTimeout(r,150));
+ await upload(w.files)}
 /* Hochladen mit Fortschritt und neuem Versuch: Zählt der Zeitpunkt, an dem das Kind auf „Hochladen“ tippt (fair bei schlechtem WLAN). Im Prototyp ist das Senden simuliert. */
 async function upload(files){const a=A(st.p.id);const s=getSub(a,ME_S.id);const list=[...files];if(!list.length)return;if(!nfMoeglich(a,ME_S.id)){toast("Abgabetermin verpasst: Eine Abgabe ist nicht mehr möglich.");render();return}
  if(st.up&&st.up.a===a.id&&st.up.items.some(x=>!["ok","fehler"].includes(x.st))){toast("Warte, bis die laufende Abgabe gespeichert ist.");return}
