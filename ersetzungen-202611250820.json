@@ -1,0 +1,1 @@
+[[".chip[aria-pressed=\"true\"] .chipn{background:var(--sunk);color:var(--fg)}", ".chip[aria-pressed=\"true\"] .chipn:not(.c-done):not(.c-warn){background:var(--sunk);color:var(--fg)}"], ["APP_VERSION=\"202611250810\"", "APP_VERSION=\"202611250820\""]]
