@@ -245,8 +245,8 @@ label:has(+ .vh:focus-visible),.drop:has(+ .vh:focus-visible){outline:3px solid 
 .file{display:flex;gap:10px;align-items:center;font-size:.9rem;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
 .file .main{min-width:0;flex:1;overflow-wrap:anywhere}
 
-.modal-bg{position:fixed;inset:0;background:rgb(0 0 0 / .45);display:grid;place-items:center;z-index:50;padding:16px}
-.modal{background:var(--surface);border-radius:14px;max-width:560px;width:100%;max-height:calc(100% - 32px);overflow:auto;padding:22px;display:flex;flex-direction:column;gap:16px}
+.modal-bg{position:fixed;inset:0;background:rgb(0 0 0 / .45);display:grid;place-items:center;z-index:50;padding:16px;overscroll-behavior:contain}html:has(#layer .modal){overflow:hidden}
+.modal{background:var(--surface);border-radius:14px;max-width:560px;width:100%;max-height:calc(100% - 32px);max-height:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:22px;display:flex;flex-direction:column;gap:16px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:60;max-width:min(520px,calc(100% - 32px));box-shadow:0 6px 24px rgb(0 0 0 / .2);overflow-wrap:anywhere}
 
 .bottom{display:none}
@@ -1411,7 +1411,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611241630";
+const APP_VERSION="202611250540";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
