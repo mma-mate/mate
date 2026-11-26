@@ -1,0 +1,46 @@
+[
+ [
+  "const frei=aa.filter(a=>!a.freigegeben&&zielgruppe(a)",
+  "/* Freigabe fehlt erst nach der ersten Frist (Nachfrist zählt nicht), vorher nur „Zu korrigieren“ (Christian, 26. 11. 2026) */\n const frei=aa.filter(a=>!a.freigegeben&&a.frist<NOW&&zielgruppe(a)"
+ ],
+ [
+  ".filter(u=>[\"überfällig\",\"verpasst\"].includes(status(a,u))).length})",
+  ".filter(u=>[\"überfällig\",\"verpasst\"].includes(status(a,u))&&!getSub(a,u).null0).length})"
+ ],
+ [
+  "frei:a=>arb(a)&&!a.freigegeben&&bewertet(a)",
+  "frei:a=>arb(a)&&!a.freigegeben&&a.frist<NOW&&bewertet(a)"
+ ],
+ [
+  "frei:[\"Freigabe fehlt:\",\"Schon bewertet, aber die Kinder sehen die Bewertung noch nicht.\"]",
+  "frei:[\"Freigabe fehlt:\",\"Frist vorbei und schon bewertet, aber die Kinder sehen die Bewertung noch nicht.\"]"
+ ],
+ [
+  "function bewertungText(a,uId){",
+  "/* Fehlende mit 0 bewerten (26. 11. 2026): nach der Frist nichts abgegeben, nicht bewertet, nicht abwesend, keine laufende eigene Frist, noch nicht erinnert.\n Die 0 kommt über zaehltAlsNull (ab der Freigabe); s.null0 = Zeitpunkt der Erinnerung. Gibt das Kind noch ab, steht es bei „Zu korrigieren“. */\nfunction fehlende0(a){if(a.abgabe===\"keine\"||a.frist>=NOW)return[];return zielgruppe(a).filter(u=>{const s=getSub(a,u);return !s.abwesend&&leer(s.score)&&!s.null0&&fr(a,u)<NOW&&!(s.files&&s.files.length)})}\nfunction null0Text(a){const w=a.bew===\"symbole\"?`als „${skalaVonA(a).stufen.at(-1)}“`:a.bew===\"punkte\"?\"mit 0 Punkten\":\"mit 0 %\";const e=nfEnde(a);const nf=nfVon(a).art!==\"keine\"&&NOW<=e?` Du kannst sie noch bis ${fmtDate(e)}, ${fmtTime(e)} abgeben, dann bewerte ich sie neu.`:\"\";return `Hallo {Vorname}, ich habe von dir bis zur Frist keine Abgabe bekommen. Die Aufgabe zählt deshalb ${w}.${nf}`}\nfunction bewertungText(a,uId){"
+ ],
+ [
+  "<button class=\"btn\" data-act=\"massfb\" data-a=\"${a.id}\" aria-label=\"Feedback an mehrere\">",
+  "${fehlende0(a).length?`<button class=\"btn\" data-act=\"null0\" data-a=\"${a.id}\" aria-label=\"Fehlende mit 0 bewerten\"><span class=\"m-only\">${ico(\"warn\")}</span><span class=\"d-only\">Fehlende mit 0 bewerten</span><span class=\"m-only\">Fehlende mit 0</span></button>`:\"\"}<button class=\"btn\" data-act=\"massfb\" data-a=\"${a.id}\" aria-label=\"Feedback an mehrere\">"
+ ],
+ [
+  " if(act===\"massfb\"){",
+  " if(act===\"null0\"){const a=A(d.a);const ids=fehlende0(a);if(!ids.length){toast(\"Alle haben abgegeben, sind bewertet oder schon erinnert.\");return}\n  modal(`<h2>Fehlende mit 0 bewerten</h2><p style=\"color:var(--muted);margin-top:-8px\">${aTitel(a)} · Wer bis zur Frist nichts abgegeben hat, zählt ${a.bew===\"symbole\"?\"als schwächste Stufe\":\"mit 0\"}, sobald die Bewertungen freigegeben sind. Als abwesend Vermerkte und Kinder mit eigener, noch laufender Frist sind nicht dabei.</p>\n  <div class=\"field\"><label for=\"n0\">Feedback als Erinnerung</label><textarea id=\"n0\" rows=\"5\">${esc(null0Text(a))}</textarea><span class=\"hint\">{Vorname} wird bei jedem Kind durch seinen Vornamen ersetzt.</span></div>\n  <div class=\"field\"><span class=\"lbl\">Empfänger·innen (${ids.length})</span><div class=\"picklist\">${ids.map(U).sort((x,y)=>x.nn.localeCompare(y.nn)).map(u=>`<label><input type=\"checkbox\" data-n0=\"${u.id}\" checked>${esc(u.nn)} ${esc(u.vn)}</label>`).join(\"\")}</div></div>\n  ${a.freigegeben?\"\":`<label class=\"check\"><input type=\"checkbox\" id=\"n0-frei\" checked> Bewertungen gleich freigeben: Alle sehen dann auf einmal ihre Bewertung und ihr Feedback.</label>`}\n  <p class=\"hint\">Gibt ein Kind in der Nachfrist noch ab, steht die Abgabe bei „Zu korrigieren“. Deine Bewertung ersetzt dann die 0.</p>\n  <div class=\"actions\"><button class=\"btn primary\" data-act=\"null0-ok\" data-a=\"${a.id}\">Mit 0 bewerten und senden</button><button class=\"btn ghost\" data-close-btn>Abbrechen</button></div>`);return}\n if(act===\"null0-ok\"){const a=A(d.a);const t=($(\"#n0\").value||\"\").trim();if(!t){fehlt(\"#n0\",\"Schreib zuerst eine Nachricht.\");return}const ids=[...document.querySelectorAll(\"[data-n0]:checked\")].map(c=>c.dataset.n0);if(!ids.length){toast(\"Wähle mindestens ein Kind aus.\");return}\n  const fg=$(\"#n0-frei\");const jetzt=Date.now();ids.forEach(id=>{const x=getSub(a,id);sendL(x,t.replace(/\\{\\s*vorname\\s*\\}/gi,U(id).vn),null,jetzt);x.null0=jetzt});const nf=!!(fg&&fg.checked);if(nf)a.freigegeben=true;\n  closeModal();toast(`${ids.length===1?\"1 Kind zählt\":ids.length+\" Kinder zählen\"} mit 0 und ${ids.length===1?\"hat\":\"haben\"} eine Erinnerung bekommen.${nf?\" Bewertungen freigegeben.\":\"\"}`);render();return}\n if(act===\"massfb\"){"
+ ],
+ [
+  "Trag eine Bewertung ein, vermerke „abwesend“ oder gib eine eigene Frist. Gibt das Kind noch ab, steht es nur mehr bei „Zu korrigieren“.\\n- **Freigabe fehlt:** bewertet, aber nicht freigegeben (orange „… zum Freigeben“)",
+  "Trag eine Bewertung ein, vermerke „abwesend“, gib eine eigene Frist oder nimm „Fehlende mit 0 bewerten“. Gibt das Kind noch ab, steht es nur mehr bei „Zu korrigieren“.\\n- **Freigabe fehlt:** Die Frist ist vorbei (die Nachfrist zählt nicht), es ist bewertet, aber nicht freigegeben (orange „… zum Freigeben“). Vorher steht eine Abgabe nur bei „Zu korrigieren“, du kannst also laufend bewerten."
+ ],
+ [
+  "3. **Freigeben:** Die Kinder sehen Bewertungen erst nach „Bewertungen freigeben“. Der Knopf ist aktiv, sobald mindestens ein Kind bewertet ist.\\n\\n",
+  "3. **Freigeben:** Die Kinder sehen Bewertungen erst nach „Bewertungen freigeben“. Das gibt alle Bewertungen der Aufgabe auf einmal frei. Der Knopf ist aktiv, sobald mindestens ein Kind bewertet ist.\\n\\n**Am besten:** laufend bewerten und erst nach der Frist freigeben. Bis dahin steht nichts bei „Freigabe fehlt“.\\n\\n"
+ ],
+ [
+  "Mit „Freigabe zurücknehmen“ machst du die Freigabe jederzeit rückgängig.\\n## Abwesend",
+  "Mit „Freigabe zurücknehmen“ machst du die Freigabe jederzeit rückgängig.\\n## Fehlende mit 0 bewerten\\nNach der Frist steht in der Tabelle „Abgaben“ der Knopf **„Fehlende mit 0 bewerten“**. Alle ohne Abgabe bekommen eine Erinnerung als Feedback (Text vorher änderbar) und zählen mit 0, auf Wunsch gibst du dabei gleich frei. Als abwesend Vermerkte und Kinder mit eigener, noch laufender Frist sind nicht dabei. Gibt ein Kind in der Nachfrist noch ab, steht es bei „Zu korrigieren“, und deine Bewertung ersetzt die 0.\\n## Abwesend"
+ ],
+ [
+  "APP_VERSION=\"202611251715\"",
+  "APP_VERSION=\"202611260600\""
+ ]
+]
