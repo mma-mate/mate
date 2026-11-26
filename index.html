@@ -1029,7 +1029,7 @@ function mitStand(m){const t=Date.now();if(m.aus)return{txt:"deaktiviert",cls:"p
 function mitFuer(k,uId){return mitteilungen(k).filter(m=>m.an.includes(uId)&&mitSichtbar(m)).sort((a,b)=>mitAb(b)-mitAb(a))}
 function mitUngelesen(k,uId){return mitFuer(k,uId).filter(m=>!(m.gelesen&&m.gelesen[uId]))}
 function mitGelesenAnzahl(m){return m.an.filter(id=>m.gelesen&&m.gelesen[id]).length}
-function mitAnzeige(m,k,sicht){const au=U(m.von);const z=sicht==="s"?mitAb(m):m.zeit;return `<article class="mit${sicht==="s"&&!(m.gelesen&&m.gelesen[ME_S.id])?" neu":""}${sicht==="l"&&!mitSichtbar(m)?" aus":""}"><header><b>${esc(au.vn)} ${esc(au.nn)}</b><span>${fmtDate(z)}, ${fmtTime(z)}${m.geaendert?" · bearbeitet":""}</span>${sicht==="l"?`<span class="pill ${mitStand(m).cls}">${esc(mitStand(m).txt)}</span>`:""}${sicht==="s"&&!(m.gelesen&&m.gelesen[ME_S.id])?`<span class="pill p-done">neu</span>`:""}</header>${m.text?`<div class="fmt">${fmt(m.text)}</div>`:""}${m.files&&m.files.length?`<div class="files">${anhListe(m.files,"mit",k.id+"|"+m.id)}</div>`:""}</article>`}
+function mitAnzeige(m,k,sicht){const au=U(m.von);const z=sicht==="s"?mitAb(m):m.zeit;return `<article class="mit${sicht==="s"&&!(m.gelesen&&m.gelesen[ME_S.id])?" neu":""}${sicht==="l"&&!mitSichtbar(m)?" aus":""}"><header><b>${esc(au.vn)} ${esc(au.nn)}</b><span>${sicht==="s"?fmtDate(z):`${fmtDate(z)}, ${fmtTime(z)}`}${m.geaendert?" · bearbeitet":""}</span>${sicht==="l"?`<span class="pill ${mitStand(m).cls}">${esc(mitStand(m).txt)}</span>`:""}${sicht==="s"&&!(m.gelesen&&m.gelesen[ME_S.id])?`<span class="pill p-done">neu</span>`:""}</header>${m.text?`<div class="fmt">${fmt(m.text)}</div>`:""}${m.files&&m.files.length?`<div class="files">${anhListe(m.files,"mit",k.id+"|"+m.id)}</div>`:""}</article>`}
 function kursNeuAnzahl(k){return unterlagen(k).filter(istNeuU).length+(beschrNeu(k)?1:0)+(st.role==="schueler"?mitUngelesen(k,ME_S.id).length:0)}
 function unterlageGesehen(k,id){const u=U_(k,id);if(!u||st.role!=="schueler")return;u.gesehen=u.gesehen||{};u.gesehen[ME_S.id]=Date.now()}
 function uIcon(u){return u.typ==="link"?`<span class="tag">LINK</span>`:u.img?`<img src="${u.img}" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:6px;flex:none">`:`<span class="tag">${esc((u.n.split(".").pop()||"").toUpperCase())}</span>`}
@@ -1420,7 +1420,7 @@ let NUR_SCHUELER=false;try{const q=new URLSearchParams(location.search);const ap
  if(q.has("alle")){sessionStorage.removeItem("mate-modus");localStorage.removeItem("mate-modus-app")}
  NUR_SCHUELER=sessionStorage.getItem("mate-modus")==="schueler"||(app&&localStorage.getItem("mate-modus-app")==="schueler")}catch(e){NUR_SCHUELER=new URLSearchParams(location.search).has("schueler")}
 
-const APP_VERSION="202611260700";
+const APP_VERSION="202611260710";
 function versionText(){return /^\d{12}$/.test(APP_VERSION)?`${APP_VERSION.slice(6,8)}.${APP_VERSION.slice(4,6)}.${APP_VERSION.slice(0,4)}, ${APP_VERSION.slice(8,10)}:${APP_VERSION.slice(10,12)}`:"Prototyp"}
 const DEMO_V=8,DEMO_KEY="mate-demo",FEEDBACK_MAIL="christian.pranz@edu.magwien.gv.at";
 let speicherOk=false,_saveT=null;
