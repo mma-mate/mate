@@ -1,0 +1,10 @@
+[
+ [
+  "<span>${fmtDate(z)}, ${fmtTime(z)}${m.geaendert?\" · bearbeitet\":\"\"}</span>",
+  "<span>${sicht===\"s\"?fmtDate(z):`${fmtDate(z)}, ${fmtTime(z)}`}${m.geaendert?\" · bearbeitet\":\"\"}</span>"
+ ],
+ [
+  "APP_VERSION=\"202611260700\"",
+  "APP_VERSION=\"202611260710\""
+ ]
+]
