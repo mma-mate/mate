@@ -1,0 +1,18 @@
+[
+ [
+  "function verlauf(a,uId,sicht){const s=getSub(a,uId);const u=U(uId);",
+  "function verlauf(a,uId,sicht){const s=getSub(a,uId);const u=U(uId);const zt=t=>sicht===\"s\"?fmtDate(t):`${fmtDate(t)}, ${fmtTime(t)}`;/* Kinder sehen im Verlauf nur das Datum, die LK auch die Uhrzeit */"
+ ],
+ [
+  "`<div class=\"msg sys\">${esc(m.text)} · ${fmtDate(m.zeit)}, ${fmtTime(m.zeit)}${m.typ===\"zw\"",
+  "`<div class=\"msg sys\">${esc(m.text)} · ${zt(m.zeit)}${m.typ===\"zw\""
+ ],
+ [
+  "sicht===\"s\"?\"Du\":esc(u.vn)} · ${fmtDate(m.zeit)}, ${fmtTime(m.zeit)}</small>",
+  "sicht===\"s\"?\"Du\":esc(u.vn)} · ${zt(m.zeit)}</small>"
+ ],
+ [
+  "APP_VERSION=\"202611260600\"",
+  "APP_VERSION=\"202611260700\""
+ ]
+]
